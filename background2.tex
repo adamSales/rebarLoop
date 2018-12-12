@@ -1,0 +1,321 @@
+\subsection{Causal Inference from Experiments}
+Consider a randomized experiment to estimate the average
+effect of a binary treatment $T$ on an outcome $Y$.
+Following \citet{neyman:1923} and \citet{rubin1974estimating}, for subject $i=1,\dots,N$,
+let potential outcomes $\yti$ and $\yci$ represent the outcome value
+$Y_i$ that $i$ would have exhibited if he or she had (perhaps
+counterfactually) been assigned to treatment, $T_i=1$ or control,
+$T_i=0$.
+Then define the treatment effect for $i$ as $\tau_i=\yti-\yci$; our goal will be
+to estimate the average treatment effect (ATE), $\tbar\equiv\sum_i\tau_i/N$.
+
+If both $\yci $ and $\yti $ were known for each subject $i$,
+statistical modeling would be unnecessary---researchers could
+calculate $\tbar $ exactly, without error, % as the
+%difference between $\bar{\yt}=\sum_i\yti/N$ and
+%$\bar{\yc}=\sum_i\yci/N$, or equivalently
+by simply averaging observed $\tau$.
+In practice, we never observe both $\yci$ and $\yti$.
+Instead, we rely on the experimental setup to estimate and infer
+causation.
+Since the treatment group is a random sample of
+the $N$ participants, survey sampling literature provides design-based
+unbiased estimators of the mean of $\yt$ based on observed $Y$ in the treatment group
+and the known distribution of $T$.
+These estimators, and their associated inference, depend only on the
+experimental design, and not on modeling assumptions.
+Likewise, the survey sampling literature suggests analogous unbiased,
+design-based estimators for the mean of $\yc$ based on observed $Y$ values in
+the control group, which is itself a random sample.
+The survey sample structure of randomized experiments allows us to
+infer counterfactual potential outcomes (at least on average) and estimate $\tbar$ as if
+$\tau_i$ were available for each $i$, albeit with sampling error.
+
+We will use this framework to analyze the 22 TestBed experiments.
+These are examples of ``Bernoulli experiments,'' in
+which each $T_i$ is an
+independent Bernoulli trial: $Pr(T_i=1)\equiv p_i$, with $0<p_i<1$, and
+$T_i\independent T_j \text{ if } i\ne j$.
+In the TestBed experiments,
+$p_i=1/2$ for all $i$.
+Observed outcomes are a function of treatment assignment and
+potential outcomes:
+\begin{equation*}
+  Y_i=T_i\yti+(1-T_i)\yci=\yci+\tau_iT_i.
+\end{equation*}
+In this model, $Y_i$ is only random due to its dependence on $T_i$;
+$Y_i$ has a discrete distribution, with $Pr(Y_i=\yci)=1-p_i$,
+$Pr(Y_i=\yti)=p_i$, and $Pr(Y_i=y')=0$ for any
+$y'\not\in\{\yci,\yti\}$.
+Since either $\yti$ or $\yci$ is unobserved, $Y_i$'s distribution is never known.
+Along the same lines, let $M_i=T_i\yci+(1-T_i)\yti$, $i$'s unobserved
+counterfactual outcome---when $i$ is treated, $M_i=\yci$ and when $i$
+is in the control condition $M_i=\yti$.
+Then $i$'s treatment effect may be expressed as $\tau_i=Y_i-M_i$ if
+$i$ is in the treatment group or $\tau_i=M_i-Y_i$ if $i$ is in the
+control group.
+Although $M_i$ is, by definition, unobserved, it plays a central role in
+causal inference, as does its expectation,
+\begin{equation*}
+m_i\equiv p_i\yci+(1-p_i)\yti
+\end{equation*}
+which will play a prominent role in the method we are proposing.
+
+Under this model, estimation and inference about $\bar{\tau}$ is based on
+the observed values of $Y$ and $T$.
+Let
+\begin{equation*}
+U_i=\begin{cases}
+\frac{1}{p_i} & T_i=1\\
+-\frac{1}{1-p_i} & T_i=0
+\end{cases}
+\end{equation*}
+be subject $i$'s signed inverse probability weights.
+Note that $\EE U_i=0$, and $\EE U_iY_i=\tau_i$.
+(To see this, note that when $T=1$, with probability $p_i$,
+$Y_i=\yti$ and $U_iY_i=\yti/p_i$; when $T=0$, with probability
+$1-p_i$, $U_iY_i=-yci/(1-p_i)$).
+Then $U_iY_i$ may be thought of as an unbiased estimate of $\tau_i$, and $\thipw=\sum_iU_iY_i/N$ is an unbiased estimate
+of $\bar{\tau}$.
+In fact, $\thipw$ is identical to the ``Horvitz-Thompson'' estimator
+of, e.g., \citet{aronowMiddleton}
+\begin{equation*}
+\thipw=\frac{1}{N}\displaystyle\sum_{i=1}^N
+\frac{Y_iT_i}{p_i}-\frac{Y_i(1-T_i)}{1-p_i}
+\end{equation*}
+which, in turn, is the difference between the Horvitz-Thomson
+estimates of $\bar{\yt}$ and $\bar{\yc}$ \citep{horvitzThompson}.
+
+The sampling variance of $\thipw$ proceeds from the same principals:
+the variance of $U_iY_i$ is
+\begin{equation}\label{eq:varTauHat1}
+V(U_iY_i)=\left(\yti\sqrt{\frac{1-p_i}{p_i}}+\yci\sqrt{\frac{p_i}{1-p_i}}\right)^2=\frac{m_i^2}{p_i(1-p_i)}
+\end{equation}
+and, since  subjects' treatment assignments are mutually independent,
+$V(\thipw)=1/N^2\sum_im_i^2/\{p_i(1-p_i)\}$.
+Since $\yti $ and $\yci $ are never simultaneously observed,
+$V(\thipw)$ is not identified; however, it may be bounded in expectation,
+as $\hat{V}(\thipw)=\sum_iU_i^2Y_i^2/N^2$:
+$\EE\hat{V}(\thipw)\le V(\thipw)$.
+(See \citealt{aronowMiddleton} for equivalent expressions for more
+general experimental designs.)
+
+Classical survey sampling theory implies that $\thipw$ is
+asymptotically normal, with asymptotic variance of at most
+$\hat{V}(\thipw)$, so Wald-type confidence intervals of the form
+$\thipw\pm z_{\alpha/2}\hat{V}(\thipw)^{1/2}$ achieve at least nominal coverage
+in large samples.
+These guarantees hold regardless of the distribution of
+$\{\yc,\yt\}$---they depend only on the experimental design.
+
+
+\subsection{Design-Based Covariance Adjustment}
+
+The central reason for error in $\thipw$, or any other statistical
+estimate of $\hat{\tau}$, is our inability to observe counterfactual
+potential outcomes, $\yt$ for subjects assigned to control or $\yc$
+for subjects assigned to treatment.
+As we've seen, randomized trials, coupled with design-based estimators
+like $\thipw$, use comparison groups and survey sampling theory to
+fill in this missing information.
+Baseline covariates---a vector $\bm{x}_i$ of data for subject $i$
+gathered prior to treatment randomization---may provide an alternative
+strategy.
+To see how, say a researcher had constructed algorithms $\predcx$ and
+$\predtx$ designed to predict $\yc$ and $\yt$, respectively, from
+$\bm{x}$, and define
+\begin{equation*}
+\hat{M}_i=T_i\predcx+(1-T_i)\predtx
+\end{equation*}
+If these predictions are unbiased (under
+some sampling scheme other than randomization of $T$), then either
+$Y_i-\hat{M}_i$ or $\hat{M}_i-Y_i$ is unbiased for $\tau_i$.
+[something about how using $\hat{M}_i$
+In general, the bias of algorithms such as $\predc$ and
+$\predt$, will be unknown, so effect estimates such as
+$Y_i-\predtx$ may be inadvisable.
+On the other hand, imperfect or potentially biased predictions of
+potential outcomes can, \emph{when combined with randomization}, yield
+substantial benefits.
+
+The approach we will take to combining covariance adjustment with
+randomization follows \citet{loop}, as will its presentation here.
+It has antecedents in \citet{rosenbaum2002covariance},
+\citet{aronowMiddleton}, \citet{wager2016high}, and \citet{tame}.
+In a Bernoulli experiment, note that
+\begin{align*}
+U_i(Y_i-m_i)&\\
+&=\begin{cases}
+\frac{1}{p_i}(\yti-p_i\yci-(1-p_i)\yti)&T_i=1\\
+-\frac{1}{1-p_i}(\yci-p_i\yci-(1-p_i)\yti)&T_i=0 \end{cases}\\
+&=\begin{cases}
+\frac{p_i(\yti-\yci)}{p_i}&T_i=1\\
+\frac{(1-p_i)(\yti-\yci)}{1-p_i}&T_i=0
+\end{cases}\\
+&=\tau_i
+\end{align*}.
+This suggests using predictions $\predcx$ and $\predtx$, to estimate $m_i$ as
+\begin{equation}\label{eq:hatm}
+\hmi=p_i\predcx+(1-p_i)\predtx
+\end{equation}
+and estimating $\tau_i$ as
+\begin{equation*}
+\thim\equiv U_i(Y_i-\hmi)
+\end{equation*}
+
+It turns out that $\thim$ is unbiased if prediction algorithms $\predc$ and $\predt$
+are constructed in such a way that
+\begin{equation}\label{eq:indPred}
+\{\predcx,\predtx\}\independent T_i.
+\end{equation}
+Since $\bm{x}_i\independent T_i$ by design, (\ref{eq:indPred}) is
+tantamount to requiring that $T_i$, and variables such as $Y_i$ that
+depend on it, play no role in constructing prediction algorithms $\predc$ and
+$\predt$.
+%This requirement will be the focus of this paper's contributions.
+
+Under (\ref{eq:indPred}), $\thim$ is indeed unbiased:
+\begin{equation}
+\EE \thim=\EE U_iY_i+\EE U_i\hmi=\EE U_iY_i+\EE U_i\EE\hmi=\EE
+U_iY_i=\tau_i
+\end{equation}
+where we use the facts that $\EE U_i=0$ and $\EE U_iY_i=\tau_i$.
+Finally, define ATE estimate
+\begin{equation}
+\thm=\frac{1}{N}\displaystyle\sum_{i=1}^N
+\thim=\frac{1}{N}\displaystyle\sum_{i=1}^N
+\frac{T_i(Y_i-\hmi)}{p_i}-\frac{(1-T_i)(Y_i-\hmi)}{1-p_i}
+\end{equation}
+The unbiasedness of $\thm$ for $\bar{\tau}$ follows from the
+unbiasedness of each of its summands, $\thim$ for $\tau_i$.
+
+Crucially, this unbiasedness holds even if predictions $\predcx$ and $\predtx$ are biased; prediction algorithms $\predc$ and $\predt$ need not be unbiased, consistent, or correct in any sense.
+As long as $\predcx$ and $\predtx$ are constructed to be independent
+of $T_i$, $\thim$ will be unbiased.
+The same cannot be said for regression-based covariance
+adjustment, the common technique of regressing $Y$ on $T$ and $\bm{x}$
+\citep{freedman2008regression}.
+
+Instead, what matters is the prediction
+accuracy of $\predcx$ and $\predtx$.
+\citet{loop} show that
+\begin{equation}
+V(\thim|\hmi)=\frac{(\hmi-m_i)^2}{p_i(1-p_i)}
+\end{equation}
+Accurate predictions of $\yci$ and $\yti$, and hence of $\hmi$, yield precise estimation of $\tau_i$.
+On the other hand, inaccurate predictions (such that
+$(\hmi-m_i)^2>m_i^2$) will decrease precision.
+Note, however, that predictive accuracy of $\predc$ or $\predt$ does not impact bias.
+The sampling variance of $\thm$ depends on the dependence structure of
+$\hat{m}$, and will be discussed in the following two sections.
+
+Under this framework, successful unbiased covariance adjustment
+requires predictions $\predcx $ and $\predtx $ that are accurate and
+independent of $T$.
+To satisfy the independence condition, $i$'s outcome $Y_i$, which is a
+function of $T$, cannot play a role in the construction of the algorithms $\predc$ and
+$\predt$; they must be fit using other data.
+Recent literature proposes two solutions to this problem.
+ One approach \citep{rebarEDM} suggests
+estimating prediction algorithm $\predc $ for all participants in the
+experiment using an entirely separate dataset: covariate and outcome data from subjects
+that were not part of the randomized experiment.
+A second approach \citep{loop} fits a separate algorithm for each
+experimental participant $i$, using data from experimental units other
+than $i$.
+The following two subsections will review these two approaches in some
+depth.
+The remainder of the paper will discuss their combination.
+
+\subsection{Auxiliary Data: the Remnant from an Experiment}
+
+Modern field trials are often conducted within a very data-rich
+context, in which high-dimensional and rich covariate data is
+automatically, or already, collected for all experiment participants.
+For instance, in the TestBed experiments, system administrators have
+access to log data for every problem and skill builder each
+participating student worked before the onset of the experiment.
+In other contexts, such as healthcare or education, rich
+administrative data is available.
+In fact, these covariates are available for a much wider population
+than just the experimental participants---in the TestBed case, there
+is log data for all ASSISTments users.
+In healthcare or education examples, administrative data is available
+for every student or patient in the system, not just for those who
+were randomized to a treatment condition.
+Often, as in the TestBed case, the outcome variable $Y$ is also drawn from administrative or
+log data.
+We refer to subjects within the same data system in which the
+experiment took place---i.e. for whom covariate and outcome data are
+available---but who were not part of the experiment, as the ``remnant'' from the experiment.
+The remnant from a TestBed experiment consists of all ASSISTments
+users for whom log data is available but who did not participate in
+the experiment.
+
+Clearly, pooling data from the remnant with data from the experiment
+undermines the benefits and justification for randomization.
+On the other hand, \citet{rebarEDM} argues that data from the remnant
+can play a role in covariance adjustment.
+Specifically, analysts may fit models $\predcr$ and $\predtr$ to data
+from the remnant, and use those models, in conjunction with
+experimental participants' own covariates $\bm{x}$, to predict their
+experimental outcomes as $\predcxr$ and $\predtxr$.%and use those
+% predictions to estimate $\hmi $.\footnote{\citet{rebarEDM} used a
+%   slightly different causal formalism, but its central ideas transfer
+%   immediately to our case.}
+When the experiment in question is testing a novel intervention, every
+member of the remnant essentially experienced the control
+condition---in that case, data are only available to predict $\yc$,
+and not $\yt$.
+
+Since the models $\predcr $ and $\predtr $ are fit using data from a
+separate sample from the experiment, and $\bm{x}\independent T$ by
+design, predictions $\predcxr $ and $\predtxr $ satisfy the
+independence criterion (\ref{eq:indPred}).
+Furthermore, they may be fit and assessed in any way, as
+long as only remnant data is used.
+This process can be iterative, so that an analyst may fit a candidate
+model, assess its performance (perhaps with $k-$fold
+cross-validation), modify the model, and repeat until suitable
+performance is achieved.
+This follows from the fact that inference proceeds from the
+randomization of $T$, and models fit in the remnant are invariant to
+$T$.
+Any realization of the assignment vector $\bm{T}$ would have given
+rise to precisely the same predictions $\predcxr $ and $\predtxr $.
+The frequent problem of post-selection inference, which is exacerbated
+when the dimension of $\bm{x}$ is large, does not apply here.
+
+In principal, a researcher may plug $\predcxr$ and $\predtxr$ into formula
+(\ref{eq:hatm}) for $\hmi$ to estimate $\thim$ and, hence, $\thm$.
+Indeed, \citet{rebarEDM} used an analogous strategy to some success.
+On the other hand, doing so incurs risk---when $\hmi$ is a poor
+prediction of $m_i$, so that $(m_i-\hmi)^2>m_i^2$, covariance
+adjustment using $\predcx$ and $\predtx$ increases sampling variance.
+This will be the case if predictive models fit in the remnant
+extrapolate poorly to the experimental sample---for instance, if the
+distribution of $\bm{x}$, or the distribution of $\yc$ or $\yt$
+conditional on $\bm{x}$, differ subsantially between the two samples.
+To make matters worse, the performance of $\predcr$ and $\predtr$ in the
+experimental sample---where it counts---may not be checked directly.
+Once a researcher uses observed experimental outcomes $Y$ to select
+$\predcr$ or $\predtr$, the resulting predictions $\predcx$ and
+$\predtx$ may no longer be independent of $T$, violating
+(\ref{eq:indPred}).
+
+Another potential problem occurs when only the control condition
+occurs in the remnant, so only $\predcr$ may be fit.
+In those cases, we let $\hmi=\predtxr=\predcxr$ for all subjects.
+Doing so may further increase squared prediction error $(m_i-\hmi)^2$.
+Of course, a preliminary estimate of $\bar{\tau}$ is available from
+the experimental data, but as before, incorporating experimental
+outcomes into $\hat{m}$ induces a dependence between $\hat{m}$ and
+$T$.
+
+The remnant from an experiment is often much larger than the
+experimental sample, and may provide fertile ground for predicting
+potential outcomes, especially in the presence of rich
+high-dimensional covariates.
+However, absent methods to use experimental data to assess predictive
+accuracy and account for possible treatment effects, covariance
+adjustment using the remnant is risky.
