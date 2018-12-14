@@ -156,7 +156,7 @@ U_i(Y_i-m_i)&\\
 \end{align*}.
 This suggests using predictions $\predcx$ and $\predtx$, to estimate $m_i$ as
 \begin{equation}\label{eq:hatm}
-\hmi=p_i\predcx+(1-p_i)\predtx
+\hmi=p_i\predcx+(1-p_i)\predtx 
 \end{equation}
 and estimating $\tau_i$ as
 \begin{equation*}
@@ -181,7 +181,7 @@ U_iY_i=\tau_i
 \end{equation}
 where we use the facts that $\EE U_i=0$ and $\EE U_iY_i=\tau_i$.
 Finally, define ATE estimate
-\begin{equation}
+\begin{equation} \label{eq:thm}
 \thm=\frac{1}{N}\displaystyle\sum_{i=1}^N
 \thim=\frac{1}{N}\displaystyle\sum_{i=1}^N
 \frac{T_i(Y_i-\hmi)}{p_i}-\frac{(1-T_i)(Y_i-\hmi)}{1-p_i}
@@ -227,7 +227,7 @@ The following two subsections will review these two approaches in some
 depth.
 The remainder of the paper will discuss their combination.
 
-\subsection{Auxiliary Data: the Remnant from an Experiment}
+\subsection{Auxiliary Data: the Remnant from an Experiment}\label{sec:intro.remant}
 
 Modern field trials are often conducted within a very data-rich
 context, in which high-dimensional and rich covariate data is
