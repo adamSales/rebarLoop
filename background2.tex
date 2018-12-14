@@ -88,6 +88,7 @@ $\mathcal{T} = \{i | T_i = 1\}$ is the treatment group.
 This, in turn, is the difference between the Horvitz-Thomson
 estimates of $\bar{\yt}$ and $\bar{\yc}$ \citep{horvitzThompson}.
 
+\sloppy
 The sampling variance of $\thipw$ proceeds from the same principals:
 the variance of $U_iY_i$ is
 \begin{equation}\label{eq:varTauHat1}
@@ -301,13 +302,13 @@ conditional on $\bm{x}$, differs subsantially between the two samples.
 To make matters worse, the performance of $\predcr{\cdot}$ in the
 experimental set---where it counts---may not be checked directly.
 Once a researcher uses observed experimental outcomes $Y$ to select
-$\predcr{\cdot}$, the resulting predictions $\predcrx$
+$\predcr{\cdot}$, the resulting predictions $\predcxr$
 will no longer be independent of $T$, violating
 (\ref{eq:indPred}).
 
 An additional problem with rebar is that, since typically only the
 control condition is present in the remnant, $\predcr{\cdot}$ is used
-to predict both potential outcomes as $\predcrx$.
+to predict both potential outcomes as $\predcxr$.
 This may further increase squared prediction error $(m_i-\hmi^{rebar})^2$.
 Of course, a preliminary estimate of $\bar{\tau}$ is available from
 the experimental data, but as before, incorporating experimental
