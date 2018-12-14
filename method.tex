@@ -1,0 +1,53 @@
+\section{Method}
+Our goal is to construct a method that, like ReBar, is able to exploit data in the remnant but, like LOOP, poses little risk of harming precision.
+
+Let $\hat{y}_C^{rem}(\mathbf{x})$ denote a model for the control potential outcomes fitted from data in the remnant, as described in Section \ref{sec:intro.remant}.  Now define
+\begin{equation}
+\tilde{x}_{i} \equiv \hat{y}_C^{rem}(\mathbf{x}_i) 
+\end{equation}
+for each $i$ in the experiment.  The $\tilde{x}_{i}$ are the imputed control potential outcomes for the participants in the experiment.  However, as the notation suggests, $\tilde{x}_{i}$ may also be thought of simply as an additional covariate, along with those in $\mathbf{x}_i$.  Indeed, $\tilde{x}_i$ is simply a function of the other covariates.  We therefore additionally define
+\begin{equation}
+\tilde{\mathbf{x}}_i \equiv (\tilde{x}_{i}, x_{i1}, x_{i2}, ..., x_{ip}) 
+\end{equation}
+or in other words, $\tilde{\mathbf{x}}_i$ is $\mathbf{x}_i$ augmented with $\tilde{x}_i$.
+
+Importantly, because $\hat{y}_C^{rem}(\mathbf{x})$ is fitted using only data from the remnant, this function may be regarded as fixed when analyzing the experimental data.  We therefore emphasize again that $\tilde{x}_{i}$ may be treated formally just like any other covariate.  In particular, we may include $\tilde{x}_{i}$ as a covariate in LOOP.  We now discuss three options for doing so.
+
+\paragraph{Strategy 1:}  
+The most straight-forward option would be to run LOOP on the experimental data, but using the augmented set of covariates $\tilde{\mathbf{x}}$ instead of $\mathbf{x}$.  The hope is that by including $\tilde{x}_{i}$ we can implicitly exploit information in the remnant in much the same way that ReBar does.  Moreover, by using LOOP, we also reduce the risk of accidentally hurting precision.
+
+A few comments: 
+(1) For this option we would use random forests as the imputation strategy within LOOP, as suggested by \cite{loop}.  We refer to LOOP with random forests as LOOP-RF.
+(2) $\tilde{x}_{i}$ is a function of the other covariates and thus, in at least some sense, does not contain any additional information.  However, the function $\hat{y}_C^{rem}(\mathbf{x})$  is fitted on the remnant, which may be much larger than the experimental sample, and thus $\hat{y}_C^{rem}(\mathbf{x})$ may be a more accurate imputation function than what we would be able to obtain using the experimental data alone.  In this sense, $\tilde{x}_{i}$ does contain additional information, which LOOP-RF can exploit by heavily weighting $\tilde{x}_{i}$ over the other covariates.  
+(3) If the imputations $\tilde{x}_{i}$ are poor, then LOOP-RF may simply downweight or effectively ignore them.  In particular, poor imputations from the remnant should not harm precision.  
+(4) Biased imputations can still be helpful.  Importantly, because the $\tilde{x}_{i}$ are used as a covariate within LOOP-RF, they do not necessarily need to accurately impute the potential outcomes in the experimental sample; rather, it suffices that they are merely predictive of the potential outcomes.  If the experimental sample is systematically different from the remnant,  e.g., the potential outcomes in the experimental sample are on average higher than those in the remnant, the $\tilde{x}_{i}$ will still be useful as long as they are correlated with the experimental potential outcomes.  
+(5) We have implicitly assumed here that all units in the remnant are untreated, and the $\tilde{x}_{i}$ are imputed control potential outcomes.  In light of the previous comment (4), the $\tilde{x}_{i}$ may still be used as a covariate within LOOP-RF for predicting treatment potential outcomes, even if the $y_T$ differ from the $y_C$ due to a treatment effect, as long as $\tilde{x}$ is predictive of $y_T$.
+(6) If the $\tilde{x}_{i}$ are highly accurate, using them as a covariate within a nonparametric method like a random forest may be statistically inefficient.  The random forest may effectively just add noise or bias.  It is this concern that motivates the next strategy.
+
+\paragraph{Strategy 2:}  
+A second option would be to run LOOP on the experimental data, but using only $\tilde{x}_{i}$ as a predictor, and using linear regression instead of a random forest.  That is, for each $i$
+\begin{equation}
+\hat{y}_{Ci} = \hat{\beta}_{0C}^{(-i)} + \hat{\beta}_{1C}^{(-i)}\tilde{x}_{i}
+\end{equation}
+where  $\hat{\beta}_{0C}^{(-i)}$ and $\hat{\beta}_{1C}^{(-i)}$ are the coefficients from a regression of the observed $y_C$ on $\tilde{x}$, omitting observation $i$.  The expression for $\hat{y}_{Ti}$ would be analogous.
+
+Strategy 2 may be preferable to strategy 1 when the $\tilde{x}_{i}$ are highly accurate imputations of $y_C$.  In that case, $\hat{\beta}_{1C}^{(-i)} \approx 1$ 
+%and $\hat{\beta}_{0C}^{(-i)} \approx 0$ 
+and $\hat{y}_{Ci} \approx \tilde{x}_{i}$.  In other words, the imputations from the remnant ``pass through'' the LOOP procedure largely unmodified, resulting in a ReBar-like adjustment.  However, in contrast to ReBar, poor imputations $\tilde{x}$ will not necessarily harm precision.  Consider the extreme case in which $\tilde{x}$ is pure noise.  We would then expect $\hat{\beta}_{1C}^{(-i)} \approx 0$ and $\hat{\beta}_{0C}^{(-i)} \approx \bar{y}^{(-i)}_{Ci}$ so that $\hat{y}_{Ci} \approx \bar{y}^{(-i)}_{Ci}$.  That is, we revert approximately to mean-imputation, and the final estimator is therefore approximately equal to the simple difference estimator.  
+
+\paragraph{Strategy 3:}  
+
+In practice it may not always be clear whether strategy 1 or 2 will perform better; it depends on the quality of the imputations $\tilde{x}$ as well as the predictive power of the covariates in the experimental sample.  Thus, a final option would be to combine strategies 1 and 2 by taking a weighted average.  Let $\hat{y}^{(-i, S1)}_{Ci}(\mathbf{\tilde{x}_i})$ and $\hat{y}^{(-i, S2)}_{Ci}(\tilde{x}_i)$ denote imputations from strategies 1 and 2, respectively.  We then let  
+\begin{equation}
+\hat{y}^{(-i, S3)}_{Ci}(\mathbf{\tilde{x}_i}) = \alpha_i \hat{y}^{(-i, S1)}_{Ci}(\mathbf{\tilde{x}_i}) + (1-\alpha_i) \hat{y}^{(-i, S2)}_{Ci}(\tilde{x}_i)
+\end{equation}
+where $\alpha_i$ is given by
+\begin{equation}
+\alpha_i = \argmin_{\alpha \in [0,1]} \sum_{j \in \mathcal{C} \setminus i} \left[Y_j - \left(\alpha \hat{y}^{(-i, S1)}_{Cj}(\mathbf{\tilde{x}_j}) + (1-\alpha) \hat{y}^{(-i, S2)}_{Cj}(\tilde{x}_j) \right)\right]^2
+\end{equation}
+
+
+
+
+
+
