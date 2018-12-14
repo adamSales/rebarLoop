@@ -252,23 +252,26 @@ Clearly, pooling data from the remnant with data from the experiment
 undermines the benefits and justification for randomization.
 On the other hand, \citet{rebarEDM} argues that data from the remnant
 can play a role in covariate adjustment.
-Specifically, analysts may fit models $\predcr$ and $\predtr$ to data
-from the remnant, and use those models, in conjunction with
+When an RCT contrasts an experimental condition in $\mathcal{T}$ with
+business as usual in $\mathcal{C}$, then only the control condition
+will be present in the remnant.
+Then, an analyst may fit a model $\predcr{\cdot}$ to data
+from the remnant, and use the fitted model, in conjunction with
 experimental participants' own covariates $\bm{x}$, to predict their
-experimental outcomes as $\predcxr$ and $\predtxr$.%and use those
-% predictions to estimate $\hmi $.\footnote{\citet{rebarEDM} used a
-%   slightly different causal formalism, but its central ideas transfer
-%   immediately to our case.}
-When the experiment in question is testing a novel intervention, every
-member of the remnant essentially experienced the control
-condition---in that case, data are only available to predict $\yc$,
-and not $\yt$.
+control potential outcomes as $\predcxr\equiv \predcr{bm{x}_i}$.
+Finally, estimate $m_i$ as $\hmi^{rebar} \equiv \predcxr$, and
+use $\hmi^{rebar}$ to construct effect estimators $\thim$ and
+$\thm$.
+\citet{rebarEDM} calls this method ``remnant-based residualization,''
+or ``rebar.''
 
-Since the models $\predcr $ and $\predtr $ are fit using data from a
+Since the model $\predcr{\cdot} $ is fit using data from a
 separate sample from the experiment, and $\bm{x}\independent T$ by
-design, predictions $\predcxr $ and $\predtxr $ satisfy the
+design, predictions $\predcxr $ satisfy the
 independence criterion (\ref{eq:indPred}).
-Furthermore, they may be fit and assessed in any way, as
+In fact, $\tilde{x}_{i}$ may be treated formally just like any other
+covariate---a fact which is reflected in its notation.
+Furthermore, $\predcr{\cdot}$ may be fit and assessed in any way, as
 long as only remnant data is used.
 This process can be iterative, so that an analyst may fit a candidate
 model, assess its performance (perhaps with $k-$fold
@@ -278,31 +281,34 @@ This follows from the fact that inference proceeds from the
 randomization of $T$, and models fit in the remnant are invariant to
 $T$.
 Any realization of the assignment vector $\bm{T}$ would have given
-rise to precisely the same predictions $\predcxr $ and $\predtxr $.
+rise to precisely the same predictions $\predcxr $.
 The frequent problem of post-selection inference, which is exacerbated
 when the dimension of $\bm{x}$ is large, does not apply here.
 
-In principal, a researcher may plug $\predcxr$ and $\predtxr$ into formula
-(\ref{eq:hatm}) for $\hmi$ to estimate $\thim$ and, hence, $\thm$.
-Indeed, \citet{rebarEDM} used an analogous strategy to some success.
-On the other hand, doing so incurs risk---when $\hmi$ is a poor
-prediction of $m_i$, so that $(m_i-\hmi)^2>m_i^2$, covariance
-adjustment using $\predcx$ and $\predtx$ increases sampling variance.
-This will be the case if predictive models fit in the remnant
-extrapolate poorly to the experimental sample---for instance, if the
-distribution of $\bm{x}$, or the distribution of $\yc$ or $\yt$
-conditional on $\bm{x}$, differ subsantially between the two samples.
-To make matters worse, the performance of $\predcr$ and $\predtr$ in the
-experimental sample---where it counts---may not be checked directly.
+\citet{rebarEDM} used rebar to analyze the 22 TestBed experiments, and
+in 16 of the experiments, rebar reduced standard
+errors by 25-45\% relative to estimates without covariate adjustment.
+However, in three experiments, the rebar estimates had higher standad
+errors than their unadjusted counterparts (in the remaining three
+experiments, the improvement was moderate).
+In general, when $\predcxr$ is a poor
+prediction of $\yci$, so that $(m_i-\hmi^{rebar})^2>m_i^2$, covariance
+adjustment increases sampling variance.
+This will be the case if a predictive model fit in the remnant
+extrapolates poorly to the experimental sample---for instance, if the
+distribution of $\bm{x}$, or the distribution of $\yc$
+conditional on $\bm{x}$, differs subsantially between the two samples.
+To make matters worse, the performance of $\predcr{\cdot}$ in the
+experimental set---where it counts---may not be checked directly.
 Once a researcher uses observed experimental outcomes $Y$ to select
-$\predcr$ or $\predtr$, the resulting predictions $\predcx$ and
-$\predtx$ may no longer be independent of $T$, violating
+$\predcr{\cdot}$, the resulting predictions $\predcrx$
+will no longer be independent of $T$, violating
 (\ref{eq:indPred}).
 
-Another potential problem occurs when only the control condition
-occurs in the remnant, so only $\predcr$ may be fit.
-In those cases, we let $\hmi=\predtxr=\predcxr$ for all subjects.
-Doing so may further increase squared prediction error $(m_i-\hmi)^2$.
+An additional problem with rebar is that, since typically only the
+control condition is present in the remnant, $\predcr{\cdot}$ is used
+to predict both potential outcomes as $\predcrx$.
+This may further increase squared prediction error $(m_i-\hmi^{rebar})^2$.
 Of course, a preliminary estimate of $\bar{\tau}$ is available from
 the experimental data, but as before, incorporating experimental
 outcomes into $\hat{m}$ induces a dependence between $\hat{m}$ and
