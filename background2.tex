@@ -80,10 +80,12 @@ of $\bar{\tau}$.
 In fact, $\thipw$ is identical to the ``Horvitz-Thompson'' estimator
 of, e.g., \citet{aronowMiddleton}
 \begin{equation*}
-\thipw=\frac{1}{N}\displaystyle\sum_{i=1}^N
-\frac{Y_iT_i}{p_i}-\frac{Y_i(1-T_i)}{1-p_i}
+\thipw=\frac{1}{N}\displaystyle\sum_{i\in\mathcal{T}}
+\frac{Y_i}{p_i}-\frac{1}{N}\displaystyle\sum_{i\in\mathcal{C}}\frac{Y_i}{1-p_i}
 \end{equation*}
-which, in turn, is the difference between the Horvitz-Thomson
+where $\mathcal{C} = \{i | T_i = 0\}$ is the control group and
+$\mathcal{T} = \{i | T_i = 1\}$ is the treatment group.
+This, in turn, is the difference between the Horvitz-Thomson
 estimates of $\bar{\yt}$ and $\bar{\yc}$ \citep{horvitzThompson}.
 
 The sampling variance of $\thipw$ proceeds from the same principals:
@@ -109,12 +111,11 @@ These guarantees hold regardless of the distribution of
 $\{\yc,\yt\}$---they depend only on the experimental design.
 
 
-\subsection{Design-Based Covariance Adjustment}
 
-The central reason for error in $\thipw$, or any other statistical
-estimate of $\hat{\tau}$, is our inability to observe counterfactual
-potential outcomes, $\yt$ for subjects assigned to control or $\yc$
-for subjects assigned to treatment.
+\subsection{Design-Based Covariate Adjustment}
+
+The reason for error in estimating $\hat{\tau}$, is our inability to observe counterfactual
+potential outcomes $M$.
 As we've seen, randomized trials, coupled with design-based estimators
 like $\thipw$, use comparison groups and survey sampling theory to
 fill in this missing information.
@@ -123,22 +124,17 @@ gathered prior to treatment randomization---may provide an alternative
 strategy.
 To see how, say a researcher had constructed algorithms $\predcx$ and
 $\predtx$ designed to predict $\yc$ and $\yt$, respectively, from
-$\bm{x}$, and define
-\begin{equation*}
-\hat{M}_i=T_i\predcx+(1-T_i)\predtx
-\end{equation*}
-If these predictions are unbiased (under
-some sampling scheme other than randomization of $T$), then either
-$Y_i-\hat{M}_i$ or $\hat{M}_i-Y_i$ is unbiased for $\tau_i$.
-[something about how using $\hat{M}_i$
+$\bm{x}$.
+Then, if $\hat{M}_i$ is an estimate of $i$'s missing counterfactual,
+either $\predcx$ or $\predtx$, then $Y_i-\hat{M}_i$ (if $T_i=1$) or $\hat{M}_i-Y_i$ (if $T_i=0$)
+may be considered estimates for $\tau_i$.
 In general, the bias of algorithms such as $\predc$ and
-$\predt$, will be unknown, so effect estimates such as
-$Y_i-\predtx$ may be inadvisable.
+$\predt$, will be unknown, so these effect estimates may be inadvisable.
 On the other hand, imperfect or potentially biased predictions of
 potential outcomes can, \emph{when combined with randomization}, yield
 substantial benefits.
 
-The approach we will take to combining covariance adjustment with
+The approach we will take to combining covariate adjustment with
 randomization follows \citet{loop}, as will its presentation here.
 It has antecedents in \citet{rosenbaum2002covariance},
 \citet{aronowMiddleton}, \citet{wager2016high}, and \citet{tame}.
@@ -155,9 +151,7 @@ U_i(Y_i-m_i)&\\
 &=\tau_i
 \end{align*}.
 This suggests using predictions $\predcx$ and $\predtx$, to estimate $m_i$ as
-\begin{equation}\label{eq:hatm}
-\hmi=p_i\predcx+(1-p_i)\predtx 
-\end{equation}
+$\hmi$,
 and estimating $\tau_i$ as
 \begin{equation*}
 \thim\equiv U_i(Y_i-\hmi)
@@ -196,20 +190,22 @@ The same cannot be said for regression-based covariance
 adjustment, the common technique of regressing $Y$ on $T$ and $\bm{x}$
 \citep{freedman2008regression}.
 
-Instead, what matters is the prediction
-accuracy of $\predcx$ and $\predtx$.
+The goal of the covariate adjustment in $\thim$ is to estimate average
+effects with greater precision;
+its success in this regard depends on the predictive accuracy of $\predcx$ and $\predtx$.
 \citet{loop} show that
 \begin{equation}
 V(\thim|\hmi)=\frac{(\hmi-m_i)^2}{p_i(1-p_i)}
 \end{equation}
 Accurate predictions of $\yci$ and $\yti$, and hence of $\hmi$, yield precise estimation of $\tau_i$.
 On the other hand, inaccurate predictions (such that
-$(\hmi-m_i)^2>m_i^2$) will decrease precision.
-Note, however, that predictive accuracy of $\predc$ or $\predt$ does not impact bias.
+$(\hmi-m_i)^2>m_i^2$) will decrease precision---though, again, without
+causing bias.
+%Note, however, that predictive accuracy of $\predc$ or $\predt$ does not impact bias.
 The sampling variance of $\thm$ depends on the dependence structure of
 $\hat{m}$, and will be discussed in the following two sections.
 
-Under this framework, successful unbiased covariance adjustment
+Under this framework, successful covariate adjustment
 requires predictions $\predcx $ and $\predtx $ that are accurate and
 independent of $T$.
 To satisfy the independence condition, $i$'s outcome $Y_i$, which is a
@@ -242,7 +238,7 @@ than just the experimental participants---in the TestBed case, there
 is log data for all ASSISTments users.
 In healthcare or education examples, administrative data is available
 for every student or patient in the system, not just for those who
-were randomized to a treatment condition.
+were randomized to a treatment or control condition.
 Often, as in the TestBed case, the outcome variable $Y$ is also drawn from administrative or
 log data.
 We refer to subjects within the same data system in which the
@@ -255,7 +251,7 @@ the experiment.
 Clearly, pooling data from the remnant with data from the experiment
 undermines the benefits and justification for randomization.
 On the other hand, \citet{rebarEDM} argues that data from the remnant
-can play a role in covariance adjustment.
+can play a role in covariate adjustment.
 Specifically, analysts may fit models $\predcr$ and $\predtr$ to data
 from the remnant, and use those models, in conjunction with
 experimental participants' own covariates $\bm{x}$, to predict their

@@ -1,26 +1,26 @@
-\subsection{LOOP} 
+\subsection{LOOP}
 
 An additional risk of covariate adjustment, even when data from the remnant is not used, is the possibility of overfitting.  This is particularly a concern when there is a large number of covariates with little predictive power.  Overfitting may result in adjustments that harm rather than improve precision \citep{freedman2008regression, miratrix}.  This is a concern of \cite{loop}, and their LOOP estimator allows for automatic variable selection to avoid overfitting.  Importantly, \cite{loop} argue that LOOP will typically not harm precision and perform no worse than the simple difference estimator.
 
-The LOOP estimator is a leave-one-out method that proceeds as follows.  For each $i$, we first drop observation $i$, and then use the remaining $N-1$ observations to construct prediction models for the control and treatment potential outcomes, denoted $\hat{y}^{(-i)}_C(\mathbf{x})$ and $\hat{y}^{(-i)}_T(\mathbf{x})$, respectively.  These models may be fit by any method, for example linear regression or random forests.  In particular, methods that allow for automatic variable selection, or other forms of dimensionality reduction or regularization to prevent overfitting may be used.  
+The LOOP estimator is a leave-one-out method that proceeds as follows.  For each $i$, we first drop observation $i$, and then use the remaining $N-1$ observations to construct prediction models for the control and treatment potential outcomes, denoted $\hat{y}^{(-i)}_C(\mathbf{x})$ and $\hat{y}^{(-i)}_T(\mathbf{x})$, respectively.  These models may be fit by any method, for example linear regression or random forests.  In particular, methods that allow for automatic variable selection, or other forms of dimensionality reduction or regularization to prevent overfitting may be used.
 
-Next, following equation (\ref{eq:hatm}), we set 
+Next, following equation (\ref{eq:hatm}), we set
 \begin{equation}
 \hat{m}_i = p\hat{y}^{(-i)}_{C}(\mathbf{x}_i) + (1-p)\hat{y}^{(-i)}_{T}(\mathbf{x}_i)
 \end{equation}
 and the LOOP estimator is then given by $\hat{\tau}^m$ in (\ref{eq:thm}).  Note that here $\hat{m}_i \independent T_i$ due to the fact that $\hat{m}_i$ is computed without observation $i$.  It follows that $\hat{\tau}^m$ is unbiased.
 
-\cite{loop} provide an estimate for the variance of the LOOP estimator.  Let $\mathcal{C} = \{i | T_i = 0\}$ and $\mathcal{T} = \{i | T_i = 1\}$ and let
-\begin{align} 
+\cite{loop} provide an estimate for the variance of the LOOP estimator.  Let
+\begin{align}
 \hat{E}_C = & \frac{1}{n}\sum_{i \in \mathcal{C}}(\hat{y}_{Ci} - y_{Ci})^2 \label{Echat}
 \end{align}
 and define $\hat{E}_T$ similarly.  Note $\hat{E}_C$ and $\hat{E}_T$ are leave-one-out cross validation mean squared errors.  The estimated variance is then given by
-\begin{align} 
+\begin{align}
 \widehat{\mathrm{Var}}(\hat{\tau}) =  \frac{1}{N}\left[\frac{p}{1-p}\hat{E}_C + \frac{1-p}{p}\hat{E}_T + 2\sqrt{\hat{E}_C\hat{E}_T}\right]. \label{loopvarhat}
 \end{align}
-\cite{loop} note that (\ref{loopvarhat}) will typically be somewhat conservative.  This is due to the fact that $\mathrm{Var}(\hat{\tau})$ is unidentifiable, which itself derives from the fact that we only ever observe one potential outcome for each unit, and thus the correlation of the potential outcomes cannot be estimated.  Instead, a bound must be used.  This difficulty is not unique to the LOOP estimator; similar comments apply to the simple difference estimator \citep{aronow2014}.  Note also that 
-\begin{align} 
-\frac{1}{N}\left[\frac{p}{1-p}\hat{E}_C + \frac{1-p}{p}\hat{E}_T + 2\sqrt{\hat{E}_C\hat{E}_T}\right] 
+\cite{loop} note that (\ref{loopvarhat}) will typically be somewhat conservative.  This is due to the fact that $\mathrm{Var}(\hat{\tau})$ is unidentifiable, which itself derives from the fact that we only ever observe one potential outcome for each unit, and thus the correlation of the potential outcomes cannot be estimated.  Instead, a bound must be used.  This difficulty is not unique to the LOOP estimator; similar comments apply to the simple difference estimator \citep{aronow2014}.  Note also that
+\begin{align}
+\frac{1}{N}\left[\frac{p}{1-p}\hat{E}_C + \frac{1-p}{p}\hat{E}_T + 2\sqrt{\hat{E}_C\hat{E}_T}\right]
 &\le
 \frac{\hat{E}_C}{N(1-p)} + \frac{\hat{E}_T}{Np} \\
 &\approx
@@ -28,11 +28,11 @@ and define $\hat{E}_T$ similarly.  Note $\hat{E}_C$ and $\hat{E}_T$ are leave-on
 \end{align}
 which is similar in form to the variance estimate typically used in a two-sample $t$-test, namely $\frac{s^2_C}{N-n} + \frac{s^2_T}{n}$, where $s^2_C$ and $s^2_T$ denote the control group and treatment group sample variances.  In (\ref{t-test-like-variance}), $s^2_C$ and $s^2_T$ are replaced by $\hat{E}_C$ and $\hat{E}_T$.  In other words, the variances are replaced by the estimated mean squared errors of the imputations.
 
-A special case of the LOOP estimator occurs when the potential outcomes are imputed by simply taking the mean of the observed  outcomes (after dropping observation $i$).  That is, we set 
+A special case of the LOOP estimator occurs when the potential outcomes are imputed by simply taking the mean of the observed  outcomes (after dropping observation $i$).  That is, we set
 \begin{equation}
-\hat{y}^{(-i)}_C(\mathbf{x}) = \bar{y}^{(-i)}_{Ci}\equiv \frac{1}{|{\mathcal{C}\setminus i}|}\sum_{j \in \mathcal{C} \setminus i} y_{Cj} 
+\hat{y}^{(-i)}_C(\mathbf{x}) = \bar{y}^{(-i)}_{Ci}\equiv \frac{1}{|{\mathcal{C}\setminus i}|}\sum_{j \in \mathcal{C} \setminus i} y_{Cj}
 \end{equation}
-and similarly for $\hat{y}^{(-i)}_T(\mathbf{x})$.  Note that in this case the covariates are ignored.  It can be shown that when the potential outcomes are mean-imputed in this manner the LOOP estimator $\hat{\tau}^{m}$ is exactly equal to the simple difference estimator 
+and similarly for $\hat{y}^{(-i)}_T(\mathbf{x})$.  Note that in this case the covariates are ignored.  It can be shown that when the potential outcomes are mean-imputed in this manner the LOOP estimator $\hat{\tau}^{m}$ is exactly equal to the simple difference estimator
 \begin{equation}
 \hat{\tau}^{SD} = \frac{1}{n}\sum_{i \in \mathcal{T}}Y_i - \frac{1}{N-n}\sum_{i \in \mathcal{C}}Y_i
 \end{equation}
