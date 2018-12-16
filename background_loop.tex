@@ -12,7 +12,7 @@ and the LOOP estimator is then given by $\hat{\tau}^m$ in (\ref{eq:thm}).  Note 
 
 \cite{loop} provide an estimate for the variance of the LOOP estimator.  Let
 \begin{align}
-\hat{E}_C = & \frac{1}{n}\sum_{i \in \mathcal{C}}(\hat{y}_{Ci} - y_{Ci})^2 \label{Echat}
+\hat{E}_C = & \frac{1}{n_C}\sum_{i \in \mathcal{C}}(\hat{y}_{Ci} - y_{Ci})^2 \label{Echat}
 \end{align}
 and define $\hat{E}_T$ similarly.  Note $\hat{E}_C$ and $\hat{E}_T$ are leave-one-out cross validation mean squared errors.  The estimated variance is then given by
 \begin{align}
@@ -24,9 +24,9 @@ and define $\hat{E}_T$ similarly.  Note $\hat{E}_C$ and $\hat{E}_T$ are leave-on
 &\le
 \frac{\hat{E}_C}{N(1-p)} + \frac{\hat{E}_T}{Np} \\
 &\approx
-\frac{\hat{E}_C}{N-n} + \frac{\hat{E}_T}{n} \label{t-test-like-variance}
+\frac{\hat{E}_C}{n_C} + \frac{\hat{E}_T}{n_T} \label{t-test-like-variance}
 \end{align}
-which is similar in form to the variance estimate typically used in a two-sample $t$-test, namely $\frac{s^2_C}{N-n} + \frac{s^2_T}{n}$, where $s^2_C$ and $s^2_T$ denote the control group and treatment group sample variances.  In (\ref{t-test-like-variance}), $s^2_C$ and $s^2_T$ are replaced by $\hat{E}_C$ and $\hat{E}_T$.  In other words, the variances are replaced by the estimated mean squared errors of the imputations.
+which is similar in form to the variance estimate typically used in a two-sample $t$-test, namely $\frac{s^2_C}{n_C} + \frac{s^2_T}{n_T}$, where $s^2_C$ and $s^2_T$ denote the control group and treatment group sample variances.  In (\ref{t-test-like-variance}), $s^2_C$ and $s^2_T$ are replaced by $\hat{E}_C$ and $\hat{E}_T$.  In other words, the variances are replaced by the estimated mean squared errors of the imputations.
 
 A special case of the LOOP estimator occurs when the potential outcomes are imputed by simply taking the mean of the observed  outcomes (after dropping observation $i$).  That is, we set
 \begin{equation}
@@ -34,9 +34,9 @@ A special case of the LOOP estimator occurs when the potential outcomes are impu
 \end{equation}
 and similarly for $\hat{y}^{(-i)}_T(\mathbf{x})$.  Note that in this case the covariates are ignored.  It can be shown that when the potential outcomes are mean-imputed in this manner the LOOP estimator $\hat{\tau}^{m}$ is exactly equal to the simple difference estimator
 \begin{equation}
-\hat{\tau}^{SD} = \frac{1}{n}\sum_{i \in \mathcal{T}}Y_i - \frac{1}{N-n}\sum_{i \in \mathcal{C}}Y_i
+\hat{\tau}^{SD} = \frac{1}{n_T}\sum_{i \in \mathcal{T}}Y_i - \frac{1}{n_C}\sum_{i \in \mathcal{C}}Y_i
 \end{equation}
-\citep{loop}.  Moreover, $\hat{E}_C = \frac{N-n}{N-n-1}s^2_C$ and $\hat{E}_T = \frac{n}{n-1}s^2_C$ and thus the variance estimate given by (\ref{t-test-like-variance}) is nearly identical to the ordinary $t$-test variance estimate.
+\citep{loop}.  Moreover, $\hat{E}_C = \frac{n_C}{n_C-1}s^2_C$ and $\hat{E}_T = \frac{n_T}{n_T-1}s^2_C$ and thus the variance estimate given by (\ref{t-test-like-variance}) is nearly identical to the ordinary $t$-test variance estimate.
 
 In short, when using mean imputation for the potential outcomes, LOOP essentially simplifies to an ordinary $t$-test.  The effect estimate is identical, and the variance estimate is nearly identical.  This is highly reassuring.  Any imputation strategy that improves upon mean-imputation in terms of mean squared error will reduce the variance of the LOOP estimator relative to the simple difference estimator.  Most modern machine learning methods employ some form of regularization to guard against overfitting, and thus typically perform no worse, or at least not substantially worse, than mean-imputation.  Thus in practice there is relatively little risk that LOOP will hurt precision.
 
