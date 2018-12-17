@@ -20,9 +20,35 @@ three options for doing so.
 
 % Importantly, because $\hat{y}_C^{rem}(\mathbf{x})$ is fitted using only data from the remnant, this function may be regarded as fixed when analyzing the experimental data.  We therefore emphasize again that $\tilde{x}_{i}$ may be treated formally just like any other covariate.  In particular,
 
-
 \paragraph{Strategy 1:}
-%We therefore additionally define
+One option would be to run LOOP on the experimental data, but using only $\tilde{x}_{i}$ as a predictor, and using linear regression instead of a random forest.  That is, for each $i$
+\begin{equation}
+\hat{y}_{Ci} = \hat{\beta}_{0C}^{(-i)} + \hat{\beta}_{1C}^{(-i)}\tilde{x}_{i}
+\end{equation}
+where  $\hat{\beta}_{0C}^{(-i)}$ and $\hat{\beta}_{1C}^{(-i)}$ are the
+coefficients from a regression of the observed $y_C$ on $\tilde{x}$,
+omitting observation $i$.  The expression for $\hat{y}_{Ti}$ would be
+analogous.
+
+
+This strategy may be preferable to rebar because, for each
+observation $i$, the remaining $N-1$ observations help determine the
+best use of $\tilde{x}_i$ in $\hat{m}_i$.
+This confers two advantages: first, $\tilde{x}$'s role may be tempered
+according to the prediction accuracy of $\predcr{\cdot}$ in the
+experimental sample.
+When the $\tilde{x}_{i}$ are highly accurate imputations of $y_C$, $\hat{\beta}_{1C}^{(-i)} \approx 1$
+%and $\hat{\beta}_{0C}^{(-i)} \approx 0$
+and $\hat{y}_{Ci} \approx \tilde{x}_{i}$.  In other words, the imputations from the remnant ``pass through'' the LOOP procedure largely unmodified, resulting in a rebar-like adjustment.  However, in contrast to rebar, poor imputations $\tilde{x}$ will not necessarily harm precision.  Consider the extreme case in which $\tilde{x}$ is pure noise.  We would then expect $\hat{\beta}_{1C}^{(-i)} \approx 0$ and $\hat{\beta}_{0C}^{(-i)} \approx \bar{y}^{(-i)}_{Ci}$ so that $\hat{y}_{Ci} \approx \bar{y}^{(-i)}_{Ci}$.  That is, we revert approximately to mean-imputation, and the final estimator is therefore approximately equal to the simple difference estimator.
+The second advantage is that a preliminary ATE estimate, based on those $N-1$
+observations, now differentiates $\hat{y}_{Ci}$ from $\hat{y}_{Ti}$.
+
+
+\paragraph{Strategy 2:}
+Strategy 1 effectively solves rebar's main deficiancies.
+However, it neglects within-sample covariate data, which might be
+useful for predicting potential outcomes, even after rebar.
+
 Define
 \begin{equation}
 \tilde{\mathbf{x}}_i \equiv (\tilde{x}_{i}, x_{i1}, x_{i2}, ..., x_{ip})
@@ -39,16 +65,6 @@ A few comments:
 (5) We have implicitly assumed here that all units in the remnant are untreated, and the $\tilde{x}_{i}$ are imputed control potential outcomes.  In light of the previous comment (4), the $\tilde{x}_{i}$ may still be used as a covariate within LOOP-RF for predicting treatment potential outcomes, even if the $y_T$ differ from the $y_C$ due to a treatment effect, as long as $\tilde{x}$ is predictive of $y_T$.
 (6) If the $\tilde{x}_{i}$ are highly accurate, using them as a covariate within a nonparametric method like a random forest may be statistically inefficient.  The random forest may effectively just add noise or bias.  It is this concern that motivates the next strategy.
 
-\paragraph{Strategy 2:}
-A second option would be to run LOOP on the experimental data, but using only $\tilde{x}_{i}$ as a predictor, and using linear regression instead of a random forest.  That is, for each $i$
-\begin{equation}
-\hat{y}_{Ci} = \hat{\beta}_{0C}^{(-i)} + \hat{\beta}_{1C}^{(-i)}\tilde{x}_{i}
-\end{equation}
-where  $\hat{\beta}_{0C}^{(-i)}$ and $\hat{\beta}_{1C}^{(-i)}$ are the coefficients from a regression of the observed $y_C$ on $\tilde{x}$, omitting observation $i$.  The expression for $\hat{y}_{Ti}$ would be analogous.
-
-Strategy 2 may be preferable to strategy 1 when the $\tilde{x}_{i}$ are highly accurate imputations of $y_C$.  In that case, $\hat{\beta}_{1C}^{(-i)} \approx 1$
-%and $\hat{\beta}_{0C}^{(-i)} \approx 0$
-and $\hat{y}_{Ci} \approx \tilde{x}_{i}$.  In other words, the imputations from the remnant ``pass through'' the LOOP procedure largely unmodified, resulting in a rebar-like adjustment.  However, in contrast to rebar, poor imputations $\tilde{x}$ will not necessarily harm precision.  Consider the extreme case in which $\tilde{x}$ is pure noise.  We would then expect $\hat{\beta}_{1C}^{(-i)} \approx 0$ and $\hat{\beta}_{0C}^{(-i)} \approx \bar{y}^{(-i)}_{Ci}$ so that $\hat{y}_{Ci} \approx \bar{y}^{(-i)}_{Ci}$.  That is, we revert approximately to mean-imputation, and the final estimator is therefore approximately equal to the simple difference estimator.
 
 \paragraph{Strategy 3:}
 
