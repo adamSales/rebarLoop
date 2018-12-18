@@ -32,10 +32,11 @@ A special case of the LOOP estimator occurs when the potential outcomes are impu
 \begin{equation}
 \hat{y}^{(-i)}_C(\mathbf{x}) = \bar{y}^{(-i)}_{Ci}\equiv \frac{1}{|{\mathcal{C}\setminus i}|}\sum_{j \in \mathcal{C} \setminus i} y_{Cj}
 \end{equation}
-and similarly for $\hat{y}^{(-i)}_T(\mathbf{x})$.  Note that in this case the covariates are ignored.  It can be shown that when the potential outcomes are mean-imputed in this manner the LOOP estimator $\hat{\tau}^{m}$ is exactly equal to the simple difference estimator
-\begin{equation}
-\hat{\tau}^{SD} = \frac{1}{n_T}\sum_{i \in \mathcal{T}}Y_i - \frac{1}{n_C}\sum_{i \in \mathcal{C}}Y_i
-\end{equation}
+and similarly for $\hat{y}^{(-i)}_T(\mathbf{x})$.  Note that in this
+case the covariates are ignored.  It can be shown that when the
+potential outcomes are mean-imputed in this manner the LOOP estimator
+$\hat{\tau}^{m}$ is exactly equal to the simple difference
+\eqref{eq:tauSD} estimator
 \citep{loop}.  Moreover, $\hat{E}_C = \frac{n_C}{n_C-1}s^2_C$ and $\hat{E}_T = \frac{n_T}{n_T-1}s^2_C$ and thus the variance estimate given by (\ref{t-test-like-variance}) is nearly identical to the ordinary $t$-test variance estimate.
 
 In short, when using mean imputation for the potential outcomes, LOOP essentially simplifies to an ordinary $t$-test.  The effect estimate is identical, and the variance estimate is nearly identical.  This is highly reassuring.  Any imputation strategy that improves upon mean-imputation in terms of mean squared error will reduce the variance of the LOOP estimator relative to the simple difference estimator.  Most modern machine learning methods employ some form of regularization to guard against overfitting, and thus typically perform no worse, or at least not substantially worse, than mean-imputation.  Thus in practice there is relatively little risk that LOOP will hurt precision.

@@ -103,6 +103,24 @@ $\EE\hat{V}(\thipw)\le V(\thipw)$.
 (See \citealt{aronowMiddleton} for equivalent expressions for more
 general experimental designs.)
 
+Strangely, $\thipw$ and $\hat{V}(\thipw)$ are not translation-idenpendent;
+i.e. adding a constant to each $Y$ changes their values without
+changing the estimand $\bar{\tau}$.
+The more popular ``simple difference'' estimator \citep{neyman:1923},
+\begin{equation}\label{eq:tauSD}
+\hat{\tau}^{SD} = \frac{1}{n_T}\sum_{i \in \mathcal{T}}Y_i - \frac{1}{n_C}\sum_{i \in \mathcal{C}}Y_i=\bar{Y}_{T=1}-\bar{Y}_{T=0}
+\end{equation}
+and its associated variance estimator
+$s^2(\bm{Y})_{T=0}/n_C+s^2(\bm{Y})_{T=1}/n_T$, where
+$s^2(\bm{Y})_{T=0}$ is the sample variance of control outcomes
+%$\sum_{i\in\mathcal{C}}(Y_i-\bar{Y}_{T=0})^2/(n_C-1)$
+and
+$s^2(\bm{Y})_{T=1}$ is defined similarly, do not have this property.
+Our presentation here focuses on $\thipw$ as a jumping-off point for
+subsequent methodological development;
+$\tau^{SD}$ will will play a smaller role.
+
+
 Classical survey sampling theory implies that $\thipw$ is
 asymptotically normal, with asymptotic variance of at most
 $\hat{V}(\thipw)$, so Wald-type confidence intervals of the form
