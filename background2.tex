@@ -6,8 +6,16 @@ let potential outcomes $\yti$ and $\yci$ represent the outcome value
 $Y_i$ that $i$ would have exhibited if he or she had (perhaps
 counterfactually) been assigned to treatment, $T_i=1$ or control,
 $T_i=0$.
+Observed outcomes are a function of treatment assignment and
+potential outcomes:
+\begin{equation*}
+  Y_i=T_i\yti+(1-T_i)\yci
+\end{equation*}
 Then define the treatment effect for $i$ as $\tau_i=\yti-\yci$; our goal will be
-to estimate the average treatment effect (ATE), $\tbar\equiv\sum_i\tau_i/N$.
+to estimate the average treatment effect (ATE),
+$\tbar\equiv\sum_i\tau_i/N=\bar{y}_T-\bar{y}_C$, where
+$\bar{y}_T=\sum_T{\yti}/N$ is the mean of $y_T$ over all $N$ units in
+the experiment and $\bar{y}_C$ is defined similarly.
 
 If both $\yci $ and $\yti $ were known for each subject $i$,
 statistical modeling would be unnecessary---researchers could
@@ -18,37 +26,17 @@ by simply averaging observed $\tau$.
 In practice, we never observe both $\yci$ and $\yti$.
 Instead, we rely on the experimental setup to estimate and infer
 causation.
-Since the treatment group is a random sample of
+Since the treatment and control groups are each random samples of
 the $N$ participants, survey sampling literature provides design-based
-unbiased estimators of the mean of $\yt$ based on observed $Y$ in the treatment group
+unbiased estimators of $\bar{y}_T$ and $\bar{y}_C$ based on observed $Y$
 and the known distribution of $T$.
 These estimators, and their associated inference, depend only on the
 experimental design, and not on modeling assumptions.
-Likewise, the survey sampling literature suggests analogous unbiased,
-design-based estimators for the mean of $\yc$ based on observed $Y$ values in
-the control group, which is itself a random sample.
 The survey sample structure of randomized experiments allows us to
 infer counterfactual potential outcomes (at least on average) and estimate $\tbar$ as if
 $\tau_i$ were available for each $i$, albeit with sampling error.
 
-We will use this framework to analyze the 22 TestBed experiments.
-These are examples of ``Bernoulli experiments,'' in
-which each $T_i$ is an
-independent Bernoulli trial: $Pr(T_i=1)\equiv p_i$, with $0<p_i<1$, and
-$T_i\independent T_j \text{ if } i\ne j$.
-In the TestBed experiments,
-$p_i=1/2$ for all $i$.
-Observed outcomes are a function of treatment assignment and
-potential outcomes:
-\begin{equation*}
-  Y_i=T_i\yti+(1-T_i)\yci=\yci+\tau_iT_i.
-\end{equation*}
-In this model, $Y_i$ is only random due to its dependence on $T_i$;
-$Y_i$ has a discrete distribution, with $Pr(Y_i=\yci)=1-p_i$,
-$Pr(Y_i=\yti)=p_i$, and $Pr(Y_i=y')=0$ for any
-$y'\not\in\{\yci,\yti\}$.
-Since either $\yti$ or $\yci$ is unobserved, $Y_i$'s distribution is never known.
-Along the same lines, let $M_i=T_i\yci+(1-T_i)\yti$, $i$'s unobserved
+Let $M_i=T_i\yci+(1-T_i)\yti$, $i$'s unobserved
 counterfactual outcome---when $i$ is treated, $M_i=\yci$ and when $i$
 is in the control condition $M_i=\yti$.
 Then $i$'s treatment effect may be expressed as $\tau_i=Y_i-M_i$ if
@@ -57,31 +45,38 @@ control group.
 Although $M_i$ is, by definition, unobserved, it plays a central role in
 causal inference, as does its expectation,
 \begin{equation*}
-m_i\equiv p_i\yci+(1-p_i)\yti
+m_i\equiv p\yci+(1-p)\yti
 \end{equation*}
 which will play a prominent role in the method we are proposing.
 
-Under this model, estimation and inference about $\bar{\tau}$ is based on
-the observed values of $Y$ and $T$.
+We will use this framework to analyze the 22 TestBed experiments.
+These are examples of ``Bernoulli experiments,'' in
+which each $T_i$ is an
+independent Bernoulli trial: $Pr(T_i=1)\equiv p$, with $0<p<1$, and
+$T_i\independent T_j \text{ if } i\ne j$.
+In the TestBed experiments,
+$p=1/2$.
+Then, estimation and inference about $\bar{\tau}$ is based on
+the observed values of $Y$ and $T$, and the known value of $p$.
 Let
 \begin{equation*}
 U_i=\begin{cases}
-\frac{1}{p_i} & T_i=1\\
--\frac{1}{1-p_i} & T_i=0
+\frac{1}{p} & T_i=1\\
+-\frac{1}{1-p} & T_i=0
 \end{cases}
 \end{equation*}
 be subject $i$'s signed inverse probability weights.
 Note that $\EE U_i=0$, and $\EE U_iY_i=\tau_i$.
-(To see this, note that when $T=1$, with probability $p_i$,
-$Y_i=\yti$ and $U_iY_i=\yti/p_i$; when $T=0$, with probability
-$1-p_i$, $U_iY_i=-yci/(1-p_i)$).
+(To see this, note that when $T=1$, with probability $p$,
+$Y_i=\yti$ and $U_iY_i=\yti/p$; when $T=0$, with probability
+$1-p$, $U_iY_i=-yci/(1-p)$).
 Then $U_iY_i$ may be thought of as an unbiased estimate of $\tau_i$, and $\thipw=\sum_iU_iY_i/N$ is an unbiased estimate
 of $\bar{\tau}$.
 In fact, $\thipw$ is identical to the ``Horvitz-Thompson'' estimator
 of, e.g., \citet{aronowMiddleton}
 \begin{equation*}
 \thipw=\frac{1}{N}\displaystyle\sum_{i\in\mathcal{T}}
-\frac{Y_i}{p_i}-\frac{1}{N}\displaystyle\sum_{i\in\mathcal{C}}\frac{Y_i}{1-p_i}
+\frac{Y_i}{p}-\frac{1}{N}\displaystyle\sum_{i\in\mathcal{C}}\frac{Y_i}{1-p}
 \end{equation*}
 where $\mathcal{C} = \{i | T_i = 0\}$ is the control group and
 $\mathcal{T} = \{i | T_i = 1\}$ is the treatment group.
@@ -92,10 +87,10 @@ estimates of $\bar{\yt}$ and $\bar{\yc}$ \citep{horvitzThompson}.
 The sampling variance of $\thipw$ proceeds from the same principals:
 the variance of $U_iY_i$ is
 \begin{equation}\label{eq:varTauHat1}
-V(U_iY_i)=\left(\yti\sqrt{\frac{1-p_i}{p_i}}+\yci\sqrt{\frac{p_i}{1-p_i}}\right)^2=\frac{m_i^2}{p_i(1-p_i)}
+V(U_iY_i)=\left(\yti\sqrt{\frac{1-p}{p}}+\yci\sqrt{\frac{p}{1-p}}\right)^2=\frac{m_i^2}{p(1-p)}
 \end{equation}
 and, since  subjects' treatment assignments are mutually independent,
-$V(\thipw)=1/N^2\sum_im_i^2/\{p_i(1-p_i)\}$.
+$V(\thipw)=1/N^2\sum_im_i^2/\{p(1-p)\}$.
 Since $\yti $ and $\yci $ are never simultaneously observed,
 $V(\thipw)$ is not identified; however, it may be bounded in expectation,
 as $\hat{V}(\thipw)=\sum_iU_i^2Y_i^2/N^2$:
@@ -142,14 +137,14 @@ Baseline covariates---a vector $\bm{x}_i$ of data for subject $i$
 gathered prior to treatment randomization---may provide an alternative
 strategy.
 To see how, say a researcher had constructed algorithms $\predcx$ and
-$\predtx$ designed to predict $\yc$ and $\yt$, respectively, from
+$\predtx$ designed to impute $\yc$ and $\yt$, respectively, from
 $\bm{x}$.
-Then, if $\hat{M}_i$ is an estimate of $i$'s missing counterfactual,
+Then, if $\hat{M}_i$ is an imputation of $i$'s missing counterfactual,
 either $\predcx$ or $\predtx$, then $Y_i-\hat{M}_i$ (if $T_i=1$) or $\hat{M}_i-Y_i$ (if $T_i=0$)
 may be considered estimates for $\tau_i$.
 In general, the bias of algorithms such as $\predc$ and
 $\predt$, will be unknown, so these effect estimates may be inadvisable.
-On the other hand, imperfect or potentially biased predictions of
+On the other hand, imperfect or potentially biased imputations of
 potential outcomes can, \emph{when combined with randomization}, yield
 substantial benefits.
 
@@ -161,29 +156,29 @@ In a Bernoulli experiment, note that
 \begin{align*}
 U_i(Y_i-m_i)&\\
 &=\begin{cases}
-\frac{1}{p_i}(\yti-p_i\yci-(1-p_i)\yti)&T_i=1\\
--\frac{1}{1-p_i}(\yci-p_i\yci-(1-p_i)\yti)&T_i=0 \end{cases}\\
+\frac{1}{p}(\yti-p\yci-(1-p)\yti)&T_i=1\\
+-\frac{1}{1-p}(\yci-p\yci-(1-p)\yti)&T_i=0 \end{cases}\\
 &=\begin{cases}
-\frac{p_i(\yti-\yci)}{p_i}&T_i=1\\
-\frac{(1-p_i)(\yti-\yci)}{1-p_i}&T_i=0
+\frac{p(\yti-\yci)}{p}&T_i=1\\
+\frac{(1-p)(\yti-\yci)}{1-p}&T_i=0
 \end{cases}\\
 &=\tau_i
 \end{align*}.
-This suggests using predictions $\predcx$ and $\predtx$, to estimate $m_i$ as
+This suggests using imputations $\predcx$ and $\predtx$, to estimate $m_i$ as
 $\hmi$,
 and estimating $\tau_i$ as
 \begin{equation*}
 \thim\equiv U_i(Y_i-\hmi)
 \end{equation*}
 
-It turns out that $\thim$ is unbiased if prediction algorithms $\predc$ and $\predt$
+It turns out that $\thim$ is unbiased if algorithms $\predc$ and $\predt$
 are constructed in such a way that
 \begin{equation}\label{eq:indPred}
 \{\predcx,\predtx\}\independent T_i.
 \end{equation}
 Since $\bm{x}_i\independent T_i$ by design, (\ref{eq:indPred}) is
 tantamount to requiring that $T_i$, and variables such as $Y_i$ that
-depend on it, play no role in constructing prediction algorithms $\predc$ and
+depend on it, play no role in constructing algorithms $\predc$ and
 $\predt$.
 %This requirement will be the focus of this paper's contributions.
 
@@ -197,15 +192,15 @@ Finally, define ATE estimate
 \begin{equation} \label{eq:thm}
 \thm=\frac{1}{N}\displaystyle\sum_{i=1}^N
 \thim=\frac{1}{N}\displaystyle\sum_{i=1}^N
-\frac{T_i(Y_i-\hmi)}{p_i}-\frac{(1-T_i)(Y_i-\hmi)}{1-p_i}
+\frac{T_i(Y_i-\hmi)}{p}-\frac{(1-T_i)(Y_i-\hmi)}{1-p}
 \end{equation}
 The unbiasedness of $\thm$ for $\bar{\tau}$ follows from the
 unbiasedness of each of its summands, $\thim$ for $\tau_i$.
 
-Crucially, this unbiasedness holds even if predictions $\predcx$ and $\predtx$ are biased; prediction algorithms $\predc$ and $\predt$ need not be unbiased, consistent, or correct in any sense.
+Crucially, this unbiasedness holds even if $\predcx$ and $\predtx$ are biased; algorithms $\predc$ and $\predt$ need not be unbiased, consistent, or correct in any sense.
 As long as $\predcx$ and $\predtx$ are constructed to be independent
 of $T_i$, $\thim$ will be unbiased.
-The same cannot be said for regression-based covariance
+The same cannot be said for regression-based covariate
 adjustment, the common technique of regressing $Y$ on $T$ and $\bm{x}$
 \citep{freedman2008regression}.
 
@@ -214,10 +209,10 @@ effects with greater precision;
 its success in this regard depends on the predictive accuracy of $\predcx$ and $\predtx$.
 \citet{loop} show that
 \begin{equation}
-V(\thim|\hmi)=\frac{(\hmi-m_i)^2}{p_i(1-p_i)}
+V(\thim|\hmi)=\frac{(\hmi-m_i)^2}{p(1-p)}
 \end{equation}
-Accurate predictions of $\yci$ and $\yti$, and hence of $\hmi$, yield precise estimation of $\tau_i$.
-On the other hand, inaccurate predictions (such that
+Accurate imputations of $\yci$ and $\yti$, and hence of $\hmi$, yield precise estimation of $\tau_i$.
+On the other hand, inaccurate imputations (such that
 $(\hmi-m_i)^2>m_i^2$) will decrease precision---though, again, without
 causing bias.
 %Note, however, that predictive accuracy of $\predc$ or $\predt$ does not impact bias.
@@ -225,24 +220,23 @@ The sampling variance of $\thm$ depends on the dependence structure of
 $\hat{m}$, and will be discussed in the following two sections.
 
 Under this framework, successful covariate adjustment
-requires predictions $\predcx $ and $\predtx $ that are accurate and
+requires imputations $\predcx $ and $\predtx $ that are accurate and
 independent of $T$.
 To satisfy the independence condition, $i$'s outcome $Y_i$, which is a
 function of $T$, cannot play a role in the construction of the algorithms $\predc$ and
-$\predt$; they must be fit using other data.
+$\predt$; they must be trained using other data.
 Recent literature proposes two solutions to this problem.
  One approach \citep{rebarEDM} suggests
-estimating prediction algorithm $\predc $ for all participants in the
-experiment using an entirely separate dataset: covariate and outcome data from subjects
-that were not part of the randomized experiment.
-A second approach \citep{loop} fits a separate algorithm for each
+estimating algorithm $\predc $ for all participants in the
+experiment using the remnant.
+A second approach \citep{loop} trains a separate algorithm for each
 experimental participant $i$, using data from experimental units other
 than $i$.
 The following two subsections will review these two approaches in some
 depth.
 The remainder of the paper will discuss their combination.
 
-\subsection{Auxiliary Data: the Remnant from an Experiment}\label{sec:intro.remant}
+\subsection{Rebar: Covariate Adjustment Using the Remnant}\label{sec:intro.remant}
 
 Modern field trials are often conducted within a very data-rich
 context, in which high-dimensional and rich covariate data is
@@ -274,33 +268,33 @@ can play a role in covariate adjustment.
 When an RCT contrasts an experimental condition in $\mathcal{T}$ with
 business as usual in $\mathcal{C}$, then only the control condition
 will be present in the remnant.
-Then, an analyst may fit a model $\predcr{\cdot}$ to data
-from the remnant, and use the fitted model, in conjunction with
-experimental participants' own covariates $\bm{x}$, to predict their
+Then, an analyst may train an algorithm $\predcr{\cdot}$ to data
+from the remnant, and use the trained algorithm, in conjunction with
+experimental participants' own covariates $\bm{x}$, to impute their
 control potential outcomes as $\predcxr\equiv \predcr{bm{x}_i}$.
-Finally, estimate $m_i$ as $\hmi^{rebar} \equiv \predcxr$, and
+Specifically, let $\hmi^{rebar} \equiv \predcxr$, and
 use $\hmi^{rebar}$ to construct effect estimators $\thim$ and
 $\thm$.
 \citet{rebarEDM} calls this method ``remnant-based residualization,''
 or ``rebar.''
 
-Since the model $\predcr{\cdot} $ is fit using data from a
+Since the algorithm $\predcr{\cdot} $ is trained using data from a
 separate sample from the experiment, and $\bm{x}\independent T$ by
-design, predictions $\predcxr $ satisfy the
+design, imputations $\predcxr $ satisfy the
 independence criterion (\ref{eq:indPred}).
 In fact, $\tilde{x}_{i}$ may be treated formally just like any other
 covariate---a fact which is reflected in its notation.
-Furthermore, $\predcr{\cdot}$ may be fit and assessed in any way, as
+Furthermore, $\predcr{\cdot}$ may be trained and assessed in any way, as
 long as only remnant data is used.
-This process can be iterative, so that an analyst may fit a candidate
+This process can be iterative, so that an analyst may train a candidate
 model, assess its performance (perhaps with $k-$fold
-cross-validation), modify the model, and repeat until suitable
+cross-validation), modify the algorighm, and repeat until suitable
 performance is achieved.
 This follows from the fact that inference proceeds from the
-randomization of $T$, and models fit in the remnant are invariant to
+randomization of $T$, and algorithms trained in the remnant are invariant to
 $T$.
 Any realization of the assignment vector $\bm{T}$ would have given
-rise to precisely the same predictions $\predcxr $.
+rise to precisely the same imputations $\predcxr $.
 The frequent problem of post-selection inference, which is exacerbated
 when the dimension of $\bm{x}$ is large, does not apply here.
 
@@ -311,22 +305,22 @@ However, in three experiments, the rebar estimates had higher standad
 errors than their unadjusted counterparts (in the remaining three
 experiments, the improvement was moderate).
 In general, when $\predcxr$ is a poor
-prediction of $\yci$, so that $(m_i-\hmi^{rebar})^2>m_i^2$, covariance
+differs greatly from $\yci$, so that $(m_i-\hmi^{rebar})^2>m_i^2$, covariance
 adjustment increases sampling variance.
-This will be the case if a predictive model fit in the remnant
+This will be the case if an algorithm trained in the remnant
 extrapolates poorly to the experimental sample---for instance, if the
 distribution of $\bm{x}$, or the distribution of $\yc$
 conditional on $\bm{x}$, differs subsantially between the two samples.
 To make matters worse, the performance of $\predcr{\cdot}$ in the
 experimental set---where it counts---may not be checked directly.
 Once a researcher uses observed experimental outcomes $Y$ to select
-$\predcr{\cdot}$, the resulting predictions $\predcxr$
+$\predcr{\cdot}$, the resulting imputations $\predcxr$
 will no longer be independent of $T$, violating
 (\ref{eq:indPred}).
 
 An additional problem with rebar is that, since typically only the
 control condition is present in the remnant, $\predcr{\cdot}$ is used
-to predict both potential outcomes as $\predcxr$.
+to impute both potential outcomes as $\predcxr$.
 This may further increase squared prediction error $(m_i-\hmi^{rebar})^2$.
 Of course, a preliminary estimate of $\bar{\tau}$ is available from
 the experimental data, but as before, incorporating experimental
@@ -334,9 +328,9 @@ outcomes into $\hat{m}$ induces a dependence between $\hat{m}$ and
 $T$.
 
 The remnant from an experiment is often much larger than the
-experimental sample, and may provide fertile ground for predicting
+experimental sample, and may provide fertile ground for imputing
 potential outcomes, especially in the presence of rich
 high-dimensional covariates.
-However, absent methods to use experimental data to assess predictive
-accuracy and account for possible treatment effects, covariance
+However, absent methods to use experimental data to assess imputations'
+accuracy and account for possible treatment effects, covariate
 adjustment using the remnant is risky.
