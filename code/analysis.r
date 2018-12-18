@@ -45,46 +45,41 @@ dat$treatment <- ifelse(dat$condition=='E',1,0)
 
 dat$residual <- dat$complete-dat$p_complete
 
-## ## try loop once:
-## ## lp1 <- loop(dat$complete[dat$problem_set==226210],
-## ##  dat$treatment[dat$problem_set==226210],
-## ##  covs[dat$problem_set==226210,])#,reg=FALSE)
+### simple difference estimator
+### Neyman variance estimate
+simpDiff <- function(datPS,covsPS,outcome='complete'){
+  Y <- datPS[[outcome]]
+  Z <- datPS$treatment
+  est <- mean(Y[Z==1])- mean(Y[Z==0])
+  Vhat <- var(Y[Z==1])/sum(Z==1)+var(Y[Z==0])/sum(Z==0)
+  return(c(tauhat=est,varhat=Vhat))
+}
 
-## dat <- cbind(covs,select(dat,treatment,complete,p_complete))
-
-simpDiff <- function(datPS,covsPS)
-    with(datPS,
-         loop_ols(complete,treatment,cbind(rep(1,nrow(datPS)))))
-
-## rebar <- function(datPS,covsPS){
-##     est <- mean(datPS$residual[datPS$treatment==1])-
-##         mean(datPS$residual[datPS$treatment==0])
-##     Ec <- mean(datPS$residual[datPS$treatment==0]^2)
-##     Et <- mean(datPS$residual[datPS$treatment==1]^2)
-##     Vhat <- 1/nrow(datPS)*(Ec+Et+2*sqrt(Ec*Et))
-##     return(c(tauhat=est,varhat=Vhat))
-## }
-
+### rebar estimate: simple difference on residuals
 rebar <- function(datPS,covsPS)
-    with(datPS,
-         loop_ols(residual,treatment,cbind(rep(1,nrow(datPS)))))
+  simpDiff(datPS,covsPS,outcome='residual')
 
+## OLS LOOP with deep learning predictions as the only covariate
 strat1 <- function(datPS,covsPS)
     with(datPS,
          loop_ols(complete,treatment,p_complete))
 
+## RF LOOP with deep learning predictions alongside other covariates
 strat2 <- function(datPS,covsPS)
     with(datPS,
          loop(complete,treatment,cbind(p_complete,covsPS)))
 
+## Combine RF LOOP with covariates with OLS LOOP with deep learning predictions
 strat3 <- function(datPS,covsPS)
     with(datPS,
          loop_ext(complete,treatment,covsPS,extm=p_complete))
 
+## RF LOOP with covariates, no deep learning predictions
 justCovs <- function(datPS,covsPS)
     with(datPS,
          loop(complete,treatment,covsPS))
 
+## all the estimators, for a particular problem set
 full <- function(ps){
     datPS <- dat[dat$problem_set==ps,]
     covsPS <- covs[dat$problem_set==ps,]
@@ -95,7 +90,7 @@ full <- function(ps){
                       fun(datPS,covsPS)
                   },simplify=FALSE)
     res <- do.call('rbind',res)
-    res[,2] <- sqrt(res[,2])
+    res[,2] <- sqrt(res[,2])  ## standard error, not variance
     colnames(res) <- c('est','se')
     res <- cbind(res,improvement=1-res[,'se']/res['simpDiff','se'])
     res
@@ -104,36 +99,4 @@ full <- function(ps){
 fullres <- sapply(levels(dat$problem_set),full,simplify=FALSE)
 
 save(fullres,file='results/fullres.RData')
-
-rnk <- rank(sapply(fullres,function(x) x['strat3','improvement']))
-
-pd <- do.call('rbind',lapply(levels(dat$problem_set),
-                             function(x) cbind(as.data.frame(fullres[[x]]),
-                                               method=factor(rownames(fullres[[x]]),
-                                                   levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
-                                                   ps=x)))
-pd$rnk <- LETTERS[rnk[pd$ps]]
-
-pd <- droplevels(subset(pd,method%in%c('simpDiff','justCovs','rebar','strat3')))
-levels(pd$method) <- c('Simple Difference','LOOP (Without Remnant)','Rebar','LOOP+Rebar')
-
-ggplot(pd,aes(method,se,fill=method))+
-    geom_col(position='dodge')+xlab(NULL)+
-    theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-          axis.ticks.x=element_blank(),
-          legend.position='top')+
-        scale_fill_manual(values=subwayPalette[1:4],name=NULL)+
-        facet_wrap(~rnk,scales="free_y")
-ggsave('ses.pdf')
-
-
-ggplot(filter(pd,method%in%c('Simple Difference','LOOP+Rebar')), aes(rnk,est,color=method))+
-    geom_point(position=position_dodge(.4))+
-        geom_errorbar(aes(ymin=est-2*se,ymax=est+2*se),position=position_dodge(.4),width=0)+
-            geom_hline(yintercept=0,linetype='dotted')+
-                theme(legend.position='top')+
-                    labs(color=NULL,x=NULL,y='Treatment Effect')
-ggsave('estimates.pdf')
-
 
