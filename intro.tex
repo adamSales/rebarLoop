@@ -1,2 +1,143 @@
-A/B tests etc
+Randomized controlled trials (RCTs) are an increasingly common tool
+across commercial and scientific domains.
+Large internet companies such such as Microsoft and Amazon conduct and
+analyze tens of thousands of RCTS---called
+``A/B tests'' in this context---each year (Kohavi \& Thomke,
+2017). This practice is also a
+common among both  smaller start-up companies and even individuals
+interested in improving their products or websites through iterative
+development informed by the use of A/B testing (Reis, 2011).
+Of course, RCTs have long been a prominant feature in the
+pharmaceutical industry, as well as in social and biomedical
+sciences.
 
+One case in point is that of  the ASSISTments TestBed, an A/B testing
+program that runs within ASSISTments, a computer-based learning
+platform used by over 50,000 students a year for homework and
+classwork.
+With the ASSISTments TestBed, an education
+researcher can propose A/B tests to run within ASSISTments.
+On one night's assigned homework, for a given topic such as ``Adding
+Whole Numbers'', or
+``Factoring Quadratics Equations,'' students are individually randomized
+into one of two conditions, for instance, video- or text-based
+instructional feedback to compare their effects on an outcome such as
+homework completion. The anonymized data associated with this study,
+consisting of several levels of granularity and a breadth of
+covariates describing both historical pre-study and within-study
+student interaction, is made available to the proposing researcher
+along with some simple descriptive statistics and automated
+analyses. The Testbed is currently host to over 100 such randomized
+controlled trials running in ASSISTments.
+
+RCTs are famously free of confounding bias.
+In fact, a class of estimators, often called ``design-based''
+\citet[e.g.][]{schochet2015statistical} or ``randomization based''
+\citet[e.g.][]{rosenbaum:2002a} estimate treatment effects without assuming
+any statistical model other than whatever is implied by the
+experimental design itself.
+Design-based statistical estimators are guarenteed to be unbiased.
+Their associated inference---standard errors, hypothesis tests,
+confidence intervals---also come with guarentees regarding accuracy.
+In many cases, these apply regardless of the sample size or
+the characteristics of the data's parent distribution.
+
+While RCTs can reliably provide, say, accurate confidence intervals
+for a treatment effect, they cannot guarentee precision.
+The statistical precision of RCT-based estimates is inherently limited
+by the RCT's sample size, which itself is typically subject to a
+number of practical constraints.
+For instance, in one typical ASSISTments TestBed A/B test, a total of
+294 students were randomized between two conditions, leading to a
+standard error of roughly four percentage points estimating the effect
+on homework completion.
+This standard error is too large to either determine the direction of
+a treatment effect or rule out clinically meaningful effect sizes.
+
+In contrast, observational data drawn from large administrative
+datasets can frequently be brought to bear on some of the same
+questions.
+Analysis of observational data, unlike RCTs, requires a number of
+untestable modeling assumptions, chief among them the assumption of no
+unmeasured confounding.
+Consequently, treatment effect estimates from observational data
+cannot boast the same guarentees to accuracy as estimates from RCTs.
+That said, in many cases they boast a much larger sample---and, hence,
+greater precision---than equivalent RCTs.
+
+In many cases, observational and RCT data coexist within the very same
+database.
+For instance, covariate and outcome data from a biomedical RCT may be
+drawn from an administrative dataset that contains equivalent data for
+patients who did not participate in the study and were not randomized
+between conditions.
+Similarly, data from the ASSISTments TestBed lives alongside
+equivalent data from other ASSISTments users who, say, were not
+assigned to the relvant homework topic when the experiment was
+underway.
+We refer to these study non-participants as the ``remnant'' from the
+study \citep[c.f.][]{rebarPaper}.
+
+Along similar lines, administrative datasets in biomedical,
+computer-based, and other realms often feature increadibly rich and
+high dimensional covariate data.
+In the ASSISTments TestBed context, a given
+trial is likely to consist of just one night’s homework, but the
+student may have been previously assigned 100 homeworks in the school
+year, each of which comes with a granular dataset including any number
+of potentially relevant performance metrics.
+Rich covariate data can dramatically increase the precision of
+experimental estimates.
+However, exploiting high-dimensional data requires algorithms or
+models whose quality is itself often a function of sample size---large
+samples may be necessary for researchers to most effectively use
+covariates to improve statistical precision.
+
+This paper will present a novel method, called ReLOOP, to estimate
+treatment effects
+from  RCT data while incorporating high-dimensional covariate data,
+large observational remnant data, and cutting-edge machine learning
+prediction algorithms to improve precision---sometimes dramatically.
+It does so without compromising the accuracy guarenees of traditional
+design-based RCT estimators, yielding unbiased point estimates and
+sampling variance estimates that are conservative in expectation; in
+fact, ReLOOP is itself design-based.
+In particular, ReLOOP prevents ``bias leakage'': bias that might have
+occurred due to differences between the remnant and the experimental
+sample, biased or incorrect modeling of covariates, or other data
+analysis flaws, does not leak into the ReLOOP estimator.
+ReLOOP combines two recent causal methods: rebar \citep{rebarEDM,jreeTestBed},
+which incorporates high dimensional remnant data into RCT estimators,
+and LOOP \citep{loop}, which uses machine learning algorithms for
+covariate adjustment in RCTs.
+The paper will focus on the challenge of precisely estimating
+treatment effects from a published set of 22 TestBed experiments \citep{testbed},
+using prior log data from experimental participants and
+non-participants in the ASSISTments system.
+
+The nexus of machine learning and causal inference has recently experienced
+rapid and exciting development.
+This has included novel methods to analyze observational studies
+\citep[e.g.][]{diamond2013genetic},
+to estimate subgroup effects \citep[e.g.][]{bothways,kunzel2018transfer}, or to optimally
+allocate treatment (e.g. \cite{uplift}, \cite{siyuan}).
+Other developments share our goal, i.e. improving the precision of
+average treatment effect estimates from RCTs.
+These include \citet{bloniarz2016lasso}, which uses the Lasso regression
+estimator \citep{tibshirani1996regression} to analyze experiments
+\citep[also see][]{belloni2014inference}, and the Targeted Learning
+\citep{van2011targeted} framework,
+which combines ensemble machine-learning with semiparametric maximum
+likelihood estimation.
+Few of these methods are design based, and to our knowledge, no extant
+method uses data from the remnant to estimate effects.
+
+The next section will review cruicial background material: design
+based RCT analysis and covariate adjustment, rebar, and LOOP.
+Section \ref{sec:theMethod} will present our main methodological
+contribution, ReLOOP.
+Section \ref{sec:simulations} will demonstrate its potential with a
+simulation study.
+Section \ref{sec:assistments} will use ReLOOP to estimate treatment
+effects in the TestBed experiments, and Section \ref{sec:conclusion}
+will conclude.
