@@ -1,0 +1,116 @@
+\section{Estimating Effects in 22 Online Experiments}
+\subsection{Data from the ASSISTments TestBed}
+
+<<loadPackages,include=FALSE,cache=FALSE>>=
+library(scales)
+library(ggplot2)
+library(dplyr)
+library(loop.estimator)
+source('code/loop_ols.R')
+source('code/loop_ext.R')
+@
+
+<<loadData,include=FALSE,cache=TRUE>>=
+source('code/dataPrep.r')
+@
+
+<<analysisFunctions,include=FALSE,cache=FALSE>>=
+source('code/analysisFunctions.r')
+@
+
+<<runAnalysis,include=FALSE,cache=TRUE>>=
+fullres <- sapply(levels(dat$problem_set),full,simplify=FALSE)
+
+save(fullres,file='results/fullres.RData')
+@
+
+<<loadResults,include=FALSE,cache=FALSE>>=
+load('results/fullres.RData')
+rnk <- rank(sapply(fullres,function(x) x['simpDiff','se']))
+names(fullres) <- LETTERS[rnk]
+
+justSEs <- sapply(fullres,function(x) x[,'se'])
+justImp <- sapply(fullres,function(x) x[,'improvement'])
+@
+
+<<sampleSize,results='asis',echo=FALSE>>=
+RCT <- dat$let
+T <- ifelse(dat$treatment==1,'Treatment','Control')
+xtable::xtable(table(T,RCT),caption='Sample Sizes for each of the 22 TestBed A/B Tests',label='tab:sampleSizes')
+@
+
+
+\subsection{Deep Learning in the Remnant}\label{sec:deepLearning}
+
+\subsection{Results}
+In each of the 22 experiments, we calculated four different unbiased
+ATE estimates.
+The first two used only the standard data provided by the TestBed
+\begin{enumerate}
+ \item the simple difference \eqref{eq:tauSD}
+ \item LOOP using only covariates supplied within TestBed
+\end{enumerate}
+The remaining two also used remnant-based imputations, described in
+Section \ref{sec:deepLearning}
+\begin{enumerate}
+  \setcounter{enumi}{3}
+\item rebar, i.e. the simple difference estimate with
+    $Y-\pred$ replacing outcomes $Y$
+ \item ReLOOP, using both $\pred$ and provided TestBed covariates
+\end{enumerate}
+Since each of these estimates is unbiased, we will focus on the
+estimated standard errors, which are displayed in Figure
+\ref{fig:ses}.
+
+<<badRebar,include=FALSE>>=
+badRebar1 <- colnames(justImp)[which.min(justImp['rebar',])]
+ji <- justImp[,-which.min(justImp['rebar',])]
+badRebar2 <- colnames(ji)[which.min(ji['rebar',])]
+@
+
+<<badReLOOP>>=
+badReLOOP <- -justImp['strat3',justSEs['strat3',]>justSEs['simpDiff',]]*100
+@
+%Within-sample covariance adjustment via LOOP improved precision in \Sexpr{sum(justSEs['justCovs',]<justSEs['simpDiff',])}
+
+Rebar standard errors were lower than their simple difference
+counterparts in \Sexpr{sum(justSEs['rebar',]<justSEs['simpDiff',])} of
+the 22 experiments.
+Notably, in one case (labeled experiment
+``\Sexpr{colnames(justImp)[which.max(justImp['rebar',])]}'') rebar
+reduced the simple difference standard error by approximately
+\Sexpr{round(max(justImp['rebar',])*100)}\%.
+On the other hand, in
+\Sexpr{sum(justSEs['rebar',]>justSEs['simpDiff',])} experiments, rebar
+increased the standard error, most egregiously in experiments
+\Sexpr{badRebar1} and \Sexpr{badRebar2}, in which rebar increased
+standard errors by factors of
+\Sexpr{round(justImp['rebar',badRebar1]*100)}\% and
+\Sexpr{round(justImp['rebar',badRebar2]*100)}\%, respectively.
+In these cases, apparently, the imputations from the model fit to the
+remnant were particularly inaccurate.
+Because experimental outcomes played no role whatsoever in rebar
+covariate adjustment, the adjustment was blind to this inaccuracy, and
+was unable to anticipate the resulting increase in standard errors in
+those cases.
+
+In contrast, the ReLOOP estimator incorporates information on
+imputation accuracy into its covariate adjustment.
+Indeed, ReLOOP standard errors were smaller than simple difference
+standard errors in all but
+\Sexpr{sum(justSEs['strat3',]>justSEs['simpDiff',])} cases.
+In those cases, the inrease in precision was trivial: \Sexpr{round(badReLOOP[1])}\% and
+\Sexpr{round(badReLOOP[2])}\%.
+In fact, ReLOOP standard errors were lower than rebar's across the
+board.
+
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{ses.pdf}
+\caption{Standard errors for four ATE estimates in each of the 22
+  ASSISTments online experiments, in percentage point units. The experiments are ordered
+  according to the standard error of the simple difference estimate.}
+\label{fig:ses}
+\end{figure}
