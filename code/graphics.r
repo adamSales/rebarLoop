@@ -34,15 +34,31 @@ ggsave('ses2.pdf',width=6.5*0.95,height=4)
 
 
 
-pd3 <- pd%>%group_by(rnk)%>%mutate(ssMult=se[method=='Simple Difference']^2/se^2)%>%ungroup()%>%
-    filter(method%in%c('justCovs','strat3'))
+pd3 <- pd%>%group_by(rnk)%>%mutate(ssMult=se[method=='simpDiff']^2/se^2)%>%ungroup()%>%
+    filter(method%in%c('rebar','justCovs','strat3'))%>%
+        mutate(method=fct_recode(method,'LOOP (Within Sample)'='justCovs','Rebar'='rebar',
+                   'ReLOOP'='strat3'))
 
-ggplot(pd%>%filter(method!='Simple Difference'),aes(rnk,ssMult,color=method,group=method))+
-  geom_point()+
-  geom_line()+
-  theme(legend.position='top')+
-  labs(x='RCT',y='Sample Size Multiplier',color=NULL,group=NULL)
-ggsave('ssMult.pdf')
+
+pd3 <- pd%>%group_by(rnk)%>%mutate(ssMult=se[method=='simpDiff']^2/se^2)%>%ungroup()%>%
+    filter(method=='strat3')%>%arrange(ssMult)%>%mutate(x=1:n())
+
+plot(pd3$ssMult,ylim=c(0,3),type='n')
+text(pd3$ssMult,labels=pd3$rnk,ylim=c(0,3),type='b')
+
+ggplot(pd3,aes(x,ssMult,label=rnk))+geom_text(nudge_y=0.05)+geom_line()+geom_hline(yintercept=1,linetype='dotted')
+
+ggplot(ungroup(pd3),aes(x=as.numeric(rnk),y=ssMult))+#,color=method,group=method))+
+    geom_point()+
+        geom_line()+
+            theme(text=element_text(size=12))+
+                labs(x='RCT',y='Equivalent Increase in Sample Size')+#,color=NULL,group=NULL)+
+                    geom_hline(yintercept=1,linetype='dotted')+
+                        scale_y_continuous(labels=percent)+
+                            scale_x_continuous(breaks=1:22,labels=LETTERS[1:22])
+
+ggsave('ssMult.pdf',width=6.5*0.95,height=4)
+
 
 
 

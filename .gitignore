@@ -14,6 +14,9 @@
 *.bbl
 *.bcf
 *.blg
+*.npy
+*.RData
+
 
 
 
