@@ -7,28 +7,36 @@ pd <- do.call('rbind',
         levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
       rnk=x)))
 
-pd <- droplevels(subset(pd,method%in%c('simpDiff','justCovs','rebar','strat3')))
-levels(pd$method) <- c('Simple Difference','LOOP (Without Remnant)','Rebar','ReLOOP')
-pd$rnk <- factor(as.character(pd$rnk))
-## ggplot(pd,aes(method,se,fill=method))+
-##     geom_col(position='dodge')+xlab(NULL)+
-##     theme(axis.title.x=element_blank(),
-##         axis.text.x=element_blank(),
-##           axis.ticks.x=element_blank(),
-##           legend.position='top')+
-##         scale_fill_manual(values=subwayPalette[1:4],name=NULL)+
-##         facet_wrap(~rnk,scales="free_y")
-## #ggsave('ses.pdf')
+pd1 <- pd%>%filter(method%in%c('simpDiff','rebar','strat1'))%>%
+    mutate(method=fct_recode(method,`Simple Difference`='simpDiff', `Rebar`='rebar',`ReLOOP*`='strat1'))
+pd1$rnk <- factor(as.character(pd1$rnk))
 
-ggplot(pd,aes(rnk,se,color=method,group=method))+
+
+ggplot(pd1,aes(rnk,se*100,color=method,group=method))+
   geom_point()+
   geom_line()+
-  theme(legend.position='top')+
-      labs(x='RCT',y='Standard Error (Percentage Points)',color=NULL,group=NULL)+
-          scale_y_continuous(labels=percent)
-ggsave('ses.pdf',width=6,height=4)
+  theme(legend.position='top',text=element_text(size=12))+
+      labs(x='RCT',y='Standard Error (Percentage Points)',color=NULL,group=NULL)
+ggsave('ses1.pdf',width=6.5*.95,height=4)
 
-pd <- pd%>%group_by(rnk)%>%mutate(ssMult=se[method=='Simple Difference']^2/se^2)%>%ungroup
+
+pd2 <- pd%>%filter(method%in%c('simpDiff','justCovs','strat3'))%>%
+    mutate(method=fct_recode(method,`Simple Difference`='simpDiff', `LOOP (Within Sample)`='justCovs',`ReLOOP`='strat3'))
+pd2$rnk <- factor(as.character(pd2$rnk))
+
+
+ggplot(pd2,aes(rnk,se*100,color=method,group=method))+
+  geom_point()+
+  geom_line()+
+  theme(legend.position='top',text=element_text(size=12))+
+      labs(x='RCT',y='Standard Error (Percentage Points)',color=NULL,group=NULL)
+ggsave('ses2.pdf',width=6.5*0.95,height=4)
+
+
+
+pd3 <- pd%>%group_by(rnk)%>%mutate(ssMult=se[method=='Simple Difference']^2/se^2)%>%ungroup()%>%
+    filter(method%in%c('justCovs','strat3'))
+
 ggplot(pd%>%filter(method!='Simple Difference'),aes(rnk,ssMult,color=method,group=method))+
   geom_point()+
   geom_line()+
