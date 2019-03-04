@@ -37,3 +37,19 @@ covs$Guessed.Gender <- NULL
 dat$treatment <- ifelse(dat$condition=='E',1,0)
 
 dat$residual <- dat$complete-dat$p_complete
+
+dat%>%group_by(problem_set)%>%summarize(corT=cor(p_complete,complete),mse=mean((complete-p_complete)^2))
+cc <- dat%>%group_by(problem_set,treatment)%>%summarize(cor=cor(p_complete,complete),mse=mean((complete-p_complete)^2),r2=1-mse/var(complete),sdr=sd(complete-p_complete),sdRat=sdr/sd(complete))
+cc <- cbind(
+  cc%>%filter(treatment==0)%>%rename(corC=cor,mseC=mse,r2c=r2,sdC=sdr,sdRatC=sdRat),
+  cc%>%filter(treatment==1)%>%select(corT=cor,mseT=mse,r2t=r2,sdT=sdr,sdRatT=sdRat))
+
+## cor(x,y)=cov(x,y)/sd(x)sd(y)
+## cov(x,y)=E(xy)-ExEy
+
+## mse=E((x-y)^2)
+## =Ex^2+Ey^2-2Exy
+## =Ex^2+Ey^2-2cov(x,y)+2ExEy
+## =var(x)+var(y)-2cov(x,y)+2ExEy+(Ex)^2+(Ey)^2
+## =var(x)+var(y)-2cov(x,y)+(Ex+Ey)^2
+## =sd(x)/sd(y)+sd(y)/sd(x)-2cor(x,y)+(Ex+Ey)^2/sd(x)sd(y)

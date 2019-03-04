@@ -1,5 +1,115 @@
 \section{Estimating Effects in 22 Online Experiments}
 \subsection{Data from the ASSISTments TestBed}
+We apply and evaluate the methods described in this work to a set of
+22 randomized controlled experiments run within the ASSISTments
+Testbed. Assistments is a free web-based learning platform used by
+real teachers and students for classwork and homework; the system
+contains primarily 6th, 7th, and 8th grade mathematics content (as is
+the basis of the 22 studies observed in this work), but also hosts
+content and users from other domains and grade levels ranging from
+early elementary school through college-level.
+The Testbed is a platform on which
+external researchers can propose and run studies within
+ASSISTments, randomizing student and teacher users in real-time into
+different software configurations.
+The hope is that by A/B testing, researchers can rigorously test
+educational or cognitive theories, while simultaneiously guiding the
+improvement of ASSISTment's pedegogy.
+
+Once a TestBed proposal is approved, based on IRB and content quality
+criteria, its experimental conditions are embedded into an ASSISTments
+assignment.
+This is then assigned to students, either by a group of
+teachers recruited by the researcher or, more commonly,
+by the existing population of teachers using ASSISTments in their
+classrooms. For example, take an experiment is comparing text-based
+hints to video hints.
+The proposing researcher would create the alternative hints and embed them
+into particular assignable content, otherwise referred to as a ``problem set.''
+Then, any
+time that a teacher assigns that problem set to his or her students,
+those students are randomized to one of the conditions, and, when they
+request hints, receive them as either text or video.
+
+There are several types of problem sets that researchers can
+utilize when developing their experiments. In the case of the 22
+experiments observed in this work, the problem sets are
+mastery-based assignments called “skill builders.” As opposed to
+more traditional assignments requiring students to complete all
+problems assigned, skill builders require students to demonstrate
+a sufficient level of understanding in order to complete the
+assignment. By default, students must simply answer three
+consecutive problems correctly without the use of
+computer-provided aid such as hints or scaffolding (i.e. a type of
+aid that breaks the problem into smaller steps).
+In this way,
+completion acts as a measure of knowledge and understanding as
+well as persistence and learning, as students will be continuously
+given more problems until they are able to reach the completion
+threshold.
+ASSISTments also includes a “daily limit” of ten
+problems to encourage students to seek help if they are struggling
+to reach the threshold.
+% Both completion and mastery speed,
+% calculated as the number of problems needed to complete the skill
+% builder (or undefined when the student is unable to complete), are
+% common dependent measures used when running experiments in skill
+% builders, particularly when such experiments are comparing types
+% of content or instructional feedback as is the case in the 22
+% randomized controlled experiments observed in this work.
+
+After the completion of a TestBed experiment, the proposing researcher
+may download a dataset which includes students' treatment assignments
+and their performance within the skill builder, including an indicator
+for completion.
+Additionally, the dataset includes 30 aggregated features that
+describe student performance and activity recorded within the
+learning platform prior to random assignment for each respective
+experiment.
+We combined this data with disaggregated log data from students'
+individual prior assignments.
+
+We also gathered analogous data from a large remnant of students who
+did not participate in any of the 22 experiments we analyzed.
+Rather than use the entire set of past ASSISTments users to build a
+remnant, we selected students who resembled those who participated in
+the 22 experiments.
+Specifically, we first observed the collection of problem sets given
+to students in the experiments before being assigned.
+The remnant consisted of all other ASSISTments users who had been
+assigned to at least one of those assignments.
+In other words, the remnant consisted of students who did not
+participate in any of the 22 experiments, but had worked on some of
+the same content as those who did.
+All in all, the remnant consisted of  students.
+
+% \begin{itemize}
+%  \item In general
+%  \begin{itemize}
+%   \item What is TestBed?
+%   \item What are skill builders?
+%   \item What does ``complete'' mean?
+%   \item Which skill builders get experimented on? (researcher chooses, right?)
+%   \item Which classrooms participate in the studies? (whoever assigns
+%     skill builders with attached experiments, right?)
+%  \end{itemize}
+%  \item These 22 experiments
+%  \begin{itemize}
+%   \item What are the interventions under study here?
+%   \item What are the subjects of the skill builders? (e.g. Pythagorean
+%     theorem, etc. We don't need to list all of them, but maybe give a
+%     couple examples and say something in general)
+%   \item How were these 22 experiments chosen?
+%   \item Sample sizes (see table)
+%  \end{itemize}
+%  \item The Remnant
+%  \begin{itemize}
+%   \item What data are available?
+%   \item How were subjects chosen?
+%   \item Something about lack of overlap between remnant and
+%     experiments in both \emph{students} and \emph{skill builders}
+%  \end{itemize}
+% \end{itemize}
 
 <<loadPackages,include=FALSE,cache=FALSE>>=
 library(scales)
@@ -11,7 +121,7 @@ source('code/loop_ols.R')
 source('code/loop_ext.R')
 @
 
-<<loadData,include=FALSE,cache=TRUE>>=
+<<loadData,include=FALSE,cache=FALSE>>=
 source('code/dataPrep.r')
 @
 
@@ -57,8 +167,17 @@ cat('$n_T$ &',paste(ssTab['1',LETTERS[12:22]],collapse='&'),'\\\\\n')
 \label{tab:sampleSizes}
 \end{table}
 
-\subsection{Deep Learning in the Remnant}\label{sec:deepLearning}
+\subsection{Deep Learning in the Remnant to Impute
+  Completion}\label{sec:deepLearning}
 
+
+
+\begin{itemize}
+ \item General structure: predicts what as a function of what?
+ \item briefly describe deep learning
+ \item describe a couple modeling choices
+ \item how was the model evaluated? (cross validation?)
+\end{itemize}
 \subsection{Results}
 
 In each of the 22 experiments, we calculated five different unbiased
@@ -83,6 +202,10 @@ Since each of these estimates is unbiased, we will focus on the
 estimated standard errors.
 
 \subsubsection{Simple Difference, Rebar, and LOOP}
+
+<<makeGraphics,include=FALSE>>=
+source('code/graphics.r')
+@
 
 \begin{figure}
 \centering
@@ -118,11 +241,12 @@ reduced the simple difference standard error by approximately
 \Sexpr{justImp['rebar',best]}\%.
 On the other hand, in
 \Sexpr{sum(justSEs['rebar',]>justSEs['simpDiff',])} experiments, rebar
-increased the standard error, most egregiously in experiments
-\Sexpr{badRebar1} and \Sexpr{badRebar2}, in which rebar increased
-standard errors by factors of
-\Sexpr{justImp['rebar',badRebar1]}\% and
-\Sexpr{justImp['rebar',badRebar2]}\%, respectively.
+increased the standard error, most egregiously in experiment%s
+\Sexpr{badRebar1}% and \Sexpr{badRebar2}
+, in which rebar increased
+standard errors by a factor of
+\Sexpr{justImp['rebar',badRebar1]}\%. % and
+%\Sexpr{justImp['rebar',badRebar2]}\%, respectively.
 In these cases, apparently, the imputations from the model fit to the
 remnant were particularly inaccurate.
 Because experimental outcomes played no role whatsoever in rebar
@@ -156,7 +280,7 @@ difference standard errors by a factor of \Sexpr{justImp['strat1',best]}\%.
 
 <<reloop,include=FALSE>>=
 bestL <- colnames(justImp)[which.max(justImp['justCovs',])]
-stopifnot(sum(justSEs['justCovs',]>justSEs['simpDiff',])==5)
+stopifnot(sum(justSEs['justCovs',]>justSEs['simpDiff',])==4)
 @
 
 
@@ -169,7 +293,7 @@ errors.
 In some cases the reduction was substantial---in experiment
 \Sexpr{bestL}, LOOP reduced standard errors by a factor of
 \Sexpr{justImp[,bestL]}\%.
-In five cases LOOP standard errors were slightly greater than simple
+In four cases LOOP standard errors were slightly greater than simple
 difference, though the difference was moderate or
 small---\Sexpr{-min(justImp['justCovs',])}\% or less.
 

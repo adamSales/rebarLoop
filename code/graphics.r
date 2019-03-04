@@ -52,22 +52,23 @@ ggplot(ungroup(pd3),aes(x=as.numeric(rnk),y=ssMult))+#,color=method,group=method
     geom_point()+
         geom_line()+
             theme(text=element_text(size=12))+
-                labs(x='RCT',y='Equivalent Increase in Sample Size')+#,color=NULL,group=NULL)+
+                labs(x='RCT',y='Equivalent Increase\n in Sample Size')+#,color=NULL,group=NULL)+
                     geom_hline(yintercept=1,linetype='dotted')+
                         scale_y_continuous(labels=percent)+
                             scale_x_continuous(breaks=1:22,labels=LETTERS[1:22])
 
-ggsave('ssMult.pdf',width=6.5*0.95,height=4)
+ggsave('ssMult.pdf',width=6.5*0.95,height=3)
 
 
 
 
-ggplot(filter(pd,method%in%c('Simple Difference','ReLOOP')), aes(rnk,est,color=method))+
+ggplot(filter(pd,method%in%c('simpDiff','strat3')), aes(rnk,est,color=method))+
     geom_point(position=position_dodge(.4))+
         geom_errorbar(aes(ymin=est-2*se,ymax=est+2*se),position=position_dodge(.4),width=0)+
             geom_hline(yintercept=0,linetype='dotted')+
                 theme(legend.position='top')+
-                    labs(color=NULL,x=NULL,y='Treatment Effect')
-ggsave('estimates.pdf')
+                    labs(color=NULL,x=NULL,y='Treatment Effect')+
+                        scale_color_discrete(labels=c('Simple Difference','ReLOOP'))
+ggsave('estimates.pdf',width=6.5*0.95,height=4)
 
 
