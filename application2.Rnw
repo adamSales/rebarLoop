@@ -1,0 +1,152 @@
+\section{Estimating Effects in a School-Level Effectiveness Trial}
+In a second illustration of ReLOOP, we conducted a secondary data
+analysis of a randomized trial of the Cognitive Tutor Algebra 1 (CTA1)
+curriculum, first reported in \citet{ctaiEval}.
+The Cognitive Tutor is a pioneer ``intelligent tutoring system,''
+a computer program designed to teach users, alongside teachers.
+The CTAI curriculum, created by Carnegie Learning, combines the
+Cognitive Tutor for Algebra I with a student-centered classroom
+curriculum.
+
+The CTA1 effectiveness study was designed to measure CTA1's effect on
+students' scores on an Algebra I posttest, in a wide variety of
+schools under realistic conditions.
+The study took place over the course of two academic years,
+20007--2008 and 2008--2009, in middle schools and high schools across
+seven states.
+The study found substantial positive effects in the 2008--2009 high
+school sample, but not in the other strata.
+
+The design of the study was a blocked, cluster-randomized trial:
+schools were paired within districts, and randomized to use either
+CTA1 or business as usual.
+Only students taking Algebra I were included in the analysis sample.
+
+Our secondary analysis uses aggregated school-level data from schools
+in Texas, were school-level data are readily accessible through the
+Academic Excellence Indicator
+System (AEIS\footnote{\url{https://rptsvr1.tea.texas.gov/perfreport/aeis/index.html},
+  Accessed 3/4/2019.}).
+We estimated the effect of a school's assignment to the CTA1 condition
+on the proportion of students achieving satisfactory performance on
+the math portion of the Texas Assessment of Knowledge and Skills
+(TAKS), a statewide standardized test.
+We conducted separate analyses for middle school and high school, in
+the two study years,
+using passign rates on the 8th grade and 9th grade TAKS, in 2008 and 2009
+respectively.
+
+\subsection{Data}
+<<loadEsts,include=FALSE,error=FALSE>>=
+source('ctTXrebar/estAll.r')
+@
+
+<<dataInf,include=FALSE,cache=FALSE,error=FALSE>>=
+load('ctTXrebar/dataInf.RData')
+@
+
+Sixteen pairs of middle schools and six pairs of high schools were
+randomized in the Texas arm of the study.
+The original evaluation used student level data, our secondary
+analysis uses only school-level data, so for our purposes $n_T=n_C=16$
+in the middle school stratum and $n_T=n_C=6$ in the high school
+stratum, a small sample size.
+
+Outcomes (TAKS passing rates) and covariates were all downloaded from
+the Texas AEIS.
+We gathered a total of \Sexpr{nCovMS} covariates for middle schools
+and \Sexpr{nCovHS} for high schools.
+These included aggregate student demographics and academic
+performance, alongside staff and financial data, from school years
+beginning in 2003--2006, as well as student demographic, staff, and
+financial data from the 2007--2008 school year, the first year of the
+study.
+The large number of covariates is due, in large part, to the
+aggregation: data include, for instance, the number, percentage, and
+academic performance for students of several demographic subgroups.
+We singled out one of these covariates as particuarly promising: the
+school-level ``pretest,'' i.e. the TAKS passing rate from 2006--2007,
+the year before the onset of the CTA1 experiment.
+
+The remnant consisted of Texas schools with observed outcome data,
+for the most part middle schools and high schools, which
+did not participate in the CTA1 study.
+All in all, the remnant consisted of \Sexpr{nRemMS} middle schools and
+\Sexpr{nRemHS} high schools.
+
+We used the remnant to fit random forests \citep{randomForest} using
+the fast implementation from the \texttt{R} package \texttt{ranger},
+to impute potential
+TAKS passing rates for high schools and middle schools in the two
+school years.
+To fit each model, we regressed school-level TAKS mathematics passing
+rates in each remnant on all school level covariates.
+Out-of-bag $R^2$ values were roughly 0.7 for all models.
+
+\subsection{Results}
+
+Two modifications to the LOOP algorithm were necessary, since the randomization in the
+CTA1 study was paired, not Bernoulli.
+First, rather than leave out each individual observation when fitting
+the imputation model, we left out each randomization pair, since
+randomization was independent between pair.
+Second, we estimated standard errors for all estimates using the
+design-based standard error estimate
+\citep[e.g.][]{gadbury2001randomization}--$s(\bm{d})/\sqrt{n_p}$,
+where $s(\cdot)$ is the sample standard deviation, $\bm{d}$ is a
+vector of within-pair differences in outcomes (simple difference
+estimator), prediction errors (rebar), or $y-\hat{m}$ (LOOP and
+ReLOOP).
+A third modification to LOOP was due to the small sample sizes: rather than
+using random forests to impute potential outcomes based on covariates
+within the sample, we used OLS, and used school pretest as the sole
+within-sample covariate.
+
+<<resultsCT,echo=FALSE,results='asis',error=FALSE>>=
+library(kableExtra)
+
+for(yr in c('8','9')){
+    res <- results[[yr]]
+    res <- res[which(res$lev=='Pooled'):nrow(res),-1]
+    res <- res[c('simpDiff2','rebar2','loopPre2','loopRebar2','loopBoth2'),]
+    names(res) <- c('estimator','Estimate','SE','imp')
+    rownames(res) <- c(simpDiff='Simple Difference',rebar='Rebar',loopRebar='ReLOOP*',loopBoth='ReLOOP',loopPre='LOOP')[as.character(res$estimator)]
+    res$estimator <- NULL
+    assign(paste0('res',yr),res)
+}
+
+
+res <- cbind(res8[,c('Estimate','SE')],res9[,c('Estimate','SE')])
+#rownames(res)[1] <- ''
+## kable(res,align=c('r','l','l','l','l'),col.names=names(res),booktabs=TRUE)#%>%#kable_styling(full_width=FALSE)%>%
+##     ## column_spec(1,border_left=FALSE,border_right=FALSE)#%>%
+##     ##     column_spec(3,border_left=FALSE,border_right=TRUE)%>%column_spec(4,border_left=TRUE,border_right=FALSE)%>%
+## add_header_above(c(" "=1, "2008" = 2, "2009" = 2))#%>%
+
+library(xtable)
+print(xtable(res,align='rll|ll',caption='Estimates and standard errors of assignment to the CTA1 condition on 8th or 9th grade Texas state tests passing rates in the two study years. The middle- and high-school samples were pooled',label='tab:resultsCT'),add.to.row=list(pos=list(0,0),command=c('&\\multicolumn{2}{c}{2007--2008}&\\multicolumn{2}{c}{2008--2009}\\\\ \n','&Estimate&SE&Estimate&SE\\\\ \n')),include.colnames=FALSE,hline.after=c(0,nrow(res)))
+
+@
+
+The results are displayed in Table \ref{tab:resultsCT}.
+For simplicity, we pooled results within each study year.
+In 2007--2008, all four covariance adjustment techniques reduced the
+standard error substantially. Compared with the simple difference
+standard error of \Sexpr{round(res8['Simple Difference','SE'],1)} percentage points,
+the rebar standard error of \Sexpr{round(res8['Rebar','SE'],1)}
+represented an improvement of \Sexpr{round(res8['Rebar','imp']*100)}\%, and
+the ReLOOP standard error of \Sexpr{round(res8['ReLOOP','SE'],1)}
+represented an improvement of \Sexpr{round(res8['ReLOOP','imp']*100)}\%.
+
+In the following school year, rebar peformed similarly, giving a
+standard error of \Sexpr{round(res9['Rebar','SE'],1)} percentage points, and
+\Sexpr{round(res9['Rebar','imp']*100)}\% improvement over the the simple
+difference standard error of \Sexpr{round(res9['Simple Difference','SE'],1)}.
+In contrast, LOOP---using only the pretest as a covariate---only
+improved on the simple difference standard error by
+\Sexpr{round(res9['LOOP','imp']*100)}\%.
+Surprisingly, ReLOOP, using both predictions from the remnant and
+school pretests, did not perform as well as rebar, improving the
+simple difference standard error by merely
+\Sexpr{round(res9['ReLOOP','imp']*100)}\%.
+This is likely due to the relative unreliability of OLS in small samples.
