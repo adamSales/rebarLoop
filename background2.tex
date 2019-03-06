@@ -208,11 +208,11 @@ effects with greater precision;
 its success in this regard depends on the predictive accuracy of $\predcx$ and $\predtx$.
 \citet{loop} show that
 \begin{equation}
-V(\thim|\hmi)=\frac{(\hmi-m_i)^2}{p(1-p)}
+V(\thim)=\frac{\EE(\hmi-m_i)^2}{p(1-p)}
 \end{equation}
 Accurate imputations of $\yci$ and $\yti$, and hence of $\hmi$, yield precise estimation of $\tau_i$.
-On the other hand, inaccurate imputations (such that
-$(\hmi-m_i)^2>m_i^2$) will decrease precision---though, again, without
+On the other hand, inaccurate imputations, i.e. when the mean squared
+error (MSE) of $\hmi$ is greater than $m_i$, will decrease precision---though, again, without
 causing bias.
 %Note, however, that predictive accuracy of $\predc$ or $\predt$ does not impact bias.
 The sampling variance of $\thm$ depends on the dependence structure of
@@ -261,7 +261,7 @@ users for whom log data is available but who did not participate in
 the experiment.
 
 Clearly, pooling data from the remnant with data from the experiment
-undermines the benefits and justification for randomization.
+undermines the randomization.
 On the other hand, \citet{rebarEDM} argues that data from the remnant
 can play a role in covariate adjustment.
 When an RCT contrasts an experimental condition in $\mathcal{T}$ with
@@ -281,7 +281,7 @@ Since the algorithm $\predcr{\cdot} $ is trained using data from a
 separate sample from the experiment, and $\bm{x}\independent T$ by
 design, imputations $\predcxr $ satisfy the
 independence criterion (\ref{eq:indPred}).
-In fact, $\tilde{x}_{i}$ may be treated formally just like any other
+In fact, $\predcxr$ may be treated formally just like any other
 covariate---a fact which is reflected in its notation.
 Furthermore, $\predcr{\cdot}$ may be trained and assessed in any way, as
 long as only remnant data is used.
@@ -297,13 +297,13 @@ rise to precisely the same imputations $\predcxr $.
 The frequent problem of post-selection inference, which is exacerbated
 when the dimension of $\bm{x}$ is large, does not apply here.
 
-\citet{rebarEDM} used rebar to analyze the 22 TestBed experiments, and
-in 16 of the experiments, rebar reduced standard
-errors by 25-45\% relative to estimates without covariate adjustment.
-However, in three experiments, the rebar estimates had higher standad
-errors than their unadjusted counterparts (in the remaining three
-experiments, the improvement was moderate).
-In general, when $\predcxr$ is a poor
+% \citet{rebarEDM} used rebar to analyze the 22 TestBed experiments, and
+% in 16 of the experiments, rebar reduced standard
+% errors by 25-45\% relative to estimates without covariate adjustment.
+% However, in three experiments, the rebar estimates had higher standad
+% errors than their unadjusted counterparts (in the remaining three
+% experiments, the improvement was moderate).
+In general, when $\predcxr$ %is a poor
 differs greatly from $\yci$, so that $(m_i-\hmi^{rebar})^2>m_i^2$, covariance
 adjustment increases sampling variance.
 This will be the case if an algorithm trained in the remnant
