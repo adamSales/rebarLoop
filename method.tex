@@ -30,22 +30,54 @@ coefficients from a regression of the observed $y_C$ on $\tilde{x}$,
 omitting observation $i$.  The expression for $\hat{y}_{Ti}$ would be
 analogous.
 
+We refer to this strategy as ReLOOP*, or ``remnant-based LOOP'' (we
+reserve the moniker ReLOOP, without the asterisk, for our preferred
+strategy, below).
 
-This strategy may be preferable to rebar because, for each
+ReLOOP* may be preferable to rebar because, for each
 observation $i$, the remaining $N-1$ observations help determine the
 best use of $\tilde{x}_i$ in $\hat{m}_i$.
-This confers two advantages: first, $\tilde{x}$'s role may be tempered
+That is, $\tilde{x}$'s role may be tempered
 according to the prediction accuracy of $\predcr{\cdot}$ in the
 experimental sample.
 When the $\tilde{x}_{i}$ are highly accurate imputations of $y_C$, $\hat{\beta}_{1C}^{(-i)} \approx 1$
 %and $\hat{\beta}_{0C}^{(-i)} \approx 0$
-and $\hat{y}_{Ci} \approx \tilde{x}_{i}$.  In other words, the imputations from the remnant ``pass through'' the LOOP procedure largely unmodified, resulting in a rebar-like adjustment.  However, in contrast to rebar, poor imputations $\tilde{x}$ will not necessarily harm precision.  Consider the extreme case in which $\tilde{x}$ is pure noise.  We would then expect $\hat{\beta}_{1C}^{(-i)} \approx 0$ and $\hat{\beta}_{0C}^{(-i)} \approx \bar{y}^{(-i)}_{Ci}$ so that $\hat{y}_{Ci} \approx \bar{y}^{(-i)}_{Ci}$.  That is, we revert approximately to mean-imputation, and the final estimator is therefore approximately equal to the simple difference estimator.
-The second advantage is that a preliminary ATE estimate, based on those $N-1$
-observations, now differentiates $\hat{y}_{Ci}$ from $\hat{y}_{Ti}$.
+and $\hat{y}_{Ci} \approx \tilde{x}_{i}$.  In other words, the
+imputations from the remnant ``pass through'' the LOOP procedure
+largely unmodified, resulting in a rebar-like adjustment.  However, in
+contrast to rebar, poor imputations $\tilde{x}$ will not necessarily
+harm precision.  Consider the extreme case in which $\tilde{x}$ is
+pure noise.  We would then expect $\hat{\beta}_{1C}^{(-i)} \approx 0$
+and $\hat{\beta}_{0C}^{(-i)} \approx \bar{y}^{(-i)}_{Ci}$ so that
+$\hat{y}_{Ci} \approx \bar{y}^{(-i)}_{Ci}$.  That is, we revert
+approximately to mean-imputation, and the final estimator is therefore
+approximately equal to the simple difference estimator.
+
+In particular, biased imputations can still be helpful.  Importantly,
+because the $\tilde{x}_{i}$ are used as a covariate within LOOP, they
+do not necessarily need to accurately impute the potential outcomes in
+the experimental sample; rather, it suffices that they are merely
+predictive of the potential outcomes.  If the experimental sample is
+systematically different from the remnant,  e.g., the potential
+outcomes in the experimental sample are on average higher than those
+in the remnant, the $\tilde{x}_{i}$ will still be useful as long as
+they are correlated with the experimental potential outcomes.
+
+That, in turn suggests that ReLOOP* may improve on rebar when there is a treatment
+effect.
+We have implicitly assumed here that all units in the remnant are
+untreated, and the $\tilde{x}_{i}$ are imputed control potential
+outcomes.
+However, the $\tilde{x}_{i}$ may still be used as a covariate within
+LOOP for predicting treatment potential outcomes, even if the $y_T$
+differ from the $y_C$ due to a treatment effect, as long as
+$\tilde{x}$ is predictive of $y_T$.
+
+
 
 
 \paragraph{Strategy 2:}
-Strategy 1 effectively solves rebar's main deficiancies.
+ReLOOP* effectively solves rebar's main deficiancies.
 However, it neglects within-sample covariate data, which might be
 useful for predicting potential outcomes, even after rebar.
 
@@ -61,9 +93,7 @@ A few comments:
 (1) For this option we would use random forests as the imputation strategy within LOOP, as suggested by \cite{loop}.  We refer to LOOP with random forests as LOOP-RF.
 (2) $\tilde{x}_{i}$ is a function of the other covariates and thus, in at least some sense, does not contain any additional information.  However, the function $\hat{y}_C^{rem}(\mathbf{x})$  is fitted on the remnant, which may be much larger than the experimental sample, and thus $\hat{y}_C^{rem}(\mathbf{x})$ may be a more accurate imputation function than what we would be able to obtain using the experimental data alone.  In this sense, $\tilde{x}_{i}$ does contain additional information, which LOOP-RF can exploit by heavily weighting $\tilde{x}_{i}$ over the other covariates.
 (3) If the imputations $\tilde{x}_{i}$ are poor, then LOOP-RF may simply downweight or effectively ignore them.  In particular, poor imputations from the remnant should not harm precision.
-(4) Biased imputations can still be helpful.  Importantly, because the $\tilde{x}_{i}$ are used as a covariate within LOOP-RF, they do not necessarily need to accurately impute the potential outcomes in the experimental sample; rather, it suffices that they are merely predictive of the potential outcomes.  If the experimental sample is systematically different from the remnant,  e.g., the potential outcomes in the experimental sample are on average higher than those in the remnant, the $\tilde{x}_{i}$ will still be useful as long as they are correlated with the experimental potential outcomes.
-(5) We have implicitly assumed here that all units in the remnant are untreated, and the $\tilde{x}_{i}$ are imputed control potential outcomes.  In light of the previous comment (4), the $\tilde{x}_{i}$ may still be used as a covariate within LOOP-RF for predicting treatment potential outcomes, even if the $y_T$ differ from the $y_C$ due to a treatment effect, as long as $\tilde{x}$ is predictive of $y_T$.
-(6) If the $\tilde{x}_{i}$ are highly accurate, using them as a covariate within a nonparametric method like a random forest may be statistically inefficient.  The random forest may effectively just add noise or bias.  It is this concern that motivates the next strategy.
+(4) If the $\tilde{x}_{i}$ are highly accurate, using them as a covariate within a nonparametric method like a random forest may be statistically inefficient.  The random forest may effectively just add noise or bias.  It is this concern that motivates the next strategy.
 
 
 \paragraph{Strategy 3:}
@@ -77,6 +107,19 @@ where $\alpha_i$ is given by
 \alpha_i = \argmin_{\alpha \in [0,1]} \sum_{j \in \mathcal{C} \setminus i} \left[Y_j - \left(\alpha \hat{y}^{(-i, S1)}_{Cj}(\mathbf{\tilde{x}_j}) + (1-\alpha) \hat{y}^{(-i, S2)}_{Cj}(\tilde{x}_j) \right)\right]^2
 \end{equation}
 
+We refer to this strategy as ReLOOP.
+
+In summary, ReLOOP combines all of the advantages of rebar and LOOP:
+like rebar, it makes use of the remnant, and when the resulting
+imputations are sufficiantly accurate, ReLOOP returns approximately
+the same estimate as rebar.
+Like LOOP, ReLOOP uses modern machine learning methods---including
+automatic model selection---to adjust for
+covariates within the sample.
+Like both rebar and LOOP, ReLOOP is design-based, and hence returns
+unbiased estimates and conservative inferences regardless of the
+joint distribution of potential outcomes and covariates, and without
+modeling assumptions beyond the experimental design itself.
 
 
 
