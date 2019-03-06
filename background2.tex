@@ -94,7 +94,7 @@ $V(\thipw)=1/N^2\sum_im_i^2/\{p(1-p)\}$.
 Since $\yti $ and $\yci $ are never simultaneously observed,
 $V(\thipw)$ is not identified; however, it may be bounded in expectation,
 as $\hat{V}(\thipw)=\sum_iU_i^2Y_i^2/N^2$:
-$\EE\hat{V}(\thipw)\le V(\thipw)$.
+$\EE\hat{V}(\thipw)\ge V(\thipw)$.
 (See \citealt{aronowMiddleton} for equivalent expressions for more
 general experimental designs.)
 
@@ -140,8 +140,7 @@ To see how, say a researcher had constructed algorithms $\predcx$ and
 $\predtx$ designed to impute $\yc$ and $\yt$, respectively, from
 $\bm{x}$.
 Then, if $\hat{M}_i$ is an imputation of $i$'s missing counterfactual,
-either $\predcx$ or $\predtx$, then $Y_i-\hat{M}_i$ (if $T_i=1$) or $\hat{M}_i-Y_i$ (if $T_i=0$)
-may be considered estimates for $\tau_i$.
+ $\predcx$ or $\predtx$, then they may estimate $\tau_i$ as $Y_i-\hat{M}_i$ (if $T_i=1$) or $\hat{M}_i-Y_i$ (if $T_i=0$).
 In general, the bias of algorithms such as $\predc$ and
 $\predt$, will be unknown, so these effect estimates may be inadvisable.
 On the other hand, imperfect or potentially biased imputations of
