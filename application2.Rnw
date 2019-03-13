@@ -1,4 +1,4 @@
-\section{Estimating Effects in a School-Level Effectiveness Trial}
+
 In a second illustration of ReLOOP, we conducted a secondary data
 analysis of a randomized trial of the Cognitive Tutor Algebra 1 (CTA1)
 curriculum, first reported in \citet{ctaiEval}.
