@@ -1,0 +1,135 @@
+\subsection{Deep Learning in the Remnant to Impute
+  Completion}\label{sec:deepLearning}
+
+We used the remnant to train a variant of a recurrent neural network \cite{} called
+Long-Short Term Memory (LSTM) networks \cite{}---a ``deep
+learning'' algorithm---to
+predict students' assignment completion.
+Unfortunately, we were undable to identify a large number of instances
+in the remnant of students working on the same skill builders as were
+in the 22 experiments; instead, we trained the LSTM model to predict a
+student's completion on whatever skill builder he or she worked on
+next.
+Specifically, we considered sequences of at most ten worked skill
+builders within each student's history, and attempted to predict that
+student's completion on an 11th skill builder.
+
+Deep learning models, and particularly LSTM networks, have been previously applied
+successfully to model similar temporal relationships \cite{}. % Such models have been applied in areas of
+% pattern recognition /cite and natural language processing /cite, but
+% have also been applied within educational contexts to model such
+% student attributes as knowledge and affect while interacting with
+% computer-based learning platforms /cite.
+Deep neural networks are essentially iterated generalized linear
+models: a set of outcomes are modeled as a function of a linear
+combination of latent ``hidden'' variables, which are themselves
+functions of previous layers of hidden variables.
+The process iterates until a bottom layer of hidden variables, which
+is a function of observed covariates.
+The LSTM model extends this logic to panel data: in each time step,
+the model combines information from the current observed time step
+with an aggregation of previous hidden layer outputs as well as an
+internal ``cell memory'' to best inform the model’s outcome
+estimates.
+
+More precisely,
+the model is represented as several fully-connected layers, with a set
+of inputs feeding into one or more hidden layers, and then to an
+output layer corresponding with the observed dependent measures; this
+results in an $n\times m$ matrix of weights between layers
+corresponding to $n$ nodes in a layer and $m$ nodes in the subsequent
+layer.
+A nonlinear function is then commonly applied to the output of each
+layer; we apply a hyperbolic tangent (tanh) function to the output of
+the LSTM layer and a sigmoid function to the estimates produced by the
+output layer.
+We used 16 covariates to describe each single time step (representing
+a student’s performance on a single assignment), which then feeds into
+a hidden LSTM layer of 100 values, or units, which is used to inform
+an output layer of two units corresponding with two outcomes of
+interest: completion and inverse mastery speed---a continuous variable
+that equals the reciprical of the number of problems a student worked,
+if they completed the assignment, and zero otherwise.
+Using the LSTM network to predict two outcomes is an example of
+multi-task learning \cite{}, which attempts to
+reduce model overfitting by simultaneously observing multiple
+dependent measures, regularizing the model. Completion inverse mastery
+speed together represent two different measures of student
+performance; including both prevents the model from overfitting to any
+one measure.
+
+% Input Feature
+% Description
+% Problems started
+% The number of problems started by the student
+% Problems completed
+% The number of problems completed by the student
+% Inverse mastery speed
+% 1 divided by the number of problems needed to complete the skill builder assignment, or 0 where the student did not complete
+% completion
+% Whether or not the assignment was completed by the student
+% Root problems started
+% The square root of the number of problems started
+% Root problems completed
+% The square root of the number of problems completed
+% Root inverse mastery speed
+% The square root of inverse mastery speed as defined above
+% Percent correctness
+% The percentage of problems answered correctly on the first attempt
+% Root percent correctness
+% The square root of the percentage of problems answered correctly on the first attempt
+% Average attempts
+% The average number of attempts to answer each problem
+% Root Average Attempts
+% The square root of average attempts to answer each problem
+% Average first response time
+% The average time taken per problem before taking the first action
+% Average problem duration
+% The average time, in seconds, needed to solve each problem
+% Average days working
+% The average number of distinct days a student worked on problems (to identify students who may leave an assignment and come back the next day)
+% Average attempt first
+% The percentage of problems for which the first action was an attempt (as opposed to a help request)
+% Average bottom-out hint usage
+% The percentage of problems for which a student needed to be given the answer
+
+% Due to the large number of learned parameters and high complexity of
+% these models, they are often able to take advantage of large datasets
+% to learn non-linear relationships not only between covariates and
+% dependent measures within a single time step, but also can learn
+% non-linear temporal relationships (e.g. the likely diminishing impact
+% of performance on earlier assignments over time). Another affordance
+% of these models is through existing developed techniques such as
+% dropout and multi-task learning. Dropout \cite is a model training
+% technique that randomly omits and reintroduces model parameters at
+% each training step in an effort to prevent overfitting by reducing
+% model dependence on individual covariates or constructed features
+% within the model.
+During training, the model uses an adaptive gradient
+descent method called Adam, optimizing model weights to minimize a
+simple sum of binary cross entropy loss and root mean squared error
+for the outcomes of completion and inverse mastery speed
+respectively.
+The training procedure involves the iterative update of model weights
+through gradient descent until a stopping criterion is met; in our
+case performance on a holdout set. Specifically, we used 30\% of the
+training set to estimate the point at which when a 5-epoch moving
+average of calculated
+model error on this holdout set either plateaus (i.e. the difference
+in performance drops below a small threshold) or begins to increase,
+signifying overfitting; the use of a moving average helps to prevent
+the model from stopping too early due to small fluctuations in the
+difference of model error from one epoch to the next.
+We specified the LSTM model's hyperparameters
+based on previously successful model structures and training
+procedures within the context of education.
+We evaluate the model using a 10-fold cross validation to gain a
+measure of model fit (leading to an ROC area under the curve of 0.82
+and root mean squared error of 0.34 for the dependent measure of next
+assignment completion) before then training the model on the full set
+of remnant data.
+
+We then gave the trained model the sequences of assignment
+performances of students in the experimental set to gain an estimate
+of experiment completion for each student across each of the 22
+experiments.
