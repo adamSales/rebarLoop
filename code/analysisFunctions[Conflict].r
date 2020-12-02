@@ -48,9 +48,7 @@ full <- function(ps,n,methods=c('simpDiff','rebar','strat1','strat3','justCovs')
     res <- sapply(methods,
                   function(FUN){
                       fun <- get(FUN)
-                      out <- try(fun(datPS,covsPS))
-                      if(inherits(out,'try-error')) return(rep(NA,2))
-                      out
+                      fun(datPS,covsPS)
                   },simplify=FALSE)
     res <- do.call('rbind',res)
     res[,2] <- sqrt(res[,2])  ## standard error, not variance
@@ -58,4 +56,3 @@ full <- function(ps,n,methods=c('simpDiff','rebar','strat1','strat3','justCovs')
     res <- cbind(res,improvement=1-res[,'se']/res['simpDiff','se'])
     res
 }
-
