@@ -1,7 +1,14 @@
-dat <- read.csv('updated_exp_predictions.csv')
-
+dat <- read.csv('data/updated_exp_predictions.csv')
+dat2 <- read.csv('data/newExperiments.csv')
 ## outcome is 'complete'
 ## prediction is 'p_complete'
+
+dat2$p_complete <- dat2$pcomplete1
+dat2$problem_set <- dat2$target_sequence_id
+
+dat$condition <- ifelse(dat$condition=='E',1,0)
+
+dat <- rbind(dat[,intersect(names(dat),names(dat2))],dat2[,intersect(names(dat),names(dat2))])
 
 ## only keep those subjects whom treatment could possibly affect:
 #dat <- subset(dat,ExperiencedCondition)
@@ -34,15 +41,15 @@ covs$male <- covs$Guessed.Gender=='Male'
 covs$unknownGender <- covs$Guessed.Gender=='Uknown'
 covs$Guessed.Gender <- NULL
 
-dat$treatment <- ifelse(dat$condition=='E',1,0)
+dat$treatment <- dat$condition
 
 dat$residual <- dat$complete-dat$p_complete
 
-dat%>%group_by(problem_set)%>%summarize(corT=cor(p_complete,complete),mse=mean((complete-p_complete)^2))
-cc <- dat%>%group_by(problem_set,treatment)%>%summarize(cor=cor(p_complete,complete),mse=mean((complete-p_complete)^2),r2=1-mse/var(complete),sdr=sd(complete-p_complete),sdRat=sdr/sd(complete))
-cc <- cbind(
-  cc%>%filter(treatment==0)%>%rename(corC=cor,mseC=mse,r2c=r2,sdC=sdr,sdRatC=sdRat),
-  cc%>%filter(treatment==1)%>%select(corT=cor,mseT=mse,r2t=r2,sdT=sdr,sdRatT=sdRat))
+## dat%>%group_by(problem_set)%>%summarize(corT=cor(p_complete,complete),mse=mean((complete-p_complete)^2))
+## cc <- dat%>%group_by(problem_set,treatment)%>%summarize(cor=cor(p_complete,complete),mse=mean((complete-p_complete)^2),r2=1-mse/var(complete),sdr=sd(complete-p_complete),sdRat=sdr/sd(complete))
+## cc <- cbind(
+##   cc%>%filter(treatment==0)%>%rename(corC=cor,mseC=mse,r2c=r2,sdC=sdr,sdRatC=sdRat),
+##   cc%>%filter(treatment==1)%>%select(corT=cor,mseT=mse,r2t=r2,sdT=sdr,sdRatT=sdRat))
 
 ## cor(x,y)=cov(x,y)/sd(x)sd(y)
 ## cov(x,y)=E(xy)-ExEy
