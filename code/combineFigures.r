@@ -1,58 +1,29 @@
-
-
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(tidyverse)
 library(scales)
 library(tikzDevice)
 
+if(!exists("fullres")) load("results/fullres.RData")
+
 subwayPalette <- c('#e6194b','#3cb44b','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff','#aa6e28','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#000080','#808080','#ffe119')
 
 
+pd <- map_dfr(names(fullres),
+    function(x) cbind(as.data.frame(fullres[[x]]),
+      method=factor(rownames(fullres[[x]]),
+        levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
+      rnk=x))%>%
+    select(-improvement)%>%
+    rename(experiment=rnk)%>%
+    filter(method!='strat2')%>%
+    mutate(method=fct_recode(.$method,`ReLoop-OLS`='strat1',`ReLoop-EN`='strat3',Loop='justCovs',Rebar='rebar',`Simple Difference`='simpDiff'))%>%
+    mutate(method=factor(method,c( "ReLoop-EN", "ReLoop-OLS", "Loop", "Rebar", "Simple Difference" ), ordered = TRUE ))
 
-## load('newResults.RData')
-
-## fullres1 <- list()
-## for(i in 1:nrow(res)){
-##     rrr <- res[i,]
-##     r <- cbind(est=rrr[c('regEst1','rebarEst1','rebarLoopOLS1','predCovs1','superReLoop1','justCovs1')],
-##                se=sqrt(rrr[c('regEst2','rebarEst2','rebarLoopOLS2','predCovs2','superReLoop2','justCovs2')]))
-##     r <- cbind(r,improvement=1-r[,'se']/r[1,'se'])
-##     rownames(r) <- c('simpDiff','rebar','strat1','strat2','strat3','justCovs')
-##     fullres1[[as.character(rrr[1])]] <- r
-## }
-
-## load('../../results/fullres.RData')
-## fullres0 <- fullres
-
-## fullres <- c(fullres0,fullres1)
-
-## rnk <- c(LETTERS,letters)[rank(map_dbl(fullres,~.['simpDiff','se']))]
-
-## names(fullres) <- rnk
-
-## pd <- do.call('rbind',
-##   lapply(names(fullres),
-##     function(x) cbind(as.data.frame(fullres[[x]]),
-##       method=factor(rownames(fullres[[x]]),
-##         levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
-##       rnk=x)))
-
-
-pd <- pd%>%
- select(-improvement)%>%
- rename(experiment=rnk)%>%
- filter(method!='strat2')%>%
- mutate(method=fct_recode(.$method,`ReLoop-OLS`='strat1',`ReLoop-EN`='strat3',Loop='justCovs',Rebar='rebar'))
-
-
-
-#pd = read_csv( "plottingData.csv" )
-pd$method = factor( pd$method, c( "ReLoop-EN", "ReLoop-OLS", "Loop", "Rebar", "simpDiff" ), ordered = TRUE )
 
 pd3 <- pd%>%group_by(experiment)%>%
-  mutate(ssMult=se[method=='simpDiff']^2/se^2,
-         percent = se / se[method=='simpDiff'] ) %>%
+  mutate(ssMult=se[method=='Simple Difference']^2/se^2,
+         percent = se / se[method=='Simple Difference'] ) %>%
   ungroup() %>%
   group_by(method) %>%
   mutate(lab=as.character(experiment)) %>%
@@ -104,7 +75,7 @@ comparisons$comp <- factor(comparisons$comp,levels=compLevs)
 
 
 #### sd vs rebar, relOOP*, rebar vs relOOP*
-tikz('fig4combined.tex',width=6.4,height=2,standAlone=T)
+tikz('figure/fig4combined.tex',width=6.4,height=2,standAlone=T)
 
 p <- comparisons%>%
     filter(method1%in%c('ReLoop-OLS','Rebar'),method2%in%c('ReLoop-EN','Rebar','Simple Difference'))%>%
@@ -126,7 +97,7 @@ dev.off()
 
 
 
-tikz('fig5combined.tex',width=6.4,height=2,standAlone=TRUE)
+tikz('figure/fig5combined.tex',width=6.4,height=2,standAlone=TRUE)
 
 p <- comparisons%>%
   filter(method1%in%c('ReLoop-EN','Loop'),method2%in%c('Loop','Simple Difference'))%>%
@@ -144,13 +115,17 @@ print(p)
 
 dev.off()
 
-#setwd('figure')
+setwd('figure')
 try(system('pdflatex fig4combined.tex'))
 try(system('pdflatex fig5combined.tex'))
-# setwd('..')
+setwd('..')
 
-levels(pd3$experiment) <- sort(unique(pd3$experiment))
-ggplot(pd3,aes(experiment,se,color=method))+geom_point(position=position_dodge(width=.3),size=2)+
-  scale_color_manual(values=subwayPalette)+
-  scale_y_continuous(trans='log')#,breaks=c(0.005,0.01,seq(.02,.10,.02)))
+#pd3$experiment <- factor(pd3$experiment, levels=unique(pd3$experiment)[order(as.numeric(unique(pd3$experiment)))])
+pd3%>%
+    filter(method%in%c('Simple Difference','ReLoop-EN','Loop'))%>%
+    mutate(experiment=as.numeric(experiment))%>%
+ggplot(aes(experiment,se,color=method))+geom_point(position=position_dodge(width=.3),size=2)+
+    geom_line()+
+    scale_color_manual(values=subwayPalette)+
+  scale_y_continuous(trans='log',breaks=c(0.01,.02, seq(.05,.20,.05)))
 ggsave('figure/seFigCombined.jpg')
