@@ -34,19 +34,14 @@ justCovs <- function(datPS,covsPS)
          loop(complete,treatment,covsPS))
 
 ## all the estimators, for a particular problem set
-full <- function(ps,n,methods=c('simpDiff','rebar','strat1','strat3','justCovs'),seed){
+full <- function(ps,dat,covNames,methods=c('simpDiff','rebar','strat1','strat3','justCovs')){
     datPS <- dat[dat$problem_set==ps,]
-    covsPS <- covs[dat$problem_set==ps,]
+    covsPS <- dat[dat$problem_set==ps,covNames]
 
-    if(!missing(n)){
-      if(!missing(seed)) set.seed(seed)
-      samp <- sample(1:nrow(datPS),n)
-      datPS <- datPS[samp,]
-      covsPS <- covsPS[samp,]
-    }
 
     res <- sapply(methods,
                   function(FUN){
+                      set.seed(613)
                       fun <- get(FUN)
                       out <- try(fun(datPS,covsPS))
                       if(inherits(out,'try-error')) return(rep(NA,2))
@@ -56,6 +51,8 @@ full <- function(ps,n,methods=c('simpDiff','rebar','strat1','strat3','justCovs')
     res[,2] <- sqrt(res[,2])  ## standard error, not variance
     colnames(res) <- c('est','se')
     res <- cbind(res,improvement=1-res[,'se']/res['simpDiff','se'])
+    attr(res,'psid') <- ps
+    attr(res,'n') <- nrow(datPS)
     res
 }
 

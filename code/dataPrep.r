@@ -22,24 +22,32 @@ dat <- droplevels(dat[!is.na(dat$p_complete),])
 ### sample sizes?
 table(dat$problem_set,dat$condition)
 
+
+dat$male <- dat$Guessed.Gender=='\"Male\"'
+dat$unknownGender <- dat$Guessed.Gender=='\"Uknown\"'
+
+
 ### data frame of covariates from the dataset
-covs <- subset(dat,select=c(
-                       Prior.Problem.Count,
-                       Prior.Percent.Correct,
-                       Prior.Assignments.Assigned,
-                       Prior.Percent.Completion,
-                       Prior.Class.Percent.Completion,
-                       Prior.Homework.Assigned,
-                       Prior.Homework.Percent.Completion,
-                       Prior.Class.Homework.Percent.Completion,
-                       Guessed.Gender))
+#covs <- subset(dat,select=c(
 ## excluded "birthyear" cuz it's weird--some students obv messing around
 
+## turn Guessed.Gender into dummies
+#covs$Guessed.Gender <- NULL
+
 ### mean imputation for covariates:
-covs <- as.data.frame(lapply(covs,function(x){ x[is.na(x)] <- mean(x,na.rm=TRUE); x}))
-covs$male <- covs$Guessed.Gender=='Male'
-covs$unknownGender <- covs$Guessed.Gender=='Uknown'
-covs$Guessed.Gender <- NULL
+#covs <- as.data.frame(lapply(covs,function(x){ x[is.na(x)] <- mean(x,na.rm=TRUE); x}))
+#for(cc in names(covs)) covs[[cc]][is.na(covs[[cc]])] <- mean(covs[[cc]],na.rm=TRUE)
+
+### first fill in with class/problem_set mean
+### if that doesn't work, fill in with problem_set mean
+dat <- dat%>%
+    group_by(Class.ID,problem_set)%>%
+    mutate(across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE))))%>%
+    group_by(problem_set)%>%
+    mutate(across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE))))%>%
+    ungroup()
+
+stopifnot(all(sapply(covNames,function(x) mean(is.finite(dat[[x]])))==1))
 
 dat$treatment <- dat$condition
 
