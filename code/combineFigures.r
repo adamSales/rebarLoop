@@ -8,6 +8,7 @@ if(!exists("fullres")) load("results/fullres.RData")
 
 subwayPalette <- c('#e6194b','#3cb44b','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff','#aa6e28','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#000080','#808080','#ffe119')
 
+#names(fullres) <- 1:33
 
 pd <- map_dfr(names(fullres),
     function(x) cbind(as.data.frame(fullres[[x]]),
@@ -17,8 +18,8 @@ pd <- map_dfr(names(fullres),
     select(-improvement)%>%
     rename(experiment=rnk)%>%
     filter(method!='strat2')%>%
-    mutate(method=fct_recode(.$method,`ReLoop-OLS`='strat1',`ReLoop-EN`='strat3',Loop='justCovs',Rebar='rebar',`Simple Difference`='simpDiff'))%>%
-    mutate(method=factor(method,c( "ReLoop-EN", "ReLoop-OLS", "Loop", "Rebar", "Simple Difference" ), ordered = TRUE ))
+    mutate(method=fct_recode(.$method,`ReLOOP+OLS`='strat1',`ReLOOP+EN`='strat3',Loop='justCovs',Rebar='rebar',`Simple Difference`='simpDiff'))%>%
+    mutate(method=factor(method,c( "ReLOOP+EN", "ReLOOP+OLS", "Loop", "Rebar", "Simple Difference" ), ordered = TRUE ))
 
 
 pd3 <- pd%>%group_by(experiment)%>%
@@ -64,7 +65,7 @@ combos = mutate( combos,
 comparisons = pmap_df( combos, make_comp ,pwide=pwide)
 
 ### get the right order
-methodOrd=rev(c('Simple Difference','Rebar','Loop','ReLoop-OLS','ReLoop-EN'))
+methodOrd=rev(c('Simple Difference','Rebar','Loop','ReLOOP+OLS','ReLOOP+EN'))
 comparisons$method1 <- factor(comparisons$method1,levels=methodOrd)
 comparisons$method2 <- factor(comparisons$method2,levels=methodOrd)
 
@@ -75,12 +76,12 @@ comparisons$comp <- factor(comparisons$comp,levels=compLevs)
 
 
 #### sd vs rebar, relOOP*, rebar vs relOOP*
-tikz('figure/fig4combined.tex',width=6.4,height=2,standAlone=T)
+tikz('figure/fig4.tex',width=6.4,height=2,standAlone=FALSE)
 
 p <- comparisons%>%
-    filter(method1%in%c('ReLoop-OLS','Rebar'),method2%in%c('ReLoop-EN','Rebar','Simple Difference'))%>%
+    filter(method1%in%c('ReLOOP+OLS','Rebar'),method2%in%c('ReLOOP+EN','Rebar','Simple Difference'))%>%
     ggplot(aes(ssMult))+#,fill=exGroup))+
-    geom_dotplot( method="histodot", binwidth = .047 )  +
+    geom_dotplot( method="histodot", binwidth = .05 )  +
     labs( x = "Relative Ratio of Sample Variances", y="" ) +
     geom_vline( xintercept = 1, col="red" ) +
     facet_wrap(~comp,nrow=1)+
@@ -88,7 +89,9 @@ p <- comparisons%>%
         panel.grid = element_blank(),
         axis.title.y = element_blank(),
         axis.text.y= element_blank(),
-        axis.ticks.y = element_blank())
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12))
 
 
 print(p)
@@ -97,12 +100,12 @@ dev.off()
 
 
 
-tikz('figure/fig5combined.tex',width=6.4,height=2,standAlone=TRUE)
+tikz('figure/fig5.tex',width=6.4,height=2,standAlone=FALSE)
 
 p <- comparisons%>%
-  filter(method1%in%c('ReLoop-EN','Loop'),method2%in%c('Loop','Simple Difference'))%>%
+  filter(method1%in%c('ReLOOP+EN','Loop'),method2%in%c('Loop','Simple Difference'))%>%
      ggplot(aes(ssMult))+#,fill=exGroup))+
-    geom_dotplot( method="histodot", binwidth = .047 )  +
+    geom_dotplot( method="histodot", binwidth = .05 )  +
     labs( x = "Relative Ratio of Sample Variances", y="" ) +
     geom_vline( xintercept = 1, col="red" ) +
     facet_wrap(~comp,nrow=1)+
@@ -110,22 +113,27 @@ p <- comparisons%>%
         panel.grid = element_blank(),
         axis.title.y = element_blank(),
         axis.text.y= element_blank(),
-        axis.ticks.y = element_blank())
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12))
 print(p)
 
 dev.off()
 
-setwd('figure')
-try(system('pdflatex fig4combined.tex'))
-try(system('pdflatex fig5combined.tex'))
-setwd('..')
+## setwd('figure')
+## try(system('pdflatex fig4.tex'))
+## try(system('pdflatex fig5.tex'))
+## setwd('..')
 
 #pd3$experiment <- factor(pd3$experiment, levels=unique(pd3$experiment)[order(as.numeric(unique(pd3$experiment)))])
 pd3%>%
-    filter(method%in%c('Simple Difference','ReLoop-EN','Loop'))%>%
+    filter(method%in%c('Simple Difference','ReLOOP+EN','Loop'))%>%
     mutate(experiment=as.numeric(experiment))%>%
 ggplot(aes(experiment,se,color=method))+geom_point(position=position_dodge(width=.3),size=2)+
     geom_line()+
     scale_color_manual(values=subwayPalette)+
   scale_y_continuous(trans='log',breaks=c(0.01,.02, seq(.05,.20,.05)))
 ggsave('figure/seFigCombined.jpg')
+
+## for reporting results
+comparisons%>%group_by(method1,method2)%>%summarize(worse=sum(ssMult<0.975),equal=sum(abs(ssMult-1)<0.025),better=sum(ssMult>1.025),best=max(ssMult),worst=min(ssMult))
