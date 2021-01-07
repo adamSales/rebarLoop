@@ -2,7 +2,12 @@
 *~
 *.RData
 *\#
-code/rebar_loop code/*
+
+
 *.pdf
 *.jpg
 figure/*
+
+newExperiments/*
+oldStuff/*
+data/*

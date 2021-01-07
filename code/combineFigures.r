@@ -136,4 +136,14 @@ ggplot(aes(experiment,se,color=method))+geom_point(position=position_dodge(width
 ggsave('figure/seFigCombined.jpg')
 
 ## for reporting results
-comparisons%>%group_by(method1,method2)%>%summarize(worse=sum(ssMult<0.975),equal=sum(abs(ssMult-1)<0.025),better=sum(ssMult>1.025),best=max(ssMult),worst=min(ssMult))
+comparisons%>%group_by(method1,method2)%>%summarize(
+                                              worse=sum(ssMult<0.975),
+                                              equal=sum(abs(ssMult-1)<0.025),
+                                              better=sum(ssMult>1.025),
+                                              best=max(ssMult),
+                                              bestPS=experiment[which.max(ssMult)],
+                                              best2=sort(ssMult,decreasing=TRUE)[2],
+                                              best2ps=experiment[rank(ssMult)==32],
+                                              worst=min(ssMult),
+                                              worstPS=experiment[which.min(ssMult)])%>%
+    write_csv('results/summary.csv')

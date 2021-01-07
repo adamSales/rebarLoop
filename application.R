@@ -1,6 +1,7 @@
 library(scales)
 library(tidyverse)
 library(loop.estimator)
+library(kableExtra)
 source('code/loop_ols.R')
 source('code/loop_ext.R')
 
