@@ -870,9 +870,14 @@ class Network:
                 elif method == Cost.RMSE:
                     sq_dif = tf.squared_difference(self.__outputs[i], tf.where(tf.is_nan(out_y),
                                                                                self.__outputs[i], out_y))
-                    sse = tf.reduce_sum(tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
-                                                      reduction_indices=[-1]))
-                    cost_fn = tf.sqrt(sse / (tf.cast(tf.count_nonzero(sq_dif),
+                    sse = tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
+                                        reduction_indices=[-1])
+                    # mean, var = tf.nn.moments(sse,axes=[0])
+                    # sse = tf.where(tf.abs(sse-mean) < 6 * tf.sqrt(var),sse,tf.zeros_like(sse))
+
+                    ssse = tf.reduce_sum(sse)
+
+                    cost_fn = tf.sqrt(ssse / (tf.cast(tf.count_nonzero(sq_dif),
                                                      tf.float32) + tf.constant(1e-8, dtype=tf.float32)))
 
                 elif method == Cost.ROUNDED_RMSE:
@@ -885,10 +890,10 @@ class Network:
 
                 elif method == Cost.HINGE_LOSS:
                     y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    z_flat = tf.reshape(self.layers[self.__output_layers[i]]['z'],
+                    h_flat = tf.reshape(self.layers[self.__output_layers[i]]['h'],
                                         (-1, self.layers[self.__output_layers[i]]['n']))
 
-                    non_nan = tf.where(tf.logical_and(tf.logical_not(tf.is_nan(z_flat)),
+                    non_nan = tf.where(tf.logical_and(tf.logical_not(tf.is_nan(h_flat)),
                                                       tf.logical_and(tf.logical_not(tf.is_nan(y_flat)),
                                                                      tf.logical_not(
                                                                          tf.less(y_flat, tf.constant(-9e8))))))
@@ -896,7 +901,7 @@ class Network:
                         tf.losses.hinge_loss(
                             labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n'])),
-                            logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                            logits=tf.reshape(tf.gather_nd(h_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n']))))
 
                     # tf.losses.hinge_loss(
@@ -931,13 +936,16 @@ class Network:
                 # min_w = tf.gather(self.__output_tf_wts, tf.argmin(self.__output_tf_wts))
                 self.c.append(w*cost_fn)
 
-                if self.cost_function is None:
-                    self.cost_function = w * cost_fn
-                else:
-                    self.cost_function += w * cost_fn
+                # if self.cost_function is None:
+                #     self.cost_function = w * cost_fn
+                # else:
+                #     self.cost_function += w * cost_fn
                 self.y.append(out_y)
 
             # self.cost_function += tf.reduce_mean(1.-self.__output_tf_wts)
+            self.cost_function = tf.reduce_sum(tf.where(tf.is_nan(self.c),
+                                                        tf.zeros_like(self.c),
+                                                        self.c)) if len(self.c) > 1 else self.c[0]
 
             if self.optimizer == Optimizer.ADAM:
                 self.update = tf.train.AdamOptimizer(self.step_size, name='update')
@@ -1153,19 +1161,23 @@ class Network:
         # w = self.session.run(self.__output_tf_wts, feed_dict=self.args)*1000
         # print('wts: ', 1. + (w-(np.min(w))))
 
+        # x = np.array(x, dtype=np.float32)
+        # for i in range(len(x)):
+        #     x[i] = np.array(x[i], dtype=np.float32)
+
         if self.normalization == Normalization.Z_SCORE:
-            self.args[self.layers[0]['param']['arg']['stat1']] = np.nanmean(np.hstack([np.array(i).ravel() for i in x])
+            self.args[self.layers[0]['param']['arg']['stat1']] = np.nanmean(np.hstack([np.array(i,dtype=np.float32).ravel() for i in x])
                                                                             .reshape((-1, np.array(x[0]).shape[1])),
                                                                             axis=0).reshape((-1))
-            self.args[self.layers[0]['param']['arg']['stat2']] = np.nanstd(np.hstack([np.array(i).ravel() for i in x])
-                                                                           .reshape((-1, np.array(x[0]).shape[1])),
+            self.args[self.layers[0]['param']['arg']['stat2']] = np.nanstd(np.hstack([np.array(i,dtype=np.float32).ravel() for i in x])
+                                                                           .reshape((-1, np.array(x[0],dtype=np.float32).shape[1])),
                                                                            axis=0).reshape((-1))
         elif self.normalization == Normalization.MAX:
-            self.args[self.layers[0]['param']['arg']['stat1']] = np.nanmax(np.hstack([np.array(i).ravel() for i in x])
-                                                                           .reshape((-1, np.array(x[0]).shape[1])),
+            self.args[self.layers[0]['param']['arg']['stat1']] = np.nanmax(np.hstack([np.array(i,dtype=np.float32).ravel() for i in x])
+                                                                           .reshape((-1, np.array(x[0],dtype=np.float32).shape[1])),
                                                                            axis=0).reshape((-1))
-            self.args[self.layers[0]['param']['arg']['stat2']] = np.nanmin(np.hstack([np.array(i).ravel() for i in x])
-                                                                           .reshape((-1, np.array(x[0]).shape[1])),
+            self.args[self.layers[0]['param']['arg']['stat2']] = np.nanmin(np.hstack([np.array(i,dtype=np.float32).ravel() for i in x])
+                                                                           .reshape((-1, np.array(x[0],dtype=np.float32).shape[1])),
                                                                            axis=0).reshape((-1))
 
         desc = describe_multi_label(y)
@@ -1226,36 +1238,6 @@ class Network:
             cost = []
             val_cost = []
 
-            if use_validation:
-                # print(vy)
-
-                val_cost.append(self.get_cost(vx, vy, True))
-                # print(val_cost[-1])
-                if np.isnan(val_cost[-1]):
-                    # vp = self.predict(vx)
-                    print('Invalid sample found in validation set...')
-                    rem = []
-                    for q in range(len(vx)):
-                        # print(q,'-',self.get_cost(np.array([vx[q]]),np.array([vy[q]]),True))
-                        if np.isnan(self.get_cost(np.array([vx[q]]), np.array([vy[q]]), True)):
-                            rem.append(q)
-                            print('Sample {} marked for removal...'.format(q))
-                            # print(np.array([vx[q]]))
-                            # print(np.array([vy[q]]))
-                            # print(self.predict(np.array([vx[q]])))
-                            # exit(1)
-
-                    vx = np.delete(vx, rem)
-                    vy = np.delete(vy, rem)
-
-                    print('{} sample{} removed.'.format(len(rem), 's' if len(rem) > 1 else ''))
-                    if len(vx) == 0:
-                        raise ValueError('ERROR - All samples have been removed from validation')
-                    c = self.get_cost(vx, vy, True)
-                    # print(c)
-                    val_cost[-1] = self.get_cost(vx, vy, True)
-                    # print(val_cost[-1])
-
             for i in range(0, tx.shape[0], batch):
                 s = np.array(range(i, min(tx.shape[0], i + batch)))
                 if len(s) < batch:
@@ -1286,6 +1268,53 @@ class Network:
                     self.minimize_cost.run(feed_dict=self.args)
                     cost.append(self.get_cost(tx[s], ty[s], False))
             # print(self.get_cost(tx, ty, True))
+
+            if use_validation:
+                # print(vy)
+                # print(len(vy))
+                val_batch_cost = []
+                for ii in range(len(vy)):
+                    val_batch_cost.append(self.get_cost(np.array([vx[ii]]), np.array([vy[ii]]), True))
+                val_batch_cost = np.array(val_batch_cost)
+                val_cost.append(np.mean(val_batch_cost))
+                # val_cost.append(
+                #     np.mean(val_batch_cost[abs(val_batch_cost - np.mean(val_batch_cost)) < 6 * np.std(val_batch_cost)]))
+                # exit(1)
+                # val_cost.append(self.get_cost(vx, vy, True))
+
+                # print(val_cost[-1])
+                if np.isnan(val_cost[-1]):
+                    # vp = self.predict(vx)
+                    print('Invalid sample found in validation set...')
+                    rem = []
+                    for q in range(len(vx)):
+                        # print(q,'-',self.get_cost(np.array([vx[q]]),np.array([vy[q]]),True))
+                        if np.isnan(self.get_cost(np.array([vx[q]]), np.array([vy[q]]), True)):
+                            rem.append(q)
+                            print('Sample {} marked for removal...'.format(q))
+                            # print(np.array([vx[q]]))
+                            # for v in np.array([vx[q]]):
+                            #     for vi in v:
+                            #         for vii in vi:
+                            #             print(vii)
+                            #     #print(v)
+                            # print(np.array([vy[q]]))
+                            # print(self.predict(np.array([vx[q]])))
+                            #
+                            #
+                            # # print(self.session.run(self.cost_function,
+                            # exit(1)
+
+                    vx = np.delete(vx, rem)
+                    vy = np.delete(vy, rem)
+
+                    print('{} sample{} removed.'.format(len(rem), 's' if len(rem) > 1 else ''))
+                    if len(vx) == 0:
+                        raise ValueError('ERROR - All samples have been removed from validation')
+                    # c = self.get_cost(vx, vy, True)
+                    # print(c)
+                    val_cost[-1] = self.get_cost(vx, vy, True)
+                    # print(val_cost[-1])
 
             if use_validation:
                 e_cost.append(np.nanmean(val_cost))
@@ -1342,6 +1371,8 @@ class Network:
     def predict(self, x, layer_index=-1, batch=None):
         # TODO: add ability to predict from last hidden layer
 
+        if len(x.shape) == 2:
+            x = x.reshape((1,x.shape[0],x.shape[1]))
         if batch is None:
             batch = x.shape[0]
 
@@ -1537,7 +1568,25 @@ def describe_network_structure(net):
 def flatten_sequence(sequence, key=None, identifier=None):
     # TODO: move to datautility
 
-    if key is not None:
+    # the following handle the case when trying to flatten a single sample
+    if type(sequence) is dict:
+        sequence = np.array([sequence])
+
+    if len(sequence.shape) == 2:
+        sequence = sequence.reshape((1, sequence.shape[0], sequence.shape[1]))
+
+    if key is not None and len(key.shape) == 1:
+        key = key.reshape((1, -1))
+
+    if identifier is not None and len(identifier.shape) == 2:
+        identifier = identifier.reshape((1, identifier.shape[0], identifier.shape[1]))
+
+    try:
+        if key is not None:
+            assert len(key) == len(sequence)
+    except AssertionError:
+        print(len(key))
+        print(len(sequence))
         assert len(key) == len(sequence)
 
     if identifier is not None:
@@ -2238,6 +2287,7 @@ def generate_folds(key, folds=5):
 
     if len(u) < folds:
         warnings.warn('The number of unique values must be greater than the number of folds.')
+        # print(key)
         # raise ValueError('The number of unique values must be greater than the number of folds.')
 
     for i in range(1, folds):
@@ -2265,20 +2315,77 @@ def stratified_fold_by_key(key_ar, key=0, folds=5, strata=None):
 
         if len(strata) != len(key_ar):
             raise ValueError('A stratum must be provided for each sample')
-
+        strata = np.array(strata,dtype=str)
         f = np.zeros((len(key_ar)))
         for s in np.unique(strata):
-            loc = np.argwhere(strata == s).ravel()
+            loc = np.argwhere(strata == str(s)).ravel()
             stratum = kar[loc,:]
+            # print(loc)
             f[loc] = generate_folds(np.array(
                 ['~'.join(np.array([i], dtype=str).ravel()) for i in stratum[:, np.array([key]).ravel()]]).reshape(
                 (-1)), folds)
+            # exit(1)
 
         return np.insert(kar, 0, np.array(f, dtype=str), axis=1)
 
     return np.insert(kar, 0, np.array(generate_folds(
         np.array(['~'.join(np.array([i], dtype=str).ravel()) for i in kar[:, np.array([key]).ravel()]]).reshape((-1)),
         folds), dtype=str), axis=1)
+
+
+def stratify_multi_label(sequence_y, labels):
+    desc = describe_multi_label(sequence_y)
+    labels = np.array([labels]).ravel()
+
+    if max(labels) >= desc['n_label_sets']:
+        raise ValueError('The label index is larger than the number of label sets.')
+
+    m = dict()
+    for j in range(len(labels)):
+        m[labels[j]] = {'sum': None, 'n': 0}
+    for i in range(desc['n_samples']):
+        for j in range(len(labels)):
+            n = np.sum(1-np.isnan(sequence_y[i][labels[j]][:,0]))
+            if n == 0:
+                continue
+
+            if m[labels[j]]['sum'] is None:
+                m[labels[j]]['sum'] = np.nansum(sequence_y[i][labels[j]],axis=0)
+            else:
+                m[labels[j]]['sum'] = np.nansum(np.append(m[labels[j]]['sum'].reshape((1,-1)),
+                                                          np.nansum(sequence_y[i][labels[j]],
+                                                                    axis=0).reshape((-1,m[labels[j]]['sum'].shape[-1])),
+                                                          axis=0), axis=0)
+
+            m[labels[j]]['n'] += n
+
+            # print(m[labels[j]]['sum'],m[labels[j]]['n'])
+
+    for j in range(len(labels)):
+        m[labels[j]]['mean'] = m[labels[j]]['sum']/m[labels[j]]['n']
+
+    strata = []
+    for i in range(desc['n_samples']):
+        s = np.array([])
+        for j in range(len(labels)):
+            n = np.sum(1 - np.isnan(sequence_y[i][labels[j]][:, 0]))
+            if n == 0:
+                s = np.append(s,np.zeros_like(m[labels[j]]['mean']))
+            else:
+                # print(m[labels[j]]['mean'].)
+
+
+                # print(np.apply_along_axis(np.greater_equal,0,{'x1': }))
+                # print(sequence_y[i][labels[j]] >= m[labels[j]]['mean'])
+                ind = np.argwhere(1-np.isnan(sequence_y[i][labels[j]][:,0])==1).ravel()
+                s = np.append(s,np.nanmax(np.array(np.greater_equal(
+                    sequence_y[i][labels[j]][ind], np.tile(
+                        m[labels[j]]['mean'].ravel(),
+                        len(ind)).reshape(-1,len(m[labels[j]]['mean']))),
+                    dtype=np.float32), axis=0))
+        strata.append(''.join(np.array(np.array(s,dtype=int),dtype=str)))
+    return strata
+
 
 
 def fill_input_multi_label(sequence_y, sequence_x, network):
@@ -2609,6 +2716,8 @@ def sequence_impute_missing(sequence_x, value=0):
                 sequence_x[i][k][np.argwhere(arr == '').ravel()] = value
             elif '.' in arr:
                 sequence_x[i][k][np.argwhere(arr == '.').ravel()] = value
+            elif 'NA' in arr:
+                sequence_x[i][k][np.argwhere(arr == 'NA').ravel()] = value
     return sequence_x
 
 
@@ -2676,3 +2785,96 @@ def describe_multi_label(sequence_y, print_description=False, print_descriptives
         print("{:=<40}\n".format(''))
 
     return desc
+
+
+def split_file_with_pivot(filename, outfile, pivot, target_rows=2048, header=True, verbose=True):
+    if not os.path.exists('temp/'):
+        os.makedirs('temp/')
+    tmp_filename = 'temp/tmp_data.csv'
+    data = pd.read_csv(filename)
+    _, headers = du.read_csv(filename, 2)
+
+    sortby = headers[pivot].tolist()
+
+    # sort by user, assignment, problem, and action and write the new data to file
+    if verbose:
+        print('-- preparing to split file...')
+    data.sort_values(by=sortby).to_csv(tmp_filename, index=False)
+    filename = tmp_filename
+    # release the memory for the pandas dataframe, it is no longer needed
+    data = None
+    format_seq = False
+    csvarr = []
+
+    file_index = 0
+    seq = None
+    id = None
+    n_lines = len(open(filename).readlines())
+    created_files = []
+    with open(filename, 'r', errors='replace') as f:
+        f_lines = csv.reader(f)
+
+        if verbose:
+            output_str = '-- splitting file...({}%)'.format(0)
+            sys.stdout.write(output_str)
+            sys.stdout.flush()
+            old_str = output_str
+        i = 0
+        for line in f_lines:
+            if (header and i == 0) or len(line) == 0:
+                i += 1
+                continue
+            elif i % target_rows == 0:
+                format_seq = True
+
+            line = np.array(line)
+            na = np.argwhere(np.array(line[:]) == '#N/A').ravel()
+            if len(na) > 0:
+                line[na] = ''
+
+            na = np.argwhere(np.array(line[:]) == 'NA').ravel()
+
+            if len(na) > 0:
+                line[na] = ''
+
+            if '~'.join(np.array(line)[pivot]) != id:
+                if format_seq and id is not None:
+                    ar = np.array(csvarr).reshape([-1, len(line)])
+
+                    outfile_name = outfile+'_pt_' + str(file_index)
+                    du.write_csv(ar, outfile_name, headers)
+                    file_index += 1
+
+                    created_files.append(outfile_name)
+
+                    csvarr = []
+                    format_seq = False
+
+                id = '~'.join(np.array(line)[pivot])
+
+            csvarr.append(line)
+
+            if verbose and not round((i / n_lines) * 100, 2) == round(((i - 1) / n_lines) * 100, 2):
+                sys.stdout.write('\r' + (' ' * len(old_str)))
+                output_str = '\r-- splitting file...({}%)'.format(round((i / n_lines) * 100, 2))
+                sys.stdout.write(output_str)
+                sys.stdout.flush()
+                old_str = output_str
+
+            i += 1
+
+        if len(csvarr) > 0:
+            ar = np.array(csvarr).reshape([-1, len(line)])
+            outfile_name = outfile + '_pt_' + str(file_index)
+            du.write_csv(ar, outfile_name, headers)
+            file_index += 1
+            created_files.append(outfile_name)
+
+        if verbose:
+            sys.stdout.write('\r' + (' ' * len(old_str)))
+            sys.stdout.write('\r-- splitting file...({}%)\n'.format(100))
+            sys.stdout.flush()
+
+    return created_files
+
+
