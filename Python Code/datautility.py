@@ -8,6 +8,8 @@ import csv
 import warnings
 import functools
 import Levenshtein as lev
+from nltk.tokenize import word_tokenize
+
 
 def deprecated(func):
     """This is a decorator which can be used to mark functions
@@ -27,16 +29,26 @@ def deprecated(func):
     return new_func
 
 
-def getfilenames(directory='./', extension=None):
+def getfilenames(directory='./', extension=None, exclude_directory=False):
     names = []
+    directory = str(directory).replace('\\','/')
     if extension is None:
         return os.listdir(directory)
 
     for file in os.listdir(directory):
         if file.endswith(extension):
-            names.append(directory + "/" + file)
+            if exclude_directory:
+                names.append(file)
+            else:
+                names.append(directory + ('/' if directory[-1] != '/' else '') + file)
     return names
 
+
+def file_exists(filename, directory='./',extension=None):
+    if extension is not None:
+        if filename[-4:] != extension:
+            filename += extension
+    return filename in getfilenames(directory, extension, True)
 
 def read_paired_data_file(filename, delim='=', ignore='--'):
     data = dict()
@@ -59,11 +71,20 @@ def read_paired_data_file(filename, delim='=', ignore='--'):
     return data
 
 
-def read_text_file(filename, sep=None, ignore='--'):
+def read_text_file(filename, sep=None, ignore='--', max_rows=None):
     text = '' if sep is not None else []
 
+    n_lines = len(open(filename).readlines())
     with open(filename, 'r', errors='replace') as f:
-        info = np.array(f.readlines())
+
+        info = None
+        if max_rows is not None:
+            info = []
+            for i in range(min(max_rows,n_lines)):
+                info.append(f.readline())
+            info = np.array(info)
+        else:
+            info = np.array(f.readlines())
 
         info[0] = str(info[0]).replace('ï»¿', '')
 
@@ -80,10 +101,14 @@ def read_text_file(filename, sep=None, ignore='--'):
     return text
 
 
-def __load_csv__(filename, max_rows=None):
+def __load_csv__(filename, max_rows=None, columns=None, encoding=None, verbose=True):
     csvarr = []
-    n_lines = len(open(filename).readlines())
-    with open(filename, 'r', errors='replace') as f:
+    try:
+        n_lines = len(open(filename, encoding=encoding).readlines())
+    except (TypeError, UnicodeDecodeError):
+        encoding = 'utf8'
+        n_lines = len(open(filename, encoding=encoding).readlines())
+    with open(filename, 'r', errors='replace', encoding=encoding) as f:
         f_lines = csv.reader(f)
 
         # n_lines = sum(1 for row in f_lines)
@@ -92,15 +117,30 @@ def __load_csv__(filename, max_rows=None):
         if max_rows is not None:
             n_lines = max_rows
 
-        output_str = '-- loading {}...({}%)'.format(filename, 0)
-        sys.stdout.write(output_str)
-        sys.stdout.flush()
-        old_str = output_str
+        if verbose:
+            output_str = '-- loading {}...({}%)'.format(filename, 0)
+            sys.stdout.write(output_str)
+            sys.stdout.flush()
+            old_str = output_str
         i = 0
+        filter = None
         for line in f_lines:
             if len(line) == 0:
                 continue
-            line = np.array(line)
+
+            if filter is None:
+                if columns is None:
+                    filter = np.array(range(len(line)),dtype='int32')
+                else:
+                    if not isinstance(columns,list):
+                        filter = np.array([columns])
+                    if isinstance(columns[0],str):
+                        filter = np.array([np.argwhere(np.array(line).ravel() == c).ravel()[0] for c in columns])
+                    else:
+                        filter = np.array(columns,dtype='int32')
+                filter = filter.ravel()
+
+            line = np.array(line)[filter].ravel()
             na = np.argwhere(np.array(line[:]) == '#N/A').ravel()
             if len(na) > 0:
                 line[na] = ''
@@ -115,21 +155,24 @@ def __load_csv__(filename, max_rows=None):
                 if len(csvarr) >= max_rows:
                     break
             if not round((i / n_lines) * 100, 2) == round(((i - 1) / n_lines) * 100, 2):
-                sys.stdout.write('\r' + (' ' * len(old_str)))
-                output_str = '\r-- loading {}...({}%)'.format(filename, round((i / n_lines) * 100, 2))
-                sys.stdout.write(output_str)
-                sys.stdout.flush()
-                old_str = output_str
+                if verbose:
+                    sys.stdout.write('\r' + (' ' * len(old_str)))
+                    output_str = '\r-- loading {}...({}%)'.format(filename, round((i / n_lines) * 100, 2))
+                    sys.stdout.write(output_str)
+                    sys.stdout.flush()
+                    old_str = output_str
 
             i += 1
-        sys.stdout.write('\r' + (' ' * len(old_str)))
-        sys.stdout.write('\r-- loading {}...({}%)\n'.format(filename, 100))
-        sys.stdout.flush()
+
+        if verbose:
+            sys.stdout.write('\r' + (' ' * len(old_str)))
+            sys.stdout.write('\r-- loading {}...({}%)\n'.format(filename, 100))
+            sys.stdout.flush()
 
     return csvarr
 
 
-def write_csv(data, filename, headers=None, append=False):
+def write_csv(data, filename, headers=None, append=False, encoding=None):
 
     if headers is None:
         headers = []
@@ -137,7 +180,12 @@ def write_csv(data, filename, headers=None, append=False):
     if not filename.endswith('.csv'):
         filename += '.csv'
 
-    with open(filename, 'w' if not append else 'a') as f:
+    try:
+        _ = open(filename, 'w' if not append else 'a', encoding=encoding)
+    except UnicodeEncodeError:
+        encoding = 'utf8'
+
+    with open(filename, 'w' if not append else 'a',errors='replace', encoding=encoding) as f:
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
 
         if len(headers)!=0:
@@ -158,14 +206,14 @@ def write_csv(data, filename, headers=None, append=False):
     f.close()
 
 
-def read_csv(filename, max_rows=None, headers=True):
+def read_csv(filename, max_rows=None, columns=None, headers=True, encoding=None, verbose=True):
     if max_rows is not None:
         max_rows += 1
 
     if not filename.endswith('.csv'):
         filename += '.csv'
 
-    data = __load_csv__(filename,max_rows)
+    data = __load_csv__(filename,max_rows,columns,encoding,verbose)
 
     if headers:
         headers = np.array(data[0])
@@ -234,6 +282,8 @@ def infer_basic_type(ar, n=None):
                 continue
             else:
                 return 'text'
+        except TypeError:
+            return 'obj'
     return 'double precision' if not is_int else 'integer'
 
 
@@ -287,7 +337,8 @@ def one_hot(ar, class_array, class_column, replace=False):
     return npar
 
 
-def cross_feature(class_array, feature_array, fill=0, distinct_classes=None, distinct_feature_values=None):
+def cross_feature(class_array, feature_array, fill=0, catch_class=False, distinct_classes=None,
+                  distinct_feature_values=None):
     assert len(class_array) == len(feature_array)
 
     ca = np.array(class_array).reshape((-1))
@@ -309,6 +360,11 @@ def cross_feature(class_array, feature_array, fill=0, distinct_classes=None, dis
     else:
         dc = np.unique(np.array(distinct_classes).reshape((-1)))
 
+    if catch_class:
+        dc = np.append(dc,'null_class')
+
+    # print(dc)
+
     n_cross = 0
 
     value_lookup = []
@@ -325,9 +381,16 @@ def cross_feature(class_array, feature_array, fill=0, distinct_classes=None, dis
         row = np.ones((n_cross*len(dc))) * fill
 
         ind = np.argwhere(dc == ca[i]).ravel()
+
         if len(ind) == 0:
-            raise LookupError('A class label exists in the data that is not defined within the distinct class labels')
+            if catch_class:
+                ind = [len(dc)-1]
+                ca[i] = 'null_class'
+            else:
+                raise LookupError('A class label exists in the data that is not defined within the distinct class labels')
         ind = ind[0]
+
+        # print(ind)
 
         for j in range(n_cross):
             row[(n_cross * ind) + j] = 0
@@ -421,6 +484,86 @@ def levenshtein_ratio(ar, text_column, grouping=None, order=None, replace=False)
     # return npar
 
 
+glove = None
+
+
+def apply_glove_embedding(data, embed_column, replace=False, clean=True):
+    global glove
+    if glove is None:
+        filename = 'glove.6B.100d.txt'
+        if not os.path.exists('temp/'):
+            os.makedirs('temp/')
+        n_lines = len(open(filename, encoding='utf8').readlines())
+        glove = dict()
+        with open(filename, 'r', encoding='utf8') as f:
+            output_str = '-- loading {}...({}%)'.format('glove embeddings', 0)
+            sys.stdout.write(output_str)
+            sys.stdout.flush()
+            old_str = output_str
+            i = 0
+            for line in f:
+                ln = line.rstrip().split(' ')
+                glove[str(ln[0]).lower()] = ln[1:]
+
+                if not round((i / n_lines) * 100, 2) == round(((i - 1) / n_lines) * 100, 2):
+                    sys.stdout.write('\r' + (' ' * len(old_str)))
+                    output_str = '\r-- loading {}...({}%)'.format('glove embeddings', round((i / n_lines) * 100, 2))
+                    sys.stdout.write(output_str)
+                    sys.stdout.flush()
+                    old_str = output_str
+
+                i += 1
+            sys.stdout.write('\r' + (' ' * len(old_str)))
+            sys.stdout.write('\r-- loading {}...({}%)\n'.format('glove embeddings', 100))
+            sys.stdout.flush()
+
+    nar = []
+    hdr = ['h{}'.format(i+1) for i in range(len(data[0])+100)]
+    n_lines = len(data)
+    if clean:
+        output_str = '-- applying {}...({}%)'.format('glove embeddings', 0)
+        sys.stdout.write(output_str)
+        sys.stdout.flush()
+        old_str = output_str
+    i = 0
+    for row in data:
+        tokens = word_tokenize(row[embed_column])
+
+        nar = []
+        for t in tokens:
+            try:
+                vec = glove[str(t).lower()]
+            except KeyError:
+                vec = np.zeros((100), dtype=str)
+
+            r = np.array(row)
+
+            if not replace:
+                nar.append(np.append(np.insert(np.delete(r, embed_column), embed_column, t), vec))
+            else:
+                nar.append(np.insert(np.delete(r, embed_column), embed_column, vec))
+        write_csv(nar, 'temp/emb.csv',hdr if i == 0 else None, append=i > 0, encoding='utf8')
+
+        if not round((i / n_lines) * 100, 2) == round(((i - 1) / n_lines) * 100, 2):
+            if clean:
+                sys.stdout.write('\r' + (' ' * len(old_str)))
+                output_str = '\r-- applying {}...({}%)'.format('glove embeddings', round((i / n_lines) * 100, 2))
+                sys.stdout.write(output_str)
+                sys.stdout.flush()
+                old_str = output_str
+        i += 1
+
+    if clean:
+        sys.stdout.write('\r' + (' ' * len(old_str)))
+        sys.stdout.write('\r-- applying {}...({}%)\n'.format('glove embeddings', 100))
+        sys.stdout.flush()
+
+    if clean:
+        del glove
+    nar, _ = read_csv('temp/emb.csv', encoding='utf8',verbose=clean)
+    return nar
+
+
 def print_descriptives(ar, headers=None, desc_level=1):
     ar = np.array(ar)
     ar = ar.reshape((-1,ar.shape[-1]))
@@ -440,13 +583,18 @@ def print_descriptives(ar, headers=None, desc_level=1):
         if len(h) > 15:
             h = ''.join(list(h)[:15]) + '...'
         label = "Column {}".format(i) if headers is None else h
-        dtype = ['int','float','string'][np.array(np.where(
-            np.array(['integer','double precision','text'])[:] == infer_basic_type(np.unique(ar[:, i]), 1000))).reshape((-1))[0]]
+        # print(ar[0, i])
+        dtype = ['int','float','string','obj'][np.array(np.where(
+            np.array(['integer','double precision','text','obj'])[:] == infer_basic_type(ar[:, i], 1000))).reshape((-1))[0]]
         label = "{} ({}):".format(label,dtype)
 
         if dtype == 'string':
             m = np.array(np.array(ar[:, i]) == '').sum()
-            desc1 = "{} unique values".format(len(np.unique(ar[:, i])))
+            desc1 = "{} unique values".format(len(np.unique(np.array(ar[:, i],dtype=str))))
+            desc2 = ''
+            desc3 = ''
+        elif dtype == 'obj':
+            desc1 = "{} data type".format(type(ar[0, i]))
             desc2 = ''
             desc3 = ''
         else:
@@ -605,9 +753,6 @@ def db_pull_data(csv_out_filename, db_object, query, arguments=None, partition=1
     sys.stdout.flush()
 
     return total_rows
-
-
-
 
 
 class TableBuilder:
@@ -989,13 +1134,22 @@ if __name__ == "__main__":
 
     data = [[0,1,2,'apple'],[0,1,1,'abble'],[1,1,1,'apple'],[1,1,2,'apple'],[0,2,1,'appge'],[0,2,2,'appple']]
 
-    print(levenshtein_ratio(data,3,[0,1],2))
-    exit(1)
+    # print(levenshtein_ratio(data,3,[0,1],2))
+    # exit(1)
 
     data, headers = read_csv('resources/DKT_test.csv')
     print_descriptives(data,headers)
 
-    cf = cross_feature(data[:,1],data[:,3],np.nan, distinct_feature_values=[0,1])
+    cf = cross_feature(data[:,1],data[:,3],np.nan, catch_class=True, distinct_feature_values=[0,1], distinct_classes=['A','B'])
     for i in cf:
         print(i)
         print(cf[i])
+
+    # data = [[0, 'Sam I am', 111],
+    #         [1, 'the quick brown fox jumps over the lazy dog', 222],
+    #         [2, '64 is the answer', 333]]
+    #
+    # data = apply_glove_embedding(data, 1, True)
+    #
+    # for d in data:
+    #     print(d)

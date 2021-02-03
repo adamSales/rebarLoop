@@ -103,34 +103,6 @@ def rmse(actual, predicted, average_over_labels=True):
         return label_rmse
 
 
-def adj_r_squared(actual, predicted, average_over_labels=True):
-    assert len(actual) == len(predicted)
-
-    ac = np.array(actual, dtype=np.float32).reshape((len(actual), -1))
-    pr = np.array(predicted, dtype=np.float32).reshape((len(predicted), -1))
-
-    na = np.argwhere([not np.any(np.isnan(i)) for i in ac]).ravel()
-
-    if len(na) == 0:
-        return np.nan
-
-    ac = ac[na]
-    pr = pr[na]
-
-    label_rmse = []
-    for i in range(ac.shape[-1]):
-
-        num = np.sum((np.array(ac[:, i]) - np.array(pr[:, i]))**2)
-        den = np.sum((np.mean(ac[:, i]) - np.array(pr[:, i]))**2)
-        label_rmse.append(1-num/den)
-
-
-    if average_over_labels:
-        return np.nanmean(label_rmse)
-    else:
-        return label_rmse
-
-
 def cohen_kappa(actual, predicted, split=0.5, average_over_labels=True):
     assert len(actual) == len(predicted)
 
@@ -190,6 +162,16 @@ def cohen_kappa_multiclass(actual, predicted):
 # def kappa(actual, predicted, split=0.5):
 #     # pred = normalize(list(predicted), method='uniform')
 #     return kpa(actual, [p > split for p in predicted])
+
+def rsquared(actual, predicted):
+    assert len(actual) == len(predicted)
+
+    ac = np.array(actual, dtype=np.float32).reshape((len(actual), -1))
+    pr = np.array(predicted, dtype=np.float32).reshape((len(predicted), -1))
+
+    na = np.argwhere([not np.any(np.isnan(i)) for i in ac]).ravel()
+
+    return r2_score(ac[na], pr[na])
 
 
 if __name__ == "__main__":
