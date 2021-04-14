@@ -1,0 +1,110 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.4.2
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+* Simulation: Linear Model with Constant Treatment Effect
+* 2 Covariates
+* Uses true t/c plus normal noise for external t and external c
+* Varies predictiveness of external predictions (r2p)
+
+```{r}
+options(warn=-1)  ## Due to recylcing warning in rf package
+```
+
+```{r}
+library(loop.estimator)
+set.seed(123456789)
+
+agg_res = function(results){
+  out = apply(results,2,mean)
+  out = c(out,apply(results,2,var)[1])
+  out[2:3] = sqrt(out[2:3])
+  out = matrix(out, ncol = 3)
+  colnames(out) = c("pt_est","nom_se","true_se")
+  return(out)
+}
+
+simpdiff = function(Y, Tr, Z) {
+  tauhat = mean(Y[Tr==1]) - mean(Y[Tr==0])
+  varhat = var(Y[Tr==1])/length(Y[Tr==1]) + var(Y[Tr==0])/length(Y[Tr==0])
+  return(c(tauhat, varhat))
+}
+```
+
+```{r}
+k = 1000 # trials per sim
+q = 2 # number covariates
+Ns = c(30,60) # observations
+R2ps = .05+0:9*.1
+R2cs = c(.25,.75)#.05+0:9*.1
+
+res = list()
+
+print(timestamp())
+
+j = 0
+for(N in Ns) {
+  for(r2p in R2ps){
+    for(r2c in R2cs) {
+      j = j+1
+      # results for individual trial
+      results = rep(0,k*2*5) # (k trials) x (mean, var) x (number of methods)
+      dim(results) = c(k,2,5)
+      
+      # simulation
+      for(i in 1:k){
+        sd.g = sqrt((500/12)*(1-r2c)/r2c)
+        sd.e = sqrt((1-r2p)/r2p)
+        sd.r = sqrt(500/12 + sd.g^2)
+        ate = 3
+        
+        Z = matrix(runif(N*q)*10,N,q)
+        c = Z %*% c(2,1)/(sd.r) + rnorm(N,0,sd.g/sd.r)
+        t = c + ate
+        extc = rnorm(N,0,sd.e) + c
+        
+        Tr = rbinom(N,1,0.5)
+        Y = ifelse(Tr == 0, c, t)
+        
+        results[i,,1] = simpdiff(Y,Tr,Z)
+        results[i,,2] = loop(Y,Tr,Z)
+        results[i,,3] = loop(Y,Tr,cbind(Z,as.vector(extc)))
+        results[i,,4] = loop(Y,Tr,Z,pred=reloop,yhat=extc)
+        results[i,,5] = loop(Y,Tr,extc,pred=loop_ols)
+      }
+      
+      out = list()
+      out$r2c = r2c
+      out$r2p = r2p
+      out$N = N
+      out$results = rbind(agg_res(results[,,1]),
+                          agg_res(results[,,2]),
+                          agg_res(results[,,3]),
+                          agg_res(results[,,4]),
+                          agg_res(results[,,5]))
+      rownames(out$results) = c("Simpdiff","LOOP","LOOP w Ext Vars","Loop Ext","OLS with Interactions")
+      res[[j]] = out
+    }
+  }
+}
+
+print(timestamp())
+
+# save results
+save(res,file = "results/r2p_res.RData")
+```
+
+```{r}
+options(warn=0)  
+```
