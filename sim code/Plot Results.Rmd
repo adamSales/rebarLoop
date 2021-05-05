@@ -21,6 +21,8 @@ library(reshape2)
 ```{r}
 plotfun = function(x, idlabel, plotlabel, addlegend)
     {
+    x = cbind(x,DM=1)
+    x = x[,c(1,6,2,3,4,5)]
     df=melt(data.frame(x),id.var=idlabel)
     theplot = ggplot(df, aes_string(x=idlabel, y="value", col="variable")) 
     theplot = theplot + geom_line(lwd=2)
@@ -33,8 +35,9 @@ plotfun = function(x, idlabel, plotlabel, addlegend)
     theplot = theplot + theme(axis.title.x = element_text(colour="grey20",size=16))
     theplot = theplot + theme(axis.title.y = element_text(colour="grey20",size=16))
     theplot = theplot + theme(legend.title=element_blank())
-    theplot = theplot + scale_color_manual(labels = c(expression(list(bold(x),"RF")), expression(list(x^r,"LS")), expression(list(tilde(bold(x)),"RF")), expression(list(tilde(bold(x)),"EN"))), values = c("lightblue", "orange", "violet", "black"))
-    theplot = theplot + theme(legend.position = c(0.1, 0.12))
+#    theplot = theplot + scale_color_manual(labels = "LOOP", "ReLOOP","ReLOOP+RF", "ReLOOP+EN"), values = c("lightblue", "orange", "violet", "black"))
+    theplot = theplot + scale_color_manual(labels = c("DM", expression(list(bold(x),"RF")), expression(list(x^r,"LS")), expression(list(tilde(bold(x)),"RF")), expression(list(tilde(bold(x)),"EN"))), values = c("gray", "lightblue", "orange", "violet", "black"))
+    theplot = theplot + theme(legend.position = c(0.1, 0.15))
     theplot = theplot + theme(legend.text = element_text(size=18))
     if (!addlegend) theplot = theplot + theme(legend.position = "none")
     return(theplot)
@@ -110,3 +113,4 @@ idlabel="N"
     }
 plotwrapper(plots, "plots/sampsize.pdf", "N", "Sample Size")
 ```
+
