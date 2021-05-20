@@ -1,8 +1,15 @@
-*.pdf
 *~
 *.RData
 *\#
+*.log
+*.synctex.gz
+*.bbl
+MainResults-concordance.tex
+MainResults-tikzDictionary
+*.aux
 
 newExperiments/*
 oldStuff/*
 
+cache/*
+jasaSubmission/*
