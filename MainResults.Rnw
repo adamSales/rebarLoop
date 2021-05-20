@@ -104,7 +104,7 @@
   \bigskip
   \bigskip
   \begin{center}
-    \LARGE\bf Precise Unbiased Estimation in Randomized Experiments using Auxiliary Observational Data
+    \LARGE\bf Replication Document for the Main Results in ``Precise Unbiased Estimation in Randomized Experiments using Auxiliary Observational Data''
 \end{center}
   \medskip
 } \fi
@@ -346,23 +346,28 @@ The following code reproduces some of the numbers in the manuscript
 text describing the results:
 
 <<resultsNumbers,results='asis'>>=
-compTab <- comparisons%>%group_by(method1,method2)%>%summarize(
-                                              worse=sum(ssMult<0.975),
-                                              equal=sum(abs(ssMult-1)<0.025),
-                                              better=sum(ssMult>1.025),
-                                              best=max(ssMult),
-                                              bestPS=experiment[which.max(ssMult)],
-                                              best2=sort(ssMult,decreasing=TRUE)[2],
-                                              best2ps=experiment[rank(ssMult)==32],
-                                              worst=min(ssMult),
-                                              worstPS=experiment[which.min(ssMult)])#%>%
-
+compTab <- comparisons%>%group_by(method1,method2)%>%
+  summarize(
+            worse=sum(ssMult<0.975),
+            equal=sum(abs(ssMult-1)<0.025),
+            better=sum(ssMult>1.025),
+            best=max(ssMult),
+            bestPS=experiment[which.max(ssMult)],
+            best2=sort(ssMult,decreasing=TRUE)[2],
+            best2ps=experiment[rank(ssMult)==32],
+            worst=min(ssMult),
+            worstPS=experiment[which.min(ssMult)]
+            )
 
 compTab%>%select(method1:bestPS)%>%kable()
 compTab%>%select(method1,method2,best2:worstPS)%>%kable()
 
 @
 
+
+<<sessionInfo>>=
+sessionInfo()
+@
 
 \end{document}
 
