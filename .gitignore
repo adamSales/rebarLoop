@@ -3,11 +3,6 @@
 *.RData
 *\#
 
-
-*.pdf
-*.jpg
-figure/*
-
 newExperiments/*
 oldStuff/*
-data/*
+
