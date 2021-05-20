@@ -1,0 +1,368 @@
+\documentclass[12pt]{article}
+
+\usepackage{xr}
+
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+  \typeout{(#1)}
+  \@addtofilelist{#1}
+  \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+
+\newcommand*{\myexternaldocument}[1]{%
+    \externaldocument{#1}%
+    \addFileDependency{#1.tex}%
+    \addFileDependency{#1.aux}%
+}
+\myexternaldocument{MainResults}
+
+\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}
+\usepackage{bm}
+\usepackage{natbib}
+%\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{placeins}
+%\usepackage{authblk}
+\usepackage{comment}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{array}
+
+\usetikzlibrary{calc}
+
+%\pdfminorversion=4
+% NOTE: To produce blinded version, replace "0" with "1" below.
+\newcommand{\blind}{0}
+
+\input{notation.tex}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newtheorem{prop}{Proposition}
+
+
+% DON'T change margins - should be 1 inch all around.
+\addtolength{\oddsidemargin}{-.5in}%
+\addtolength{\evensidemargin}{-.5in}%
+\addtolength{\textwidth}{1in}%
+\addtolength{\textheight}{.8in}%
+\addtolength{\topmargin}{-.8in}%
+
+
+\begin{document}
+
+%\bibliographystyle{natbib}
+
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\if1\blind
+{
+  \title{\bf Replication Document for the Main Results in ``Precise Unbiased Estimation in Randomized Experiments using Auxiliary Observational Data''}
+  \author{Johann A. Gagnon-Bartsch\thanks{This work was partially
+      supported by IES grant R305D210031}\hspace{.2cm}\footnote{These authors contributed equally.}\\
+    Department of Statistics, University of Michigan\\
+    and \\
+    Adam C. Sales${}^\dagger$\\
+    Department of Mathematical Sciences, Worcester Polytechnic
+    Institute\\
+        and \\
+    Edward Wu \\
+    Department of Statistics, University of Michigan\\
+    and \\
+    Anthony F. Botelho \\
+    Department of Computer Science, Worcester Polytechnic
+    Institute\\
+    and \\
+    John A. Erickson \\
+    Data Science Program, Worcester Polytechnic
+    Institute\\
+    and \\
+    Neil T. Heffernan \\
+    Department of Computer Science, Worcester Polytechnic
+    Institute\\
+    and \\
+    Luke W. Miratrix \\
+    Graduate School of Education, Harvard University
+
+
+
+
+  }
+  \date{}
+  \maketitle
+} \fi
+
+\if0\blind
+{
+  \bigskip
+  \bigskip
+  \bigskip
+  \begin{center}
+    \LARGE\bf Precise Unbiased Estimation in Randomized Experiments using Auxiliary Observational Data
+\end{center}
+  \medskip
+} \fi
+
+\section{Preliminaries}
+
+This document will reproduce all of the tables and figures from the
+manuscript. The tables and figures will appear in the compiled version
+of this PDF, as well as in stand-alone files to be incorporated into
+the main manuscript.
+
+<<options>>=
+opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=TRUE,dev='tikz')
+@
+
+<<librarysEtc,echo=TRUE,results='hide',cache=FALSE>>=
+library(scales)
+library(tidyverse)
+library(loop.estimator)
+library(kableExtra)
+library(xtable)
+library(knitr)
+library(tikzDevice)
+
+
+
+
+## specialized versions of the LOOP estimator
+source('code/loop_ols.R')
+source('code/loop_ext.R')
+## functions for estimating effects
+source('code/analysisFunctions.r')
+
+@
+
+Names of covariates for within-sample covariate adjustment:
+<<covNames,echo=TRUE,cache=FALSE>>=
+covNames <- c(
+    "Prior.Problem.Count",
+    "Prior.Percent.Correct",
+    "Prior.Assignments.Assigned",
+    "Prior.Percent.Completion",
+    "Prior.Class.Percent.Completion",
+    "Prior.Homework.Assigned",
+    "Prior.Homework.Percent.Completion",
+    "Prior.Class.Homework.Percent.Completion",
+    "male",
+    "unknownGender")#)
+@
+
+\section{Data}
+
+Here we load in the data for estimating effects and standard errors
+using several different methods discussed in the manuscript.
+Note that the predictions from the model fit in the remnant are
+already part of the datasets (which are themselves part of the GitHub
+repository) under the column name \texttt{p\_complete}.
+
+Load in and clean the data:\\
+
+<<loadData,echo=TRUE,results='hide',cache=FALSE>>=
+source('code/dataPrep.r')
+@
+
+Replicating Table \ref{tab:covariates} from the manuscript:
+
+<<table1,echo=TRUE,cache=FALSE,results='asis'>>=
+source('code/covTable.r')
+print(covTable, add.to.row=ATR)
+@
+
+\subsection{Imputing Missing Covariates}
+
+To impute missing covariate values, when possible we imputed the
+classroom mean covariate value for students working on that skill
+builder.
+When there were no other available values for a covariate for students
+in the same classroom working on the same skill builder, we imputed
+with the global mean of students working on that skill builder.
+Since covariates are all pre-treatment and the imputation did not
+depend on treatment status, the imputed covariates are themselves
+covariates, measured for all subjects.
+Therefore, we need not correct for the imputation scheme in our
+treatment effect estimation.
+
+<<imputation,results='hide',cache=FALSE>>=
+### first fill in with class/problem_set mean
+### if that doesn't work, fill in with problem_set mean
+dat <- dat%>%
+    group_by(Class.ID,problem_set)%>%
+    mutate(across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE))))%>%
+    group_by(problem_set)%>%
+    mutate(across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE))))%>%
+    ungroup()
+
+stopifnot(all(sapply(covNames,function(x) mean(is.finite(dat[[x]])))==1))
+
+@
+
+
+
+
+
+\section{Estimate Effects}
+
+Here we estimate effects of treatment for each of the
+\Sexpr{n_distinct(dat[['problem_set']])} skill builders in the dataset.
+The functions for estimating effects are all found in the file
+\texttt{code/analysisFunctions.r}.
+This includes the function \texttt{full()} which estimates all five
+treatment effects discussed in the paper.
+
+<<estimateEffects,results='hide',cache=TRUE>>=
+fullres <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE)
+
+### name the problem sets based on the SE from the simple difference estimator
+rnk <- rank(sapply(fullres,function(x) x['simpDiff','se']))
+names(fullres) <- as.character(rnk)
+
+for(i in 1:length(fullres))
+    attr(fullres[[i]],'psid') <- levels(dat$problem_set)[i]
+
+save(fullres,file='results/fullres.RData')
+
+dat$ps <- rnk[as.character(dat$problem_set)]
+
+@
+
+Replicate Table \ref{tab:info} (Now in an appendix, I think).
+The numbering of the experiments derives from the estimated standard
+errors, so this comes after effect estimation.
+<<Table2,results='asis',cache=TRUE>>=
+source('code/psTable.r')
+
+ kbl(tab,
+
+           booktabs=FALSE,
+           col.names=rep(c("",rep(c("Trt","Ctl"),2)),2),
+           caption="Sample sizes and \\% homework completion by treatment group in each of the 33 A/B tests.",
+           label="info")%>%
+    kable_styling()%>%
+    column_spec(5,border_right=TRUE)%>%
+    add_header_above(rep(c("Experiment"=1,"n"=2,"% Complete"=2),2))
+
+@
+
+
+\section{Figures}
+
+The following code creates a dataset called \texttt{comparisons} that
+includes the sampling variance ratios comparing each method to the
+others, for each problem set.
+It also produces a table (which is not in the manuscript) giving the estimated standard error for each method and each
+experiment.
+<<figPrep,results='asis',cache=FALSE>>=
+source('code/figurePrep.r')
+
+pwidePrint <- pwide
+names(pwidePrint)[-1] <- paste0('$',methodName[names(pwidePrint)[-1]],'$')
+kable(pwidePrint,row.names=FALSE,caption="Estimated standard error for the ATE in each skill builder, using each method discussed in the manuscript",label="tab:SEs",digits=3,escape=FALSE)
+@
+
+Figure \ref{fig:ses1}, comparing
+$\Sexpr{methodName['SimpleDifference']}$,
+$\Sexpr{methodName['Rebar']}$, and $\Sexpr{methodName['ReLOOP']}$:
+
+<<fig1,cache=TRUE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
+p <- comparisons%>%
+    filter(method1%in%c('ReLOOP','Rebar'),method2%in%c('ReLOOPEN','Rebar','SimpleDifference'))%>%
+    ggplot(aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .05 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+
+tikz('figure/fig4.tex',width=6.4,height=2,standAlone=FALSE)
+print(p)
+dev.off()
+
+@
+
+\begin{figure}
+\centering
+\input{figure/fig4.tex}
+\caption{A %labeled 
+dotplot showing sample size multipliers (i.e.\ sampling
+  variance ratios) comparing $\tsd$, $\trebar$, and \ReLOOP\ on the 33 ASSISTments TestBed experiments.}
+\label{fig:ses1}
+\end{figure}
+
+
+Figure \ref{fig:ses2}, comparing $\Sexpr{methodName['SimpleDifference']}$,
+$\Sexpr{methodName['ReLOOP']}$, $\Sexpr{methodName['Loop']}$, and $\Sexpr{methodName['ReLOOPEN']}$:
+
+
+<<fig2,cache=TRUE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
+
+
+p <- comparisons%>%
+    filter((method1%in%c('ReLOOPEN')&method2%in%c('Loop','ReLOOP','SimpleDifference')))%>%
+    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
+ggplot(aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .05 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+#print(p)
+
+tikz('figure/fig5alt.tex',width=6.4,height=2,standAlone=FALSE)
+print(p)
+
+dev.off()
+
+@
+
+\begin{figure}
+\centering
+\input{figure/fig5alt.tex}
+\caption{A dotplot showing sample size multipliers (i.e.\ sampling
+  variance ratios) comparing \ReLOOPEN\ to \ReLOOP\, \LOOP, and $\tsd$, respectively, on the 33 ASSISTments TestBed experiments.}
+\label{fig:ses2}
+\end{figure}
+
+The following code reproduces some of the numbers in the manuscript
+text describing the results:
+
+<<resultsNumbers,results='asis'>>=
+compTab <- comparisons%>%group_by(method1,method2)%>%summarize(
+                                              worse=sum(ssMult<0.975),
+                                              equal=sum(abs(ssMult-1)<0.025),
+                                              better=sum(ssMult>1.025),
+                                              best=max(ssMult),
+                                              bestPS=experiment[which.max(ssMult)],
+                                              best2=sort(ssMult,decreasing=TRUE)[2],
+                                              best2ps=experiment[rank(ssMult)==32],
+                                              worst=min(ssMult),
+                                              worstPS=experiment[which.min(ssMult)])#%>%
+
+
+compTab%>%select(method1:bestPS)%>%kable()
+compTab%>%select(method1,method2,best2:worstPS)%>%kable()
+
+@
+
+
+\end{document}
+
