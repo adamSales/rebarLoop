@@ -23,12 +23,9 @@ The `loop.estimator` package needs to be installed from local files in the `loop
 ```
 for(file in list.files('loop.estimator/R')) if(endsWith(file,'.R')) source(paste0('loop.estimator/R/',file))
 ```
-Then, to run the simulations, use the following syntax (the `rmarkdown` package needs to be installed first)
+Then, to run the simulations, and create the plots in the appendix, use the following syntax (the `rmarkdown` package needs to be installed first)
 
 ```
-rmarkdown::render('sim_by_n.Rmd')
-rmarkdown::render('sim_by_r2c.Rmd')
-rmarkdown::render('sim_by_r2p.Rmd')
 rmarkdown::render('Plot Results.Rmd')
 ```
 
