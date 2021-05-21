@@ -296,7 +296,7 @@ dev.off()
 \begin{figure}
 \centering
 \input{figure/fig4.tex}
-\caption{A %labeled 
+\caption{A %labeled
 dotplot showing sample size multipliers (i.e.\ sampling
   variance ratios) comparing $\tsd$, $\trebar$, and \ReLOOP\ on the 33 ASSISTments TestBed experiments.}
 \label{fig:ses1}
@@ -357,10 +357,11 @@ compTab <- comparisons%>%group_by(method1,method2)%>%
             best2ps=experiment[rank(ssMult)==32],
             worst=min(ssMult),
             worstPS=experiment[which.min(ssMult)]
-            )
+            )%>%ungroup()%>%
+    mutate(across(starts_with('method'),~paste0('$',methodName[as.character(.)],'$')))
 
-compTab%>%select(method1:bestPS)%>%kable()
-compTab%>%select(method1,method2,best2:worstPS)%>%kable()
+compTab%>%select(method1:bestPS)%>%kable(escape = FALSE)
+compTab%>%select(method1,method2,best2:worstPS)%>%kable(escape=FALSE)
 
 @
 
