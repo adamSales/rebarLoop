@@ -19,6 +19,10 @@ library(reshape2)
 ```
 
 ```{r}
+if(!dir.exists('plots')) dir.create('plots')
+```
+
+```{r}
 plotfun = function(x, idlabel, plotlabel, addlegend)
     {
     x = cbind(x,DM=1)
@@ -76,7 +80,7 @@ plotwrapper(plots, "plots/r2c.pdf", "r2c", "Covariates: R-squared")
 ```
 
 ```{r}
-if(file.exists("results/r2c_res.RData")){
+if(file.exists("results/r2p_res.RData")){
   load("results/r2p_res.RData")
 } else knitr::knit('sim_by_r2p.Rmd')
 
@@ -100,7 +104,7 @@ plotwrapper(plots, "plots/r2p.pdf", "r2p", "Remnant Predictions: R-squared")
 ```
 
 ```{r}
-if(file.exists("results/r2c_res.RData")){
+if(file.exists("results/sampsize_res.RData")){
   load("results/sampsize_res.RData")
 } else knitr::knit('sim_by_n.Rmd')
 
