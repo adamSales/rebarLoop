@@ -52,7 +52,10 @@ plotwrapper=function(plots, filename, idlabel, plotlabel)
 ```
 
 ```{r}
-load("results/r2c_res.RData")
+if(file.exists("results/r2c_res.RData")){
+  load("results/r2c_res.RData")
+} else knitr::knit('sim_by_r2c.Rmd')
+
 idlabel="r2c"
     xn = length(res)/4
     plots = matrix(NA,xn,5)
@@ -73,7 +76,10 @@ plotwrapper(plots, "plots/r2c.pdf", "r2c", "Covariates: R-squared")
 ```
 
 ```{r}
-load("results/r2p_res.RData")
+if(file.exists("results/r2c_res.RData")){
+  load("results/r2p_res.RData")
+} else knitr::knit('sim_by_r2p.Rmd')
+
 idlabel="r2p"
     plots = matrix(NA,10,5)
     colnames(plots)=c(idlabel, "LOOP", "ReLOOP+RF", "ReLOOP+EN", "ReLOOP")
@@ -94,7 +100,10 @@ plotwrapper(plots, "plots/r2p.pdf", "r2p", "Remnant Predictions: R-squared")
 ```
 
 ```{r}
-load("results/sampsize_res.RData")
+if(file.exists("results/r2c_res.RData")){
+  load("results/sampsize_res.RData")
+} else knitr::knit('sim_by_n.Rmd')
+
 idlabel="N"
     plots = matrix(NA,8,5)
     colnames(plots)=c(idlabel, "LOOP", "ReLOOP+RF", "ReLOOP+EN", "ReLOOP")

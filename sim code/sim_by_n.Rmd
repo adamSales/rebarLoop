@@ -19,7 +19,11 @@ jupyter:
 * Varies sample size (N)
 
 ```{r}
-options(warn=-1)  ## Due to recylcing warning in rf package
+options(warn=-1)  ## Due to recycling warning in rf package
+```
+
+```{r}
+if(!dir.exists('results')) dir.create('results')
 ```
 
 ```{r}
