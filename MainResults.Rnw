@@ -278,6 +278,7 @@ p <- comparisons%>%
     geom_dotplot( method="histodot", binwidth = .05 )  +
     labs( x = "Relative Ratio of Sample Variances", y="" ) +
     geom_vline( xintercept = 1, col="red" ) +
+    scale_x_continuous(trans="log",breaks=seq(.5,2,.5))+
     facet_wrap(~comp,nrow=1)+
     theme(legend.position = "none",
         panel.grid = element_blank(),
@@ -317,6 +318,7 @@ ggplot(aes(ssMult))+#,fill=exGroup))+
     geom_dotplot( method="histodot", binwidth = .05 )  +
     labs( x = "Relative Ratio of Sample Variances", y="" ) +
     geom_vline( xintercept = 1, col="red" ) +
+    scale_x_continuous(trans="log",breaks=seq(1,2.5,.5))+
     facet_wrap(~comp,nrow=1)+
     theme(legend.position = "none",
         panel.grid = element_blank(),
