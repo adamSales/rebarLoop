@@ -34,23 +34,9 @@ justCovs <- function(datPS,covsPS)
          loop(complete,treatment,covsPS))
 
 ## all the estimators, for a particular problem set
-<<<<<<< HEAD
 full <- function(ps,dat,covNames,methods=c('simpDiff','rebar','strat1','strat3','justCovs')){
-=======
-full <- function(ps,n,methods=c('simpDiff','rebar','strat1','strat3','justCovs'),seed){
->>>>>>> e022a91e73f8038236e49e5c59d3bd45666a99b0
     datPS <- dat[dat$problem_set==ps,]
     covsPS <- dat[dat$problem_set==ps,covNames]
-
-<<<<<<< HEAD
-=======
-    if(!missing(n)){
-      if(!missing(seed)) set.seed(seed)
-      samp <- sample(1:nrow(datPS),n)
-      datPS <- datPS[samp,]
-      covsPS <- covsPS[samp,]
-    }
->>>>>>> e022a91e73f8038236e49e5c59d3bd45666a99b0
 
     res <- sapply(methods,
                   function(FUN){
