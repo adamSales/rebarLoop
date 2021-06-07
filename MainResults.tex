@@ -165,13 +165,7 @@ manuscript. The tables and figures will appear in the compiled version
 of this PDF, as well as in stand-alone files to be incorporated into
 the main manuscript.
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{opts_chunk}\hlopt{$}\hlkwd{set}\hlstd{(}\hlkwc{message}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{warning}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{error}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{echo}\hlstd{=}\hlnum{TRUE}\hlstd{,}\hlkwc{cache}\hlstd{=}\hlnum{TRUE}\hlstd{,}\hlkwc{dev}\hlstd{=}\hlstr{'tikz'}\hlstd{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -181,7 +175,6 @@ the main manuscript.
 \hlkwd{library}\hlstd{(loop.estimator)}
 \hlkwd{library}\hlstd{(kableExtra)}
 \hlkwd{library}\hlstd{(xtable)}
-\hlkwd{library}\hlstd{(knitr)}
 \hlkwd{library}\hlstd{(tikzDevice)}
 
 
@@ -241,7 +234,7 @@ Replicating Table \ref{tab:covariates} from the manuscript:
 \hlkwd{print}\hlstd{(covTable,} \hlkwc{add.to.row}\hlstd{=ATR)}
 \end{alltt}
 \end{kframe}% latex table generated in R 4.0.3 by xtable 1.8-4 package
-% Fri May 21 13:03:33 2021
+% Thu Jun 03 19:50:12 2021
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -501,6 +494,7 @@ $\trebar$, and $\trc$:
     \hlkwd{geom_dotplot}\hlstd{(} \hlkwc{method}\hlstd{=}\hlstr{"histodot"}\hlstd{,} \hlkwc{binwidth} \hlstd{=} \hlnum{.05} \hlstd{)}  \hlopt{+}
     \hlkwd{labs}\hlstd{(} \hlkwc{x} \hlstd{=} \hlstr{"Relative Ratio of Sample Variances"}\hlstd{,} \hlkwc{y}\hlstd{=}\hlstr{""} \hlstd{)} \hlopt{+}
     \hlkwd{geom_vline}\hlstd{(} \hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"} \hlstd{)} \hlopt{+}
+    \hlkwd{scale_x_continuous}\hlstd{(}\hlkwc{trans}\hlstd{=}\hlstr{"log"}\hlstd{,}\hlkwc{breaks}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{.5}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{.5}\hlstd{))}\hlopt{+}
     \hlkwd{facet_wrap}\hlstd{(}\hlopt{~}\hlstd{comp,}\hlkwc{nrow}\hlstd{=}\hlnum{1}\hlstd{)}\hlopt{+}
     \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"none"}\hlstd{,}
         \hlkwc{panel.grid} \hlstd{=} \hlkwd{element_blank}\hlstd{(),}
@@ -545,6 +539,7 @@ $\trc$, $\tss[\bx,\mathrm{RF}]$, and $\trcpen$:
     \hlkwd{geom_dotplot}\hlstd{(} \hlkwc{method}\hlstd{=}\hlstr{"histodot"}\hlstd{,} \hlkwc{binwidth} \hlstd{=} \hlnum{.05} \hlstd{)}  \hlopt{+}
     \hlkwd{labs}\hlstd{(} \hlkwc{x} \hlstd{=} \hlstr{"Relative Ratio of Sample Variances"}\hlstd{,} \hlkwc{y}\hlstd{=}\hlstr{""} \hlstd{)} \hlopt{+}
     \hlkwd{geom_vline}\hlstd{(} \hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"} \hlstd{)} \hlopt{+}
+    \hlkwd{scale_x_continuous}\hlstd{(}\hlkwc{trans}\hlstd{=}\hlstr{"log"}\hlstd{,}\hlkwc{breaks}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2.5}\hlstd{,}\hlnum{.5}\hlstd{))}\hlopt{+}
     \hlkwd{facet_wrap}\hlstd{(}\hlopt{~}\hlstd{comp,}\hlkwc{nrow}\hlstd{=}\hlnum{1}\hlstd{)}\hlopt{+}
     \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"none"}\hlstd{,}
         \hlkwc{panel.grid} \hlstd{=} \hlkwd{element_blank}\hlstd{(),}

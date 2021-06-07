@@ -1,4 +1,4 @@
-dat <- read.csv('data/updated_exp_predictions.csv')
+dat1 <- read.csv('data/updated_exp_predictions.csv')
 dat2 <- read.csv('data/newExperiments.csv')
 ## outcome is 'complete'
 ## prediction is 'p_complete'
@@ -6,9 +6,12 @@ dat2 <- read.csv('data/newExperiments.csv')
 dat2$p_complete <- dat2$pcomplete1
 dat2$problem_set <- dat2$target_sequence_id
 
-dat$condition <- ifelse(dat$condition=='E',1,0)
+dat1$condition <- ifelse(dat1$condition=='E',1,0)
 
-dat <- rbind(dat[,intersect(names(dat),names(dat2))],dat2[,intersect(names(dat),names(dat2))])
+dat1$group <- 1
+dat2$group <- 2
+
+dat <- rbind(dat1[,intersect(names(dat1),names(dat2))],dat2[,intersect(names(dat1),names(dat2))])
 
 ## only keep those subjects whom treatment could possibly affect:
 #dat <- subset(dat,ExperiencedCondition)

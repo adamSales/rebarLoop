@@ -116,7 +116,8 @@ manuscript. The tables and figures will appear in the compiled version
 of this PDF, as well as in stand-alone files to be incorporated into
 the main manuscript.
 
-<<options>>=
+<<options,include=FALSE,cache=FALSE>>=
+library(knitr)
 opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=TRUE,dev='tikz')
 @
 
@@ -126,7 +127,6 @@ library(tidyverse)
 library(loop.estimator)
 library(kableExtra)
 library(xtable)
-library(knitr)
 library(tikzDevice)
 
 
