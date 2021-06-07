@@ -96,8 +96,8 @@ class Network:
 
         self.graph = tf.compat.v1.get_default_graph()
 
-        self.session = tf.compat.v1.InteractiveSession(config=tf.ConfigProto(device_count={'GPU': 0}))  # use CPU
-        # self.session = tf.InteractiveSession()  # use GPU
+        self.session = tf.compat.v1.InteractiveSession(config=tf.compat.v1.ConfigProto(device_count={'GPU': 0}))  # use CPU
+        # self.session = tf.compat.v1.InteractiveSession()  # use GPU
         self.saver = None
         self.save_path = None
 
@@ -173,25 +173,25 @@ class Network:
 
     def add_input_layer(self, n, normalization=Normalization.NONE):
         layer = dict()
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer['n'] = n
-            layer['z'] = tf.placeholder(tf.float32, [None, None, n], name='x')
+            layer['z'] = tf.compat.v1.placeholder(tf.compat.v1.float32, [None, None, n], name='x')
             layer['param'] = {'w': None, 'b': None, 'type': 'input',
-                              'arg': {'stat1': tf.placeholder_with_default(tf.zeros([n]), shape=[n],
+                              'arg': {'stat1': tf.compat.v1.placeholder_with_default(tf.compat.v1.zeros([n]), shape=[n],
                                                                            name='input_stat1'),
-                                      'stat2': tf.placeholder_with_default(tf.ones([n]), shape=[n],
+                                      'stat2': tf.compat.v1.placeholder_with_default(tf.compat.v1.ones([n]), shape=[n],
                                                                            name='input_stat2')}}
 
-            layer['a'] = tf.identity
+            layer['a'] = tf.compat.v1.identity
 
             self.normalization = normalization
             if normalization == Normalization.Z_SCORE:
                 layer['h'] = layer['a']((layer['z'] - layer['param']['arg']['stat1']) /
-                                        tf.maximum(layer['param']['arg']['stat2'], tf.constant(1e-12, dtype=tf.float32)))
+                                        tf.compat.v1.maximum(layer['param']['arg']['stat2'], tf.compat.v1.constant(1e-12, dtype=tf.compat.v1.float32)))
             elif normalization == Normalization.MAX:
                 layer['h'] = layer['a']((layer['z'] - layer['param']['arg']['stat2']) /
-                                        tf.maximum(layer['param']['arg']['stat1'] - layer['param']['arg']['stat2'],
-                                                   tf.constant(1e-12, dtype=tf.float32)))
+                                        tf.compat.v1.maximum(layer['param']['arg']['stat1'] - layer['param']['arg']['stat2'],
+                                                   tf.compat.v1.constant(1e-12, dtype=tf.compat.v1.float32)))
             else:
                 layer['h'] = layer['a'](layer['z'])
 
@@ -242,18 +242,18 @@ class Network:
             self.add_lstm_layer(**layer['param']['ctor'])
 
 
-            self.layers[-1]['param']['w'] = tf.get_variable('Layer' + str(len(self.layers)) + '_W',
-                                                  initializer=tf.truncated_normal(
+            self.layers[-1]['param']['w'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_W',
+                                                  initializer=tf.compat.v1.truncated_normal(
                                                       (self.layers[-1]['n'] + layer['n'], layer['n']),
                                                       stddev=1. / np.sqrt(self.layers[-1]['n'])),
-                                                  dtype=tf.float32)
-            layer['param']['b'] = tf.get_variable('Layer' + str(len(self.layers)) + '_B',
-                                                  (layer['n']), dtype=tf.float32,
-                                                  initializer=tf.constant_initializer(0.0))
+                                                  dtype=tf.compat.v1.float32)
+            layer['param']['b'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_B',
+                                                  (layer['n']), dtype=tf.compat.v1.float32,
+                                                  initializer=tf.compat.v1.constant_initializer(0.0))
 
-            layer['param']['arg']['cell'] = tf.get_variable('Layer' + str(len(self.layers)) + '_C',
-                                                            (layer['n']), dtype=tf.float32,
-                                                            initializer=tf.constant_initializer(0.0))
+            layer['param']['arg']['cell'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_C',
+                                                            (layer['n']), dtype=tf.compat.v1.float32,
+                                                            initializer=tf.compat.v1.constant_initializer(0.0))
         elif layer['param']['type'] == 'gru':
             pass
         elif layer['param']['type'] == 'rnn':
@@ -263,73 +263,73 @@ class Network:
         elif layer['param']['type'] == 'dropout':
             pass
 
-    def add_dense_layer(self, n, activation=tf.identity):
+    def add_dense_layer(self, n, activation=tf.compat.v1.identity):
         layer = dict()
         connecting_layer = self.get_deepest_hidden_layer_index()
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer['n'] = n
             layer['param'] = {'w': None, 'b': None, 'type': 'dense', 'arg': None}
-            layer['param']['w'] = tf.Variable(tf.truncated_normal((self.layers[connecting_layer]['n'], layer['n']),
+            layer['param']['w'] = tf.compat.v1.Variable(tf.compat.v1.truncated_normal((self.layers[connecting_layer]['n'], layer['n']),
                                                                   stddev=1. / np.sqrt(
                                                                       self.layers[connecting_layer]['n'])),
-                                              dtype=tf.float32, name='Layer' + str(len(self.layers)) + '_W')
-            layer['param']['b'] = tf.Variable(tf.zeros([layer['n']]), name='Layer' + str(len(self.layers)) + '_B')
+                                              dtype=tf.compat.v1.float32, name='Layer' + str(len(self.layers)) + '_W')
+            layer['param']['b'] = tf.compat.v1.Variable(tf.compat.v1.zeros([layer['n']]), name='Layer' + str(len(self.layers)) + '_B')
 
-            bsize = tf.shape(self.layers[-1]['h'])[0]
-            layer['z'] = tf.matmul(
-                tf.reshape(self.layers[connecting_layer]['h'], [-1, self.layers[connecting_layer]['n']]),
+            bsize = tf.compat.v1.shape(self.layers[-1]['h'])[0]
+            layer['z'] = tf.compat.v1.matmul(
+                tf.compat.v1.reshape(self.layers[connecting_layer]['h'], [-1, self.layers[connecting_layer]['n']]),
                 layer['param']['w']) + layer['param']['b']
             layer['a'] = activation
-            layer['h'] = layer['a'](tf.reshape(layer['z'], [bsize, -1, n]))
+            layer['h'] = layer['a'](tf.compat.v1.reshape(layer['z'], [bsize, -1, n]))
         self.layers.insert(max(0, len(self.layers)), layer)
         if self.__tmp_multi_out is None:
             self.deepest_hidden_layer = self.layers[-1]
             self.__deepest_hidden_layer_ind = len(self.layers) - 1
         return self
 
-    def add_inverse_layer(self, layer_index, activation=tf.identity):
+    def add_inverse_layer(self, layer_index, activation=tf.compat.v1.identity):
         if layer_index < 0:
             layer_index += len(self.layers)
         assert layer_index > 0 and layer_index < len(self.layers)
         inv = self.layers[layer_index]
         layer = dict()
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer['n'] = self.layers[layer_index - 1]['n']
             layer['param'] = {'w': None, 'b': None, 'type': 'inverse', 'arg': layer_index}
             layer['param']['w'] = None
-            layer['param']['b'] = tf.Variable(tf.zeros([layer['n']]))
+            layer['param']['b'] = tf.compat.v1.Variable(tf.compat.v1.zeros([layer['n']]))
 
-            bsize = tf.shape(self.layers[-1]['h'])[0]
-            layer['z'] = tf.matmul(tf.reshape(self.layers[-1]['h'], [-1, self.layers[-1]['n']]),
-                                   tf.transpose(inv['param']['w'])) + \
+            bsize = tf.compat.v1.shape(self.layers[-1]['h'])[0]
+            layer['z'] = tf.compat.v1.matmul(tf.compat.v1.reshape(self.layers[-1]['h'], [-1, self.layers[-1]['n']]),
+                                   tf.compat.v1.transpose(inv['param']['w'])) + \
                          layer['param']['b']
             layer['a'] = activation
-            layer['h'] = layer['a'](tf.reshape(layer['z'], [bsize, -1, self.layers[layer_index - 1]['n']]))
+            layer['h'] = layer['a'](tf.compat.v1.reshape(layer['z'], [bsize, -1, self.layers[layer_index - 1]['n']]))
         self.layers.insert(max(0, len(self.layers)), layer)
         return self
 
-    def __init_gate(self, n, feeding_n, activation=tf.identity, name='gate'):
-        with tf.variable_scope(self.scope_name):
+    def __init_gate(self, n, feeding_n, activation=tf.compat.v1.identity, name='gate'):
+        with tf.compat.v1.variable_scope(self.scope_name):
             gate = dict()
             gate['n'] = n
             gate['param'] = {'w': None, 'b': None, 'type': 'gate',
                              'arg': None}
 
-            gate['param']['w'] = tf.get_variable(name + '_W', initializer=tf.truncated_normal(
+            gate['param']['w'] = tf.compat.v1.get_variable(name + '_W', initializer=tf.compat.v1.truncated_normal(
                 (feeding_n, gate['n']), stddev=1. / np.sqrt(self.layers[-1]['n'])),
-                                                 dtype=tf.float32)
-            gate['param']['b'] = tf.get_variable(name + '_B', (gate['n']), dtype=tf.float32,
-                                                 initializer=tf.constant_initializer(0.0))
+                                                 dtype=tf.compat.v1.float32)
+            gate['param']['b'] = tf.compat.v1.get_variable(name + '_B', (gate['n']), dtype=tf.compat.v1.float32,
+                                                 initializer=tf.compat.v1.constant_initializer(0.0))
 
             gate['a'] = activation
         return gate
 
-    def add_lstm_layer(self, n, peepholes=False, reverse=False, as_decoder=False, activation=tf.identity):
+    def add_lstm_layer(self, n, peepholes=False, reverse=False, as_decoder=False, activation=tf.compat.v1.identity):
         self.recurrent = True
         # self.use_last = use_last
         connecting_layer = self.get_deepest_hidden_layer_index()
 
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer = dict()
             layer['n'] = n
             layer['param'] = {'w': None, 'b': None, 'type': 'lstm',
@@ -338,25 +338,25 @@ class Network:
                                       'as_decoder':as_decoder,'activation':activation}}
 
             if as_decoder:
-                layer['param']['w'] = tf.get_variable('Layer' + str(len(self.layers)) + '_W',
-                                                      initializer=tf.truncated_normal(
+                layer['param']['w'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_W',
+                                                      initializer=tf.compat.v1.truncated_normal(
                                                           (self.layers[connecting_layer-1]['n'] + layer['n'], layer['n']),
                                                           stddev=1. / np.sqrt(self.layers[-2]['n'])),
-                                                      dtype=tf.float32)
+                                                      dtype=tf.compat.v1.float32)
             else:
 
-                layer['param']['w'] = tf.get_variable('Layer' + str(len(self.layers)) + '_W',
-                                                      initializer=tf.truncated_normal(
+                layer['param']['w'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_W',
+                                                      initializer=tf.compat.v1.truncated_normal(
                                                           (self.layers[connecting_layer]['n'] + layer['n'], layer['n']),
                                                           stddev=1. / np.sqrt(self.layers[-1]['n'])),
-                                                      dtype=tf.float32)
-            layer['param']['b'] = tf.get_variable('Layer' + str(len(self.layers)) + '_B',
-                                                  (layer['n']), dtype=tf.float32,
-                                                  initializer=tf.constant_initializer(0.0))
+                                                      dtype=tf.compat.v1.float32)
+            layer['param']['b'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_B',
+                                                  (layer['n']), dtype=tf.compat.v1.float32,
+                                                  initializer=tf.compat.v1.constant_initializer(0.0))
 
-            layer['param']['arg']['cell'] = tf.get_variable('Layer' + str(len(self.layers)) + '_C',
-                                                            (layer['n']), dtype=tf.float32,
-                                                            initializer=tf.constant_initializer(0.0))
+            layer['param']['arg']['cell'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_C',
+                                                            (layer['n']), dtype=tf.compat.v1.float32,
+                                                            initializer=tf.compat.v1.constant_initializer(0.0))
 
             layer['a'] = activation
 
@@ -365,98 +365,98 @@ class Network:
         if peepholes:
             feeding_n += n
 
-        forget_g = self.__init_gate(n, feeding_n, tf.sigmoid,
+        forget_g = self.__init_gate(n, feeding_n, tf.compat.v1.sigmoid,
                                     name='Layer' + str(len(self.layers)) + '_forget')
-        input_g = self.__init_gate(n, feeding_n, tf.sigmoid,
+        input_g = self.__init_gate(n, feeding_n, tf.compat.v1.sigmoid,
                                    name='Layer' + str(len(self.layers)) + '_input')
-        output_g = self.__init_gate(n, feeding_n, tf.sigmoid,
+        output_g = self.__init_gate(n, feeding_n, tf.compat.v1.sigmoid,
                                     name='Layer' + str(len(self.layers)) + '_output')
 
 
         L = self.layers
 
         def __lstm_step(state, input):
-            # with tf.variable_scope(self.scope_name, reuse=True):
+            # with tf.compat.v1.variable_scope(self.scope_name, reuse=True):
             state = layer['a'](state)
-            W = tf.get_variable('Layer' + str(len(L)) + '_W')
-            W = tf.identity(W)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', W)
+            W = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_W')
+            W = tf.compat.v1.identity(W)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', W)
 
-            b = tf.get_variable('Layer' + str(len(L)) + '_B')
-            b = tf.identity(b)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', b)
+            b = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_B')
+            b = tf.compat.v1.identity(b)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', b)
 
-            C = tf.get_variable('Layer' + str(len(L)) + '_C')
-            C = tf.identity(C)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', C)
+            C = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_C')
+            C = tf.compat.v1.identity(C)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', C)
 
             # forget gate
-            forgetW = tf.get_variable('Layer' + str(len(L)) + '_forget_W')
-            forgetW = tf.identity(forgetW)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', forgetW)
+            forgetW = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_forget_W')
+            forgetW = tf.compat.v1.identity(forgetW)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', forgetW)
 
-            forgetb = tf.get_variable('Layer' + str(len(L)) + '_forget_B')
-            forgetb = tf.identity(forgetb)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', forgetb)
+            forgetb = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_forget_B')
+            forgetb = tf.compat.v1.identity(forgetb)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', forgetb)
 
             # input gate
-            inputW = tf.get_variable('Layer' + str(len(L)) + '_input_W')
-            inputW = tf.identity(inputW)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', inputW)
+            inputW = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_input_W')
+            inputW = tf.compat.v1.identity(inputW)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', inputW)
 
-            inputb = tf.get_variable('Layer' + str(len(L)) + '_input_B')
-            inputb = tf.identity(inputb)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', inputb)
+            inputb = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_input_B')
+            inputb = tf.compat.v1.identity(inputb)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', inputb)
 
             # output gate
-            outputW = tf.get_variable('Layer' + str(len(L)) + '_output_W')
-            outputW = tf.identity(outputW)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', outputW)
+            outputW = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_output_W')
+            outputW = tf.compat.v1.identity(outputW)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', outputW)
 
-            outputb = tf.get_variable('Layer' + str(len(L)) + '_output_B')
-            outputb = tf.identity(outputb)
-            tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', outputb)
+            outputb = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_output_B')
+            outputb = tf.compat.v1.identity(outputb)
+            tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', outputb)
 
-            concat = tf.concat([tf.cast(tf.reshape(input, [-1, L[connecting_layer]['n'] if not as_decoder else L[connecting_layer-1]['n']]), tf.float32), state], 1)
-            cell_prime = tf.tanh(tf.matmul(concat, W) + b)
+            concat = tf.compat.v1.concat([tf.compat.v1.cast(tf.compat.v1.reshape(input, [-1, L[connecting_layer]['n'] if not as_decoder else L[connecting_layer-1]['n']]), tf.compat.v1.float32), state], 1)
+            cell_prime = tf.compat.v1.tanh(tf.compat.v1.matmul(concat, W) + b)
 
-            p_concat = state if not peepholes else tf.concat([state, tf.cast(tf.reshape(
-                tf.tile(C, [tf.shape(state)[0]]), [-1, layer['n']]), tf.float32)], 1)
+            p_concat = state if not peepholes else tf.compat.v1.concat([state, tf.compat.v1.cast(tf.compat.v1.reshape(
+                tf.compat.v1.tile(C, [tf.compat.v1.shape(state)[0]]), [-1, layer['n']]), tf.compat.v1.float32)], 1)
 
-            concat_g = tf.concat([tf.cast(tf.reshape(input, [-1, L[connecting_layer]['n'] if not as_decoder else L[connecting_layer-1]['n']]), tf.float32), p_concat], 1)
+            concat_g = tf.compat.v1.concat([tf.compat.v1.cast(tf.compat.v1.reshape(input, [-1, L[connecting_layer]['n'] if not as_decoder else L[connecting_layer-1]['n']]), tf.compat.v1.float32), p_concat], 1)
 
-            forget_h = forget_g['a'](tf.matmul(concat_g, forgetW) + forgetb)
-            input_h = input_g['a'](tf.matmul(concat_g, inputW) + inputb)
+            forget_h = forget_g['a'](tf.compat.v1.matmul(concat_g, forgetW) + forgetb)
+            input_h = input_g['a'](tf.compat.v1.matmul(concat_g, inputW) + inputb)
 
             C = (C * forget_h) + (cell_prime * input_h)
 
-            pr_concat = state if not peepholes else tf.concat([state, C], 1)
-            concat_g = tf.concat([tf.cast(tf.reshape(input, [-1, L[connecting_layer]['n'] if not as_decoder else L[connecting_layer-1]['n']]), tf.float32), pr_concat], 1)
-            output_h = output_g['a'](tf.matmul(concat_g, outputW) + outputb)
+            pr_concat = state if not peepholes else tf.compat.v1.concat([state, C], 1)
+            concat_g = tf.compat.v1.concat([tf.compat.v1.cast(tf.compat.v1.reshape(input, [-1, L[connecting_layer]['n'] if not as_decoder else L[connecting_layer-1]['n']]), tf.compat.v1.float32), pr_concat], 1)
+            output_h = output_g['a'](tf.compat.v1.matmul(concat_g, outputW) + outputb)
 
-            layer['z'] = (output_h * tf.tanh(C))
+            layer['z'] = (output_h * tf.compat.v1.tanh(C))
             return layer['z']
 
-        with tf.variable_scope(self.scope_name, reuse=True):
-            shape = tf.shape(self.layers[connecting_layer]['h'])
+        with tf.compat.v1.variable_scope(self.scope_name, reuse=True):
+            shape = tf.compat.v1.shape(self.layers[connecting_layer]['h'])
 
             if not as_decoder:
-                init = tf.Variable(tf.ones((1, layer['n'])) * 0.0)
+                init = tf.compat.v1.Variable(tf.compat.v1.ones((1, layer['n'])) * 0.0)
 
                 if reverse:
-                    lstm_zs = tf.reverse(
-                        tf.scan(__lstm_step, tf.reverse(tf.transpose(self.layers[connecting_layer]['h'], [1, 0, 2]), axis=[0]),
-                                initializer=tf.reshape(tf.tile(init, [1, shape[0]]), [-1, layer['n']])), axis=[0])
+                    lstm_zs = tf.compat.v1.reverse(
+                        tf.compat.v1.scan(__lstm_step, tf.compat.v1.reverse(tf.compat.v1.transpose(self.layers[connecting_layer]['h'], [1, 0, 2]), axis=[0]),
+                                initializer=tf.compat.v1.reshape(tf.compat.v1.tile(init, [1, shape[0]]), [-1, layer['n']])), axis=[0])
                 else:
-                    lstm_zs = tf.scan(__lstm_step, tf.transpose(self.layers[connecting_layer]['h'], [1, 0, 2]),
-                                      initializer=tf.reshape(tf.tile(init, [1, shape[0]]), [-1, layer['n']]))
+                    lstm_zs = tf.compat.v1.scan(__lstm_step, tf.compat.v1.transpose(self.layers[connecting_layer]['h'], [1, 0, 2]),
+                                      initializer=tf.compat.v1.reshape(tf.compat.v1.tile(init, [1, shape[0]]), [-1, layer['n']]))
             else:
-                init = tf.transpose(self.layers[connecting_layer]['h'], [1, 0, 2])[-1]
+                init = tf.compat.v1.transpose(self.layers[connecting_layer]['h'], [1, 0, 2])[-1]
 
-                lstm_zs = tf.scan(__lstm_step, tf.transpose(tf.zeros_like(self.layers[connecting_layer-1]['h']), [1, 0, 2]),
-                                  initializer=tf.reshape(init, [-1, layer['n']]))
+                lstm_zs = tf.compat.v1.scan(__lstm_step, tf.compat.v1.transpose(tf.compat.v1.zeros_like(self.layers[connecting_layer-1]['h']), [1, 0, 2]),
+                                  initializer=tf.compat.v1.reshape(init, [-1, layer['n']]))
 
-            layer['h'] = layer['a'](tf.transpose(lstm_zs, [1, 0, 2]))
+            layer['h'] = layer['a'](tf.compat.v1.transpose(lstm_zs, [1, 0, 2]))
         self.layers.insert(max(0, len(self.layers)), layer)
 
         self.deepest_recurrent_layer = len(self.layers) - 1
@@ -466,7 +466,7 @@ class Network:
             self.__deepest_hidden_layer_ind = len(self.layers) - 1
         return self
 
-    def add_bidirectional_lstm_layer(self, n,  peepholes=False, as_decoder=False, activation=tf.identity):
+    def add_bidirectional_lstm_layer(self, n,  peepholes=False, as_decoder=False, activation=tf.compat.v1.identity):
         self.recurrent = True
         # self.use_last = use_last
 
@@ -493,11 +493,11 @@ class Network:
         self.deepest_hidden_layer = deepest_hid
         self.__deepest_hidden_layer_ind = deepest_hid_ind
 
-        with tf.variable_scope(self.scope_name):
-            bsize = tf.shape(self.layers[-1]['h'])[0]
-            layer['z'] = tf.concat([forward['h'],reverse['h']], -1)
+        with tf.compat.v1.variable_scope(self.scope_name):
+            bsize = tf.compat.v1.shape(self.layers[-1]['h'])[0]
+            layer['z'] = tf.compat.v1.concat([forward['h'],reverse['h']], -1)
             layer['a'] = activation
-            layer['h'] = layer['a'](tf.reshape(layer['z'], [bsize, -1, layer['n']]))
+            layer['h'] = layer['a'](tf.compat.v1.reshape(layer['z'], [bsize, -1, layer['n']]))
 
         self.layers.insert(max(0, len(self.layers)), layer)
 
@@ -509,82 +509,82 @@ class Network:
 
         return self
 
-    def add_gru_layer(self, n,  activation=tf.identity):
+    def add_gru_layer(self, n,  activation=tf.compat.v1.identity):
         self.recurrent = True
         # self.use_last = use_last
 
         connecting_layer = self.get_deepest_hidden_layer_index()
 
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer = dict()
             layer['n'] = n
             layer['param'] = {'w': None, 'b': None, 'type': 'gru',
                               'arg': {'timesteps': None, 'hsubt': None, 'cell': None}}
 
-            layer['param']['w'] = tf.get_variable('Layer' + str(len(self.layers)) + '_W',
-                                                  initializer=tf.truncated_normal(
+            layer['param']['w'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_W',
+                                                  initializer=tf.compat.v1.truncated_normal(
                                                       (self.layers[connecting_layer]['n'] + layer['n'], layer['n']),
                                                       stddev=1. / np.sqrt(self.layers[-1]['n'])),
-                                                  dtype=tf.float32)
-            layer['param']['b'] = tf.get_variable('Layer' + str(len(self.layers)) + '_B',
-                                                  (layer['n']), dtype=tf.float32,
-                                                  initializer=tf.constant_initializer(0.0))
+                                                  dtype=tf.compat.v1.float32)
+            layer['param']['b'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_B',
+                                                  (layer['n']), dtype=tf.compat.v1.float32,
+                                                  initializer=tf.compat.v1.constant_initializer(0.0))
 
             layer['a'] = activation
 
-        update_g = self.__init_gate(n, self.layers[connecting_layer]['n'] + n, activation=tf.sigmoid,
+        update_g = self.__init_gate(n, self.layers[connecting_layer]['n'] + n, activation=tf.compat.v1.sigmoid,
                                     name='Layer' + str(len(self.layers)) + '_update')
-        reset_g = self.__init_gate(n, self.layers[connecting_layer]['n'] + n, activation=tf.sigmoid,
+        reset_g = self.__init_gate(n, self.layers[connecting_layer]['n'] + n, activation=tf.compat.v1.sigmoid,
                                    name='Layer' + str(len(self.layers)) + '_reset')
 
         L = self.layers
 
         def __gru_step(state, input):
-            with tf.variable_scope(self.scope_name, reuse=True):
+            with tf.compat.v1.variable_scope(self.scope_name, reuse=True):
                 state = layer['a'](state)
-                W = tf.get_variable('Layer' + str(len(L)) + '_W')
-                W = tf.identity(W)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', W)
+                W = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_W')
+                W = tf.compat.v1.identity(W)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', W)
 
-                b = tf.get_variable('Layer' + str(len(L)) + '_B')
-                b = tf.identity(b)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', b)
+                b = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_B')
+                b = tf.compat.v1.identity(b)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', b)
 
-                updateW = tf.get_variable('Layer' + str(len(L)) + '_update_W')
-                updateW = tf.identity(updateW)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', updateW)
+                updateW = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_update_W')
+                updateW = tf.compat.v1.identity(updateW)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', updateW)
 
-                updateb = tf.get_variable('Layer' + str(len(L)) + '_update_B')
-                updateb = tf.identity(updateb)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', updateb)
+                updateb = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_update_B')
+                updateb = tf.compat.v1.identity(updateb)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', updateb)
 
-                resetW = tf.get_variable('Layer' + str(len(L)) + '_reset_W')
-                resetW = tf.identity(resetW)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', resetW)
+                resetW = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_reset_W')
+                resetW = tf.compat.v1.identity(resetW)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', resetW)
 
-                resetb = tf.get_variable('Layer' + str(len(L)) + '_reset_B')
-                resetb = tf.identity(resetb)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', resetb)
+                resetb = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_reset_B')
+                resetb = tf.compat.v1.identity(resetb)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', resetb)
 
-                concat_g = tf.concat([tf.cast(tf.reshape(input, [-1, L[connecting_layer]['n']]), tf.float32), state], 1)
-                update_h = update_g['a'](tf.matmul(concat_g, updateW) + updateb)
-                reset_h = reset_g['a'](tf.matmul(concat_g, resetW) + resetb)
+                concat_g = tf.compat.v1.concat([tf.compat.v1.cast(tf.compat.v1.reshape(input, [-1, L[connecting_layer]['n']]), tf.compat.v1.float32), state], 1)
+                update_h = update_g['a'](tf.compat.v1.matmul(concat_g, updateW) + updateb)
+                reset_h = reset_g['a'](tf.compat.v1.matmul(concat_g, resetW) + resetb)
 
-                concat = tf.concat([tf.cast(tf.reshape(input, [-1, L[connecting_layer]['n']]), tf.float32), reset_h * state], 1)
-                cell_prime = tf.tanh(tf.matmul(concat, W) + b)
+                concat = tf.compat.v1.concat([tf.compat.v1.cast(tf.compat.v1.reshape(input, [-1, L[connecting_layer]['n']]), tf.compat.v1.float32), reset_h * state], 1)
+                cell_prime = tf.compat.v1.tanh(tf.compat.v1.matmul(concat, W) + b)
 
                 layer['z'] = (1 - update_h) * state + update_h * cell_prime
 
                 return layer['z']
 
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
 
-            shape = tf.shape(self.layers[connecting_layer]['h'])
-            init = tf.Variable(tf.zeros((1, layer['n'])))
-            gru_zs = tf.scan(__gru_step, tf.transpose(self.layers[-1]['h'], [1, 0, 2]),
-                             initializer=tf.reshape(tf.tile(init, [1, shape[0]]), [-1, layer['n']]))
+            shape = tf.compat.v1.shape(self.layers[connecting_layer]['h'])
+            init = tf.compat.v1.Variable(tf.compat.v1.zeros((1, layer['n'])))
+            gru_zs = tf.compat.v1.scan(__gru_step, tf.compat.v1.transpose(self.layers[-1]['h'], [1, 0, 2]),
+                             initializer=tf.compat.v1.reshape(tf.compat.v1.tile(init, [1, shape[0]]), [-1, layer['n']]))
 
-            layer['h'] = layer['a'](tf.transpose(gru_zs, [1, 0, 2]))
+            layer['h'] = layer['a'](tf.compat.v1.transpose(gru_zs, [1, 0, 2]))
         self.layers.insert(max(0, len(self.layers)), layer)
         self.deepest_recurrent_layer = len(self.layers) - 1
 
@@ -593,54 +593,54 @@ class Network:
             self.__deepest_hidden_layer_ind = len(self.layers) - 1
         return self
 
-    def add_rnn_layer(self, n, activation=tf.identity):
+    def add_rnn_layer(self, n, activation=tf.compat.v1.identity):
         self.recurrent = True
         # self.use_last = use_last
         connecting_layer = self.get_deepest_hidden_layer_index()
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer = dict()
             layer['n'] = n
             layer['param'] = {'w': None, 'b': None, 'type': 'rnn',
                               'arg': {'init': None, 'hsubt': None, 'cell': None}}
 
-            layer['param']['w'] = tf.get_variable('Layer' + str(len(self.layers)) + '_W',
-                                                  initializer=tf.truncated_normal(
+            layer['param']['w'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_W',
+                                                  initializer=tf.compat.v1.truncated_normal(
                                                       (self.layers[connecting_layer]['n'] + layer['n'], layer['n']),
                                                       stddev=1. / np.sqrt(self.layers[connecting_layer]['n'])),
-                                                  dtype=tf.float32)
-            layer['param']['b'] = tf.get_variable('Layer' + str(len(self.layers)) + '_B',
-                                                  (layer['n']), dtype=tf.float32,
-                                                  initializer=tf.constant_initializer(0.0))
-            layer['param']['arg']['init'] = tf.Variable(tf.zeros((1, layer['n'])),
+                                                  dtype=tf.compat.v1.float32)
+            layer['param']['b'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_B',
+                                                  (layer['n']), dtype=tf.compat.v1.float32,
+                                                  initializer=tf.compat.v1.constant_initializer(0.0))
+            layer['param']['arg']['init'] = tf.compat.v1.Variable(tf.compat.v1.zeros((1, layer['n'])),
                                                         name='Layer' + str(len(self.layers)) + '_init')
 
             layer['a'] = activation
         L = self.layers
 
         def __rnn_step(state, input):
-            with tf.variable_scope(self.scope_name, reuse=True):
+            with tf.compat.v1.variable_scope(self.scope_name, reuse=True):
                 state = layer['a'](state)
-                W = tf.get_variable('Layer' + str(len(L)) + '_W')
-                W = tf.identity(W)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', W)
+                W = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_W')
+                W = tf.compat.v1.identity(W)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'W', W)
 
-                b = tf.get_variable('Layer' + str(len(L)) + '_B')
-                b = tf.identity(b)
-                tf.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', b)
+                b = tf.compat.v1.get_variable('Layer' + str(len(L)) + '_B')
+                b = tf.compat.v1.identity(b)
+                tf.compat.v1.get_default_graph().add_to_collection('R' + str(len(L)) + 'b', b)
 
-                concat = tf.concat(
-                    [tf.cast(tf.reshape(input, [-1, L[connecting_layer]['n']]), tf.float32), state], 1)
+                concat = tf.compat.v1.concat(
+                    [tf.compat.v1.cast(tf.compat.v1.reshape(input, [-1, L[connecting_layer]['n']]), tf.compat.v1.float32), state], 1)
 
-                layer['z'] = tf.tanh(tf.matmul(concat, W) + b)
+                layer['z'] = tf.compat.v1.tanh(tf.compat.v1.matmul(concat, W) + b)
                 return layer['z']
 
-        with tf.variable_scope(self.scope_name):
-            shape = tf.shape(self.layers[connecting_layer]['h'])
-            init = tf.Variable(tf.zeros((1, layer['n'])))
-            rnn_zs = tf.scan(__rnn_step, tf.transpose(self.layers[connecting_layer]['h'], [1, 0, 2]),
-                             initializer=tf.reshape(tf.tile(init, [1, shape[0]]), [-1, layer['n']]))
+        with tf.compat.v1.variable_scope(self.scope_name):
+            shape = tf.compat.v1.shape(self.layers[connecting_layer]['h'])
+            init = tf.compat.v1.Variable(tf.compat.v1.zeros((1, layer['n'])))
+            rnn_zs = tf.compat.v1.scan(__rnn_step, tf.compat.v1.transpose(self.layers[connecting_layer]['h'], [1, 0, 2]),
+                             initializer=tf.compat.v1.reshape(tf.compat.v1.tile(init, [1, shape[0]]), [-1, layer['n']]))
 
-            layer['h'] = layer['a'](tf.transpose(rnn_zs, [1, 0, 2]))
+            layer['h'] = layer['a'](tf.compat.v1.transpose(rnn_zs, [1, 0, 2]))
         self.layers.insert(max(0, len(self.layers)), layer)
         self.deepest_recurrent_layer = len(self.layers) - 1
 
@@ -649,30 +649,30 @@ class Network:
             self.__deepest_hidden_layer_ind = len(self.layers) - 1
         return self
 
-    def add_dropout_layer(self, n, keep=0.5, activation=tf.identity):
+    def add_dropout_layer(self, n, keep=0.5, activation=tf.compat.v1.identity):
         layer = dict()
         connecting_layer = self.get_deepest_hidden_layer_index()
 
-        with tf.variable_scope(self.scope_name):
+        with tf.compat.v1.variable_scope(self.scope_name):
             layer['n'] = n
             layer['param'] = {'w': None, 'b': None, 'type': 'dropout',
-                              'arg': tf.placeholder(tf.float32, name='keep')}
+                              'arg': tf.compat.v1.placeholder(tf.compat.v1.float32, name='keep')}
 
-            layer['param']['w'] = tf.get_variable('Layer' + str(len(self.layers)) + '_W',
-                                                  initializer=tf.truncated_normal((self.layers[connecting_layer]['n'],
+            layer['param']['w'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_W',
+                                                  initializer=tf.compat.v1.truncated_normal((self.layers[connecting_layer]['n'],
                                                                                    layer['n']),
                                                                   stddev=1. / np.sqrt(self.layers[-1]['n'])),
-                                                  dtype=tf.float32)
-            layer['param']['b'] = tf.get_variable('Layer' + str(len(self.layers)) + '_B',
-                                                  (layer['n']), dtype=tf.float32,
-                                                  initializer=tf.constant_initializer(0.0))
+                                                  dtype=tf.compat.v1.float32)
+            layer['param']['b'] = tf.compat.v1.get_variable('Layer' + str(len(self.layers)) + '_B',
+                                                  (layer['n']), dtype=tf.compat.v1.float32,
+                                                  initializer=tf.compat.v1.constant_initializer(0.0))
 
-            bsize = tf.shape(self.layers[connecting_layer]['h'])[0]
-            layer['z'] = tf.matmul(tf.nn.dropout(tf.reshape(self.layers[connecting_layer]['h'],
+            bsize = tf.compat.v1.shape(self.layers[connecting_layer]['h'])[0]
+            layer['z'] = tf.compat.v1.matmul(tf.compat.v1.nn.dropout(tf.compat.v1.reshape(self.layers[connecting_layer]['h'],
                                                             [-1, self.layers[connecting_layer]['n']]),
                                                  layer['param']['arg']), layer['param']['w']) + layer['param']['b']
             layer['a'] = activation
-            layer['h'] = layer['a'](tf.reshape(layer['z'], [bsize, -1, n]))
+            layer['h'] = layer['a'](tf.compat.v1.reshape(layer['z'], [bsize, -1, n]))
         self.layers.insert(max(0, len(self.layers)), layer)
         self.args[self.layers[-1]['param']['arg']] = keep
         if self.__tmp_multi_out is None:
@@ -704,25 +704,25 @@ class Network:
             #     self.__output_tf_wts = None
             #
             #     self.__learn_wts = True
-            #     self.__output_tf_wts = tf.nn.sigmoid(tf.Variable(tf.zeros([len(self.__outputs)]), name='output_wts'))
-            #     # tf.Variable(1, name='output_wt' + str(i))
+            #     self.__output_tf_wts = tf.compat.v1.nn.sigmoid(tf.compat.v1.Variable(tf.compat.v1.zeros([len(self.__outputs)]), name='output_wts'))
+            #     # tf.compat.v1.Variable(1, name='output_wt' + str(i))
             # else:
-            #     self.__output_tf_wts = tf.constant(self.__output_weights, dtype=tf.float32, name='output_wts')
+            #     self.__output_tf_wts = tf.compat.v1.constant(self.__output_weights, dtype=tf.compat.v1.float32, name='output_wts')
 
             # cost_vec = []
             # if self.optimizer == Optimizer.ADAM:
-            #     self.update = tf.train.AdamOptimizer(self.step_size, name='update')
+            #     self.update = tf.compat.v1.train.AdamOptimizer(self.step_size, name='update')
             # elif self.optimizer == Optimizer.ADAGRAD:
-            #     self.update = tf.train.AdagradOptimizer(self.step_size, name='update')
+            #     self.update = tf.compat.v1.train.AdagradOptimizer(self.step_size, name='update')
             # else:
-            #     self.update = tf.train.GradientDescentOptimizer(self.step_size, name='update')
+            #     self.update = tf.compat.v1.train.GradientDescentOptimizer(self.step_size, name='update')
 
             out_gradients = dict()
             out_grad_count = dict()
 
             for i in range(len(self.__outputs)):
 
-                out_y = tf.placeholder(tf.float32, [None, None, self.layers[self.__output_layers[i]]['n']],
+                out_y = tf.compat.v1.placeholder(tf.compat.v1.float32, [None, None, self.layers[self.__output_layers[i]]['n']],
                                        name='y' + str(i))
 
                 method = self.__cost[i]
@@ -730,198 +730,198 @@ class Network:
                 # print(method)
 
                 if method == Cost.CROSS_ENTROPY:
-                    # sum_cross_entropy = -tf.reduce_sum(
-                    #     tf.where(tf.is_nan(out_y), self.__outputs[i], out_y) * tf.log(self.__outputs[i]),
+                    # sum_cross_entropy = -tf.compat.v1.reduce_sum(
+                    #     tf.compat.v1.where(tf.compat.v1.is_nan(out_y), self.__outputs[i], out_y) * tf.compat.v1.log(self.__outputs[i]),
                     #     reduction_indices=[-1])
-                    # sce = tf.reduce_sum(tf.where(tf.is_nan(sum_cross_entropy), tf.zeros_like(sum_cross_entropy),
+                    # sce = tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(sum_cross_entropy), tf.compat.v1.zeros_like(sum_cross_entropy),
                     #                              sum_cross_entropy))
-                    # cost_fn = sce/(tf.cast(tf.count_nonzero(sum_cross_entropy),
-                    #                        tf.float32)+tf.constant(1e-4, dtype=tf.float32))
-                    # cost_fn = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.where(tf.is_nan(out_y[0]),
-                    #                                                                       tf.zeros_like(out_y[0]),
+                    # cost_fn = sce/(tf.compat.v1.cast(tf.compat.v1.count_nonzero(sum_cross_entropy),
+                    #                        tf.compat.v1.float32)+tf.compat.v1.constant(1e-4, dtype=tf.compat.v1.float32))
+                    # cost_fn = tf.compat.v1.reduce_mean(tf.compat.v1.nn.sigmoid_cross_entropy_with_logits(labels=tf.compat.v1.where(tf.compat.v1.is_nan(out_y[0]),
+                    #                                                                       tf.compat.v1.zeros_like(out_y[0]),
                     #                                                                       out_y[0]),
-                    #                                                       logits=tf.where(tf.is_nan(out_y[0]),
-                    #                                                                       tf.zeros_like(out_y[0]),
+                    #                                                       logits=tf.compat.v1.where(tf.compat.v1.is_nan(out_y[0]),
+                    #                                                                       tf.compat.v1.zeros_like(out_y[0]),
                     #                                                                       self.__outputs[i]['z'])))
 
                     ##
-                    y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    z_flat = tf.reshape(self.layers[self.__output_layers[i]]['z'],
+                    y_flat = tf.compat.v1.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
+                    z_flat = tf.compat.v1.reshape(self.layers[self.__output_layers[i]]['z'],
                                         (-1, self.layers[self.__output_layers[i]]['n']))
 
-                    non_nan = tf.where(tf.logical_not(tf.is_nan(y_flat)))
+                    non_nan = tf.compat.v1.where(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat)))
                     if 'sigmoid' in str(self.layers[self.__output_layers[i]]['a']):
-                        cost_fn = tf.reduce_mean(
-                            tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.gather_nd(y_flat, non_nan),
-                                                                    logits=tf.gather_nd(z_flat, non_nan)))
+                        cost_fn = tf.compat.v1.reduce_mean(
+                            tf.compat.v1.nn.sigmoid_cross_entropy_with_logits(labels=tf.compat.v1.gather_nd(y_flat, non_nan),
+                                                                    logits=tf.compat.v1.gather_nd(z_flat, non_nan)))
                     else:
-                        cost_fn = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(
-                                labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                        cost_fn = tf.compat.v1.reduce_mean(
+                            tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                                labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                                   (-1, self.layers[self.__output_layers[i]]['n'])),
-                                logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                                logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                                                   (-1, self.layers[self.__output_layers[i]]['n']))))
-                        # self.debug1 = tf.nn.softmax_cross_entropy_with_logits(
-                        #     labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                        # self.debug1 = tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                        #     labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                         #                       (-1, self.layers[self.__output_layers[i]]['n'])),
-                        #     logits=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                        #     logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                         #                       (-1, self.layers[self.__output_layers[i]]['n'])))
 
-                        # cost_fn = tf.where(tf.is_nan(cost_fn), tf.zeros_like(cost_fn), cost_fn)
+                        # cost_fn = tf.compat.v1.where(tf.compat.v1.is_nan(cost_fn), tf.compat.v1.zeros_like(cost_fn), cost_fn)
 
                         #
-                        # self.debug1 = tf.nn.softmax_cross_entropy_with_logits(
-                        #             labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                        # self.debug1 = tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                        #             labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                         #                               (-1, self.layers[self.__output_layers[i]]['n'])),
-                        #             logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                        #             logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                         #                               (-1, self.layers[self.__output_layers[i]]['n'])))
-                        # self.debugn = tf.gather_nd(z_flat, tf.where(tf.logical_not(tf.is_nan(y_flat))))
+                        # self.debugn = tf.compat.v1.gather_nd(z_flat, tf.compat.v1.where(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat))))
                         # self.debugc = cost_fn
                         # self.debug2 = cost_fn
 
                         # cost_fn = self.debugc
 
                 elif method == Cost.BINARY_CROSS_ENTROPY:
-                    y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    z_flat = tf.reshape(self.layers[self.__output_layers[i]]['z'],
+                    y_flat = tf.compat.v1.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
+                    z_flat = tf.compat.v1.reshape(self.layers[self.__output_layers[i]]['z'],
                                         (-1, self.layers[self.__output_layers[i]]['n']))
-                    non_nan = tf.where(tf.logical_not(tf.is_nan(y_flat)))
-                    cost_fn = tf.reduce_mean(
-                        tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.gather_nd(y_flat, non_nan),
-                                                                logits=tf.gather_nd(z_flat, non_nan)))
+                    non_nan = tf.compat.v1.where(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat)))
+                    cost_fn = tf.compat.v1.reduce_mean(
+                        tf.compat.v1.nn.sigmoid_cross_entropy_with_logits(labels=tf.compat.v1.gather_nd(y_flat, non_nan),
+                                                                logits=tf.compat.v1.gather_nd(z_flat, non_nan)))
                 elif method == Cost.MULTICLASS_CROSS_ENTROPY:
-                    y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    z_flat = tf.reshape(self.layers[self.__output_layers[i]]['z'],
+                    y_flat = tf.compat.v1.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
+                    z_flat = tf.compat.v1.reshape(self.layers[self.__output_layers[i]]['z'],
                                         (-1, self.layers[self.__output_layers[i]]['n']))
 
-                    non_nan = tf.where(tf.logical_and(tf.logical_not(tf.is_nan(z_flat)),
-                                                      tf.logical_and(tf.logical_not(tf.is_nan(y_flat)),
-                                                                     tf.logical_not(
-                                                                         tf.less(y_flat, tf.constant(-9e8))))))
+                    non_nan = tf.compat.v1.where(tf.compat.v1.logical_and(tf.compat.v1.logical_not(tf.compat.v1.is_nan(z_flat)),
+                                                      tf.compat.v1.logical_and(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat)),
+                                                                     tf.compat.v1.logical_not(
+                                                                         tf.compat.v1.less(y_flat, tf.compat.v1.constant(-9e8))))))
 
-                    cost_fn = tf.reduce_mean(
-                        tf.nn.softmax_cross_entropy_with_logits(
-                            labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                    cost_fn = tf.compat.v1.reduce_mean(
+                        tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                            labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n'])),
-                            logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                            logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n']))))
 
-                    self.y_flat = tf.reshape(tf.gather_nd(y_flat, non_nan),
+                    self.y_flat = tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n']))
-                    self.z_flat = tf.reshape(tf.gather_nd(z_flat, non_nan),
+                    self.z_flat = tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n']))
-                    self.entropy = tf.nn.softmax_cross_entropy_with_logits(
-                            labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                    self.entropy = tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                            labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n'])),
-                            logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                            logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n'])))
 
 
                 elif method == Cost.ROUNDED_CROSS_ENTROPY:
-                    y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    z_flat = tf.reshape(tf.round(self.layers[self.__output_layers[i]]['z']),
+                    y_flat = tf.compat.v1.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
+                    z_flat = tf.compat.v1.reshape(tf.compat.v1.round(self.layers[self.__output_layers[i]]['z']),
                                         (-1, self.layers[self.__output_layers[i]]['n']))
 
-                    non_nan = tf.where(tf.logical_not(tf.is_nan(y_flat)))
+                    non_nan = tf.compat.v1.where(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat)))
                     if 'sigmoid' in str(self.layers[self.__output_layers[i]]['a']):
-                        cost_fn = tf.reduce_mean(
-                            tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.gather_nd(y_flat, non_nan),
-                                                                    logits=tf.gather_nd(z_flat, non_nan)))
+                        cost_fn = tf.compat.v1.reduce_mean(
+                            tf.compat.v1.nn.sigmoid_cross_entropy_with_logits(labels=tf.compat.v1.gather_nd(y_flat, non_nan),
+                                                                    logits=tf.compat.v1.gather_nd(z_flat, non_nan)))
                     else:
-                        cost_fn = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(
-                                labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                        cost_fn = tf.compat.v1.reduce_mean(
+                            tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                                labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                                   (-1, self.layers[self.__output_layers[i]]['n'])),
-                                logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                                logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                                                   (-1, self.layers[self.__output_layers[i]]['n']))))
 
                 elif method == Cost.CROSS_ENTROPY_RMSE:
-                    y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    z_flat = tf.reshape(self.layers[self.__output_layers[i]]['z'],
+                    y_flat = tf.compat.v1.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
+                    z_flat = tf.compat.v1.reshape(self.layers[self.__output_layers[i]]['z'],
                                         (-1, self.layers[self.__output_layers[i]]['n']))
 
-                    non_nan = tf.where(tf.logical_not(tf.is_nan(y_flat)))
+                    non_nan = tf.compat.v1.where(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat)))
 
                     if 'sigmoid' in str(self.layers[self.__output_layers[i]]['a']):
-                        cost_fn = tf.reduce_mean(
-                            tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.gather_nd(y_flat, non_nan),
-                                                                    logits=tf.gather_nd(z_flat, non_nan)))
+                        cost_fn = tf.compat.v1.reduce_mean(
+                            tf.compat.v1.nn.sigmoid_cross_entropy_with_logits(labels=tf.compat.v1.gather_nd(y_flat, non_nan),
+                                                                    logits=tf.compat.v1.gather_nd(z_flat, non_nan)))
                     else:
-                        cost_fn = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(
-                                labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                        cost_fn = tf.compat.v1.reduce_mean(
+                            tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+                                labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                                   (-1, self.layers[self.__output_layers[i]]['n'])),
-                                logits=tf.reshape(tf.gather_nd(z_flat, non_nan),
+                                logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(z_flat, non_nan),
                                                   (-1, self.layers[self.__output_layers[i]]['n']))))
 
-                    sq_dif = tf.squared_difference(self.__outputs[i], tf.where(tf.is_nan(out_y),
+                    sq_dif = tf.compat.v1.squared_difference(self.__outputs[i], tf.compat.v1.where(tf.compat.v1.is_nan(out_y),
                                                                                self.__outputs[i], out_y))
-                    sse = tf.reduce_sum(tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
+                    sse = tf.compat.v1.reduce_sum(tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(sq_dif), tf.compat.v1.zeros_like(sq_dif), sq_dif),
                                                       reduction_indices=[-1]))
-                    cost_fn = cost_fn + tf.sqrt(sse / (tf.cast(tf.count_nonzero(sq_dif),
-                                                               tf.float32) + tf.constant(1e-8, dtype=tf.float32)))
+                    cost_fn = cost_fn + tf.compat.v1.sqrt(sse / (tf.compat.v1.cast(tf.compat.v1.count_nonzero(sq_dif),
+                                                               tf.compat.v1.float32) + tf.compat.v1.constant(1e-8, dtype=tf.compat.v1.float32)))
 
                 elif method == Cost.L2_NORM:
-                    sq_dif = tf.squared_difference(self.__outputs[i], tf.where(tf.is_nan(out_y),
+                    sq_dif = tf.compat.v1.squared_difference(self.__outputs[i], tf.compat.v1.where(tf.compat.v1.is_nan(out_y),
                                                                                self.__outputs[i], out_y))
-                    sse = tf.reduce_sum(tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
+                    sse = tf.compat.v1.reduce_sum(tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(sq_dif), tf.compat.v1.zeros_like(sq_dif), sq_dif),
                                                       reduction_indices=[-1]))
                     cost_fn = sse / 2
 
                 elif method == Cost.RMSE:
-                    sq_dif = tf.squared_difference(self.__outputs[i], tf.where(tf.is_nan(out_y),
+                    sq_dif = tf.compat.v1.squared_difference(self.__outputs[i], tf.compat.v1.where(tf.compat.v1.is_nan(out_y),
                                                                                self.__outputs[i], out_y))
-                    sse = tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
+                    sse = tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(sq_dif), tf.compat.v1.zeros_like(sq_dif), sq_dif),
                                         reduction_indices=[-1])
-                    # mean, var = tf.nn.moments(sse,axes=[0])
-                    # sse = tf.where(tf.abs(sse-mean) < 6 * tf.sqrt(var),sse,tf.zeros_like(sse))
+                    # mean, var = tf.compat.v1.nn.moments(sse,axes=[0])
+                    # sse = tf.compat.v1.where(tf.compat.v1.abs(sse-mean) < 6 * tf.compat.v1.sqrt(var),sse,tf.compat.v1.zeros_like(sse))
 
-                    ssse = tf.reduce_sum(sse)
+                    ssse = tf.compat.v1.reduce_sum(sse)
 
-                    cost_fn = tf.sqrt(ssse / (tf.cast(tf.count_nonzero(sq_dif),
-                                                     tf.float32) + tf.constant(1e-8, dtype=tf.float32)))
+                    cost_fn = tf.compat.v1.sqrt(ssse / (tf.compat.v1.cast(tf.compat.v1.count_nonzero(sq_dif),
+                                                     tf.compat.v1.float32) + tf.compat.v1.constant(1e-8, dtype=tf.compat.v1.float32)))
 
                 elif method == Cost.ROUNDED_RMSE:
-                    sq_dif = tf.squared_difference(tf.round(self.__outputs[i]), tf.where(tf.is_nan(out_y),
+                    sq_dif = tf.compat.v1.squared_difference(tf.compat.v1.round(self.__outputs[i]), tf.compat.v1.where(tf.compat.v1.is_nan(out_y),
                                                                                          self.__outputs[i], out_y))
-                    sse = tf.reduce_sum(tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
+                    sse = tf.compat.v1.reduce_sum(tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(sq_dif), tf.compat.v1.zeros_like(sq_dif), sq_dif),
                                                       reduction_indices=[-1]))
-                    cost_fn = tf.sqrt(sse / (tf.cast(tf.count_nonzero(sq_dif),
-                                                     tf.float32) + tf.constant(1e-8, dtype=tf.float32)))
+                    cost_fn = tf.compat.v1.sqrt(sse / (tf.compat.v1.cast(tf.compat.v1.count_nonzero(sq_dif),
+                                                     tf.compat.v1.float32) + tf.compat.v1.constant(1e-8, dtype=tf.compat.v1.float32)))
 
                 elif method == Cost.HINGE_LOSS:
-                    y_flat = tf.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
-                    h_flat = tf.reshape(self.layers[self.__output_layers[i]]['h'],
+                    y_flat = tf.compat.v1.reshape(out_y, (-1, self.layers[self.__output_layers[i]]['n']))
+                    h_flat = tf.compat.v1.reshape(self.layers[self.__output_layers[i]]['h'],
                                         (-1, self.layers[self.__output_layers[i]]['n']))
 
-                    non_nan = tf.where(tf.logical_and(tf.logical_not(tf.is_nan(h_flat)),
-                                                      tf.logical_and(tf.logical_not(tf.is_nan(y_flat)),
-                                                                     tf.logical_not(
-                                                                         tf.less(y_flat, tf.constant(-9e8))))))
-                    cost_fn = tf.reduce_mean(
-                        tf.losses.hinge_loss(
-                            labels=tf.reshape(tf.gather_nd(y_flat, non_nan),
+                    non_nan = tf.compat.v1.where(tf.compat.v1.logical_and(tf.compat.v1.logical_not(tf.compat.v1.is_nan(h_flat)),
+                                                      tf.compat.v1.logical_and(tf.compat.v1.logical_not(tf.compat.v1.is_nan(y_flat)),
+                                                                     tf.compat.v1.logical_not(
+                                                                         tf.compat.v1.less(y_flat, tf.compat.v1.constant(-9e8))))))
+                    cost_fn = tf.compat.v1.reduce_mean(
+                        tf.compat.v1.losses.hinge_loss(
+                            labels=tf.compat.v1.reshape(tf.compat.v1.gather_nd(y_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n'])),
-                            logits=tf.reshape(tf.gather_nd(h_flat, non_nan),
+                            logits=tf.compat.v1.reshape(tf.compat.v1.gather_nd(h_flat, non_nan),
                                               (-1, self.layers[self.__output_layers[i]]['n']))))
 
-                    # tf.losses.hinge_loss(
+                    # tf.compat.v1.losses.hinge_loss(
 
                 else:
-                    sq_dif = tf.squared_difference(self.__outputs[i], tf.where(tf.is_nan(out_y),
+                    sq_dif = tf.compat.v1.squared_difference(self.__outputs[i], tf.compat.v1.where(tf.compat.v1.is_nan(out_y),
                                                                                self.__outputs[i], out_y))
-                    sse = tf.reduce_sum(tf.reduce_sum(tf.where(tf.is_nan(sq_dif), tf.zeros_like(sq_dif), sq_dif),
+                    sse = tf.compat.v1.reduce_sum(tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(sq_dif), tf.compat.v1.zeros_like(sq_dif), sq_dif),
                                                       reduction_indices=[-1]))
-                    cost_fn = sse / (tf.cast(tf.count_nonzero(sq_dif),
-                                             tf.float32) + tf.constant(1e-8, dtype=tf.float32))
+                    cost_fn = sse / (tf.compat.v1.cast(tf.compat.v1.count_nonzero(sq_dif),
+                                             tf.compat.v1.float32) + tf.compat.v1.constant(1e-8, dtype=tf.compat.v1.float32))
 
-                # self.var_grads = self.update.compute_gradients(self.cost_function, tf.trainable_variables())
-                # self.clipped_var_grads = [(tf.clip_by_norm(
-                #     tf.where(tf.is_nan(grad if grad is not None else tf.zeros_like(var)), tf.zeros_like(var),
-                #              grad if grad is not None else tf.zeros_like(var)), 1.), var) for grad, var in
+                # self.var_grads = self.update.compute_gradients(self.cost_function, tf.compat.v1.trainable_variables())
+                # self.clipped_var_grads = [(tf.compat.v1.clip_by_norm(
+                #     tf.compat.v1.where(tf.compat.v1.is_nan(grad if grad is not None else tf.compat.v1.zeros_like(var)), tf.compat.v1.zeros_like(var),
+                #              grad if grad is not None else tf.compat.v1.zeros_like(var)), 1.), var) for grad, var in
                 #     self.var_grads]
                 #####
-                # for grad,var in self.update.compute_gradients(cost_fn, tf.trainable_variables()):
+                # for grad,var in self.update.compute_gradients(cost_fn, tf.compat.v1.trainable_variables()):
                 #     # print(var)
                 #     if var in out_gradients.keys():
                 #         out_gradients[var] += grad if grad is not None else 0
@@ -933,8 +933,8 @@ class Network:
                 #####
 
                 w = self.__output_weights[i]
-                # w = tf.gather(self.__output_tf_wts, tf.constant(i))
-                # min_w = tf.gather(self.__output_tf_wts, tf.argmin(self.__output_tf_wts))
+                # w = tf.compat.v1.gather(self.__output_tf_wts, tf.compat.v1.constant(i))
+                # min_w = tf.compat.v1.gather(self.__output_tf_wts, tf.compat.v1.argmin(self.__output_tf_wts))
                 self.c.append(w*cost_fn)
 
                 # if self.cost_function is None:
@@ -943,35 +943,35 @@ class Network:
                 #     self.cost_function += w * cost_fn
                 self.y.append(out_y)
 
-            # self.cost_function += tf.reduce_mean(1.-self.__output_tf_wts)
-            self.cost_function = tf.reduce_sum(tf.where(tf.is_nan(self.c),
-                                                        tf.zeros_like(self.c),
+            # self.cost_function += tf.compat.v1.reduce_mean(1.-self.__output_tf_wts)
+            self.cost_function = tf.compat.v1.reduce_sum(tf.compat.v1.where(tf.compat.v1.is_nan(self.c),
+                                                        tf.compat.v1.zeros_like(self.c),
                                                         self.c)) if len(self.c) > 1 else self.c[0]
 
             if self.optimizer == Optimizer.ADAM:
-                self.update = tf.train.AdamOptimizer(self.step_size, name='update')
+                self.update = tf.compat.v1.train.AdamOptimizer(self.step_size, name='update')
             elif self.optimizer == Optimizer.ADAGRAD:
-                self.update = tf.train.AdagradOptimizer(self.step_size, name='update')
+                self.update = tf.compat.v1.train.AdagradOptimizer(self.step_size, name='update')
             else:
-                self.update = tf.train.GradientDescentOptimizer(self.step_size, name='update')
+                self.update = tf.compat.v1.train.GradientDescentOptimizer(self.step_size, name='update')
 
             self.minimize_cost = self.update.minimize(self.cost_function)
 
             # self.var_grads = [(out_gradients[v]/out_grad_count[v], v) for v in out_gradients.keys()]
             #
-            # self.clipped_var_grads = [(tf.clip_by_norm(
-            #     tf.where(tf.is_nan(grad if grad is not None else tf.zeros_like(var)), tf.zeros_like(var),
-            #              grad if grad is not None else tf.zeros_like(var)), 1.), var) for grad, var in self.var_grads]
+            # self.clipped_var_grads = [(tf.compat.v1.clip_by_norm(
+            #     tf.compat.v1.where(tf.compat.v1.is_nan(grad if grad is not None else tf.compat.v1.zeros_like(var)), tf.compat.v1.zeros_like(var),
+            #              grad if grad is not None else tf.compat.v1.zeros_like(var)), 1.), var) for grad, var in self.var_grads]
 
-            self.var_grads = self.update.compute_gradients(self.cost_function, tf.trainable_variables())
-            self.clipped_var_grads = [(tf.clip_by_norm(
-                tf.where(tf.is_nan(grad if grad is not None else tf.zeros_like(var)), tf.zeros_like(var),
-                         grad if grad is not None else tf.zeros_like(var)), 1.), var) for grad, var in self.var_grads]
+            self.var_grads = self.update.compute_gradients(self.cost_function, tf.compat.v1.trainable_variables())
+            self.clipped_var_grads = [(tf.compat.v1.clip_by_norm(
+                tf.compat.v1.where(tf.compat.v1.is_nan(grad if grad is not None else tf.compat.v1.zeros_like(var)), tf.compat.v1.zeros_like(var),
+                         grad if grad is not None else tf.compat.v1.zeros_like(var)), 1.), var) for grad, var in self.var_grads]
             self.update_weights = self.update.apply_gradients(self.clipped_var_grads)
 
-            tf.global_variables_initializer().run()
+            tf.compat.v1.global_variables_initializer().run()
 
-            # tf.get_default_graph().finalize()
+            # tf.compat.v1.get_default_graph().finalize()
 
             self.__is_init = True
 
@@ -980,7 +980,7 @@ class Network:
             os.makedirs('temp/')
         if not os.path.exists('temp/{}'.format(self.scope_name)):
             os.makedirs('temp/{}'.format(self.scope_name))
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
         self.save_path = self.saver.save(self.session, 'temp/{}/mod'.format(self.scope_name))
         arg_arr = []
         for i in self.args:
@@ -989,16 +989,16 @@ class Network:
         du.write_csv(np.array(arg_arr),'temp/{}/args.csv'.format(self.scope_name),['key','file'])
 
     def restore_model_weights(self):
-        res_graph = tf.Graph()
-        sess = tf.InteractiveSession(graph=res_graph)
-        self.saver = tf.train.import_meta_graph('temp/{}/mod.meta'.format(self.scope_name))
-        self.saver.restore(sess, tf.train.latest_checkpoint('temp/{}/'.format(self.scope_name)))
+        res_graph = tf.compat.v1.Graph()
+        sess = tf.compat.v1.InteractiveSession(graph=res_graph)
+        self.saver = tf.compat.v1.train.import_meta_graph('temp/{}/mod.meta'.format(self.scope_name))
+        self.saver.restore(sess, tf.compat.v1.train.latest_checkpoint('temp/{}/'.format(self.scope_name)))
 
         res_var_name = [v.name for v in res_graph.get_collection('variables')]
         var_name = [v.name for v in self.graph.get_collection('variables')]
         for v in range(len(var_name)):
             if var_name[v] in res_var_name:
-                a =tf.assign(self.graph.get_tensor_by_name(var_name[v]), sess.run(res_graph.get_tensor_by_name(res_var_name[v])))
+                a =tf.compat.v1.assign(self.graph.get_tensor_by_name(var_name[v]), sess.run(res_graph.get_tensor_by_name(res_var_name[v])))
                 self.session.run(a)
 
         arg_arr,_ = du.read_csv('temp/{}/args.csv'.format(self.scope_name))
@@ -1120,13 +1120,13 @@ class Network:
         self.__initialize()
 
         if self.optimizer == Optimizer.ADAM:
-            self.update = tf.train.AdamOptimizer(self.step_size, name='update')
+            self.update = tf.compat.v1.train.AdamOptimizer(self.step_size, name='update')
         elif self.optimizer == Optimizer.ADAGRAD:
-            self.update = tf.train.AdagradOptimizer(self.step_size, name='update')
+            self.update = tf.compat.v1.train.AdagradOptimizer(self.step_size, name='update')
         else:
-            self.update = tf.train.GradientDescentOptimizer(self.step_size, name='update')
+            self.update = tf.compat.v1.train.GradientDescentOptimizer(self.step_size, name='update')
 
-        # for n in tf.get_default_graph().as_graph_def().node:
+        # for n in tf.compat.v1.get_default_graph().as_graph_def().node:
         #     print(n.name,n.input)
         #
         # for n in range(50):
@@ -1135,7 +1135,7 @@ class Network:
         # for n in range(50):
         #     print('=============================================================================================')
         #
-        # for n in tf.get_default_graph().as_graph_def().node:
+        # for n in tf.compat.v1.get_default_graph().as_graph_def().node:
         #     print(n.name,n.input)
 
 
