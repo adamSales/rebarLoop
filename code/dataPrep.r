@@ -1,9 +1,10 @@
-dat <- read.csv('data/updated_exp_predictions.csv')
-dat2 <- read.csv('data/newExperiments.csv')
-## outcome is 'complete'
-## prediction is 'p_complete'
+## combine remnant predictions w rest of data for first 22 experiments
+source('code/merge_predictions.R')
 
-dat2$p_complete <- dat2$pcomplete1
+## combine remnant predictions w rest of data for remaining 11 experiments
+source('code/merge2.r')
+
+
 dat2$problem_set <- dat2$target_sequence_id
 
 dat$condition <- ifelse(dat$condition=='E',1,0)
