@@ -13,3 +13,112 @@ oldStuff/*
 
 cache/*
 jasaSubmission/*
+
+.Rhistory
+.git-rewrite/
+Advance Account Request 5.9.18.pdf
+Python Code/.idea/
+"Python Code/Icon\357\200\215"
+Python Code/Study_1/.ipynb_checkpoints/
+Python Code/Study_1/lib/__pycache__/
+Python Code/Study_1/model_predictions.csv
+Python Code/Study_1/resources/experimental.csv
+Python Code/Study_1/resources/remnant.csv
+Python Code/Study_1/temp/
+Python Code/Study_2/.ipynb_checkpoints/
+Python Code/Study_2/lib/__pycache__/
+Python Code/Study_2/model_predictions.csv
+Python Code/Study_2/resources/experimental.csv
+Python Code/Study_2/resources/remnant.csv
+Python Code/Study_2/temp/
+Python Code/__pycache__/
+Python Code/rebar_ft_predictions.csv
+Python Code/rebar_ft_predictions_n.csv
+Python Code/rebar_ft_predictions_n2.csv
+Python Code/rebar_ft_predictions_n3.csv
+Python Code/rebar_ft_predictions_n4.csv
+Python Code/rebar_ft_predictions_n5.csv
+Python Code/rebar_ft_test.csv
+Python Code/rebar_ft_test_clean.csv
+Python Code/rebar_ft_test_clean.zip
+Python Code/rebar_ft_test_tr.csv
+Python Code/rebar_ft_training.csv
+Python Code/rebar_lim.zip
+Python Code/rebar_test_lim.zip
+Python Code/seq_i_rebar_ft.npy
+Python Code/seq_i_rebar_ft_t.npy
+Python Code/seq_i_rebar_ft_tr.npy
+Python Code/seq_k_rebar_ft.npy
+Python Code/seq_k_rebar_ft_t.npy
+Python Code/seq_k_rebar_ft_tr.npy
+Python Code/seq_x_rebar_ft.npy
+Python Code/seq_x_rebar_ft_t.npy
+Python Code/seq_x_rebar_ft_tr.npy
+Python Code/seq_y_rebar_ft.npy
+Python Code/seq_y_rebar_ft_t.npy
+Python Code/seq_y_rebar_ft_tr.npy
+Python Code/temp/
+code/rebar_loop code/.Rhistory
+code/rebar_loop code/.Rproj.user/
+code/rebar_loop code/._.Rhistory
+code/rebar_loop code/._.Rproj.user
+"code/rebar_loop code/._Icon\357\200\215"
+code/rebar_loop code/._Python Code
+code/rebar_loop code/._corVsSE.jpg
+code/rebar_loop code/._estEff1.jpg
+code/rebar_loop code/._ft_exp_predictions_merged.csv
+code/rebar_loop code/._rebar_loop.Rproj
+code/rebar_loop code/._sampleSize.jpg
+code/rebar_loop code/._updated_exp_predictions.csv
+"code/rebar_loop code/Icon\357\200\215"
+code/rebar_loop code/Python Code/.Rhistory
+code/rebar_loop code/Python Code/._.idea
+"code/rebar_loop code/Python Code/._Icon\357\200\215"
+code/rebar_loop code/Python Code/.___pycache__
+code/rebar_loop code/Python Code/._datautility.py
+code/rebar_loop code/Python Code/._rebar_ft_predictions.csv
+code/rebar_loop code/Python Code/._rebar_ft_test.csv
+code/rebar_loop code/Python Code/._rebar_ft_training.csv
+code/rebar_loop code/Python Code/._rebar_train_and_apply.py
+code/rebar_loop code/Python Code/._temp
+code/rebar_loop code/Python Code/._tf_network.py
+code/rebar_loop code/Python Code/.idea/
+"code/rebar_loop code/Python Code/Icon\357\200\215"
+code/rebar_loop code/Python Code/__pycache__/
+code/rebar_loop code/Python Code/ids.csv
+code/rebar_loop code/Python Code/rebar_ft_predictions.csv
+code/rebar_loop code/Python Code/rebar_ft_test.csv
+code/rebar_loop code/Python Code/rebar_ft_training.csv
+code/rebar_loop code/Python Code/temp/
+code/rebar_loop code/corVsSE.jpg
+code/rebar_loop code/estEff1.jpg
+code/rebar_loop code/ft_exp_predictions_merged.csv
+code/rebar_loop code/rebar_loop.Rproj
+code/rebar_loop code/sampleSize.jpg
+code/rebar_loop code/updated_exp_predictions.csv
+data/Experiment22documentation.xlsx
+data/README.txt
+data/ReLOOP.zip
+data/ReLOOP/
+data/ThisOne.csv
+data/dataDictionary1.csv
+data/rebar_loop code.zip
+data/updated_exp_predictions0.csv
+data/~$Experiment22documentation.xlsx
+figure/fig1-1.pdf
+figure/fig2-1.pdf
+figure/fig4.pdf
+figure/fig4combined.pdf
+figure/fig5.pdf
+figure/fig5combined.pdf
+figure/seFigCombined.jpg
+notation.tex
+oldStuff (1)/
+rebar_loop code/
+results/summary.csv
+sim code/.Rhistory
+sim code/Plot-Results.html
+sim code/plots/
+sim code/sim_by_n.html
+sim code/sim_by_r2c.md
+sim code/sim_by_r2p.md
