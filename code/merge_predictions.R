@@ -26,11 +26,11 @@ for (i in 1:nrow(df)) {
   }
 }
 
-dev.off()
+#dev.off()
 dat$p_complete <- ifelse(dat$p_complete > 1, 1,dat$p_complete)
 dat$p_complete <- ifelse(dat$p_complete < 0, 0,dat$p_complete)
-hist(dat$p_complete)
-dat$p_complete <- (dat$p_complete)
+#hist(dat$p_complete)
+#dat$p_complete <- (dat$p_complete)
 
 write.csv(dat,'updated_exp_predictions.csv',row.names=FALSE)
 

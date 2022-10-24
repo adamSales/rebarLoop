@@ -128,7 +128,7 @@ library(kableExtra)
 library(xtable)
 library(knitr)
 library(tikzDevice)
-
+library(estimatr)
 
 
 
@@ -365,6 +365,13 @@ compTab%>%select(method1,method2,best2:worstPS)%>%kable(escape=FALSE)
 
 @
 
+
+<<appendix,cache=TRUE>>=
+ols <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE,
+                  methods=c('reloopLin','reloopPoor','reloopPlusLin','reloopPlusPoor','lin','ancova'))
+
+save(ols,file='results/ols.RData')
+@ 
 
 <<sessionInfo>>=
 sessionInfo()

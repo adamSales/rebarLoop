@@ -190,3 +190,23 @@ plotsByRebarImp <- plotAll(study1,study2,Max1=MM,crosswalk=rebarImp)
 ggsave('violinPlotsByRebarImp.jpg',plot=plotsByRebarImp$violin,width=6.5,height=9,units='in')
 ggsave('boxPlotsByRebarImp.jpg',plot=plotsByRebarImp$box,width=6.5,height=9,units='in')
 
+
+### means?
+means1 <- data.frame(ps=names(study1$exDists),meanDist=vapply(study1$exDists,mean,1.1),
+                     rebarImp=vapply(names(study1$exDists), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['rebar','improvement'],1.1),
+                     reloopImp=vapply(names(study1$exDists), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['strat1','improvement'],1.1))
+
+with(means1,plot(meanDist,rebarImp))
+with(means1,abline(lm(rebarImp~meanDist)))
+with(means1,plot(meanDist,reloopImp))
+with(means1,abline(lm(reloopImp~meanDist)))
+
+
+means2 <- data.frame(ps=names(study2$exDists[-7]),meanDist=vapply(study2$exDists[-7],mean,1.1),
+                     rebarImp=vapply(names(study2$exDists[-7]), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['rebar','improvement'],1.1),
+                     reloopImp=vapply(names(study2$exDists[-7]), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['strat1','improvement'],1.1))
+
+with(means2,plot(meanDist,rebarImp))
+with(means2,abline(lm(rebarImp~meanDist)))
+with(means2,plot(meanDist,reloopImp))
+with(means2,abline(lm(reloopImp~meanDist)))

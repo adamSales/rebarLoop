@@ -35,6 +35,8 @@ justCovs <- function(datPS,covsPS)
 
 ## all the estimators, for a particular problem set
 full <- function(ps,dat,covNames,methods=c('simpDiff','rebar','strat1','strat3','justCovs')){
+    if(!'simpDiff'%in%methods) methods=c('simpDiff',methods)
+
     datPS <- dat[dat$problem_set==ps,]
     covsPS <- dat[dat$problem_set==ps,covNames]
 
@@ -55,3 +57,41 @@ full <- function(ps,dat,covNames,methods=c('simpDiff','rebar','strat1','strat3',
     res
 }
 
+
+reloopLin <- function(datPS,covsPS){
+    est <- lm_lin(complete~treatment,covariates=~p_complete,data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+reloopPoor <- function(datPS,covsPS){
+    est <- lm_robust(complete~treatment+p_complete,data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+reloopPlusLin <- function(datPS,covsPS){
+    est <- lm_lin(complete~treatment,covariates=~p_complete+as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+reloopPlusPoor <- function(datPS,covsPS){
+    est <- lm_robust(complete~treatment+p_complete+as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+lin <- function(datPS,covsPS){
+    est <- lm_lin(complete~treatment,covariates=~as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+ancova <- function(datPS,covsPS){
+    est <- lm_robust(complete~treatment+as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+
+
+
+    
+                                        #
+#poor <- function(ps,dat,covNames,methods=('reloopLin','reloopPoor','reloopPlusLin','reloopPlusPoor','ancova')){
+    
