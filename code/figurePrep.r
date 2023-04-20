@@ -30,6 +30,7 @@ pd3 <- pd%>%group_by(experiment)%>%
 pwide = pd3 %>% dplyr::select(method, experiment, se ) %>%
   spread( method, se )
 
+save(pwide,file='results/SEs.RData')
 
 make_comp = function( A, B ,pwide) {
     data.frame( comp = #paste0('$\\frac{\\textrm{V(',as.character(B),')}}{\\textrm{V(', as.character(A),')}}$'),
@@ -60,4 +61,4 @@ compLevs=rev(unique(comparisons$comp[order(as.numeric(comparisons$method2),as.nu
 
 comparisons$comp <- factor(comparisons$comp,levels=compLevs)
 
-
+save(comparisons,file='results/reloopComparisons.RData')

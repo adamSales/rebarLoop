@@ -334,6 +334,8 @@ dev.off()
 
 @
 
+
+
 \begin{figure}
 \centering
 \input{figure/fig5alt.tex}
@@ -365,17 +367,133 @@ compTab%>%select(method1,method2,best2:worstPS)%>%kable(escape=FALSE)
 
 @
 
+\subsection{Comparing Sample Splitting to ANCOVA Estimators}
+The following creates the figures in 4.3 (plus some others)
 
+This estimates the effects and their SEs:
 <<appendix,cache=TRUE>>=
 ols <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE,
                   methods=c('reloopLin','reloopPoor','reloopPlusLin','reloopPlusPoor','lin','ancova'))
 
 save(ols,file='results/ols.RData')
-@ 
+@
+
+
+<<linOLSfigPrep>>=
+source('code/olsFigurePrep.r')
+@
+
+<<linFigs>>=
+pLin1 <- comparisonsLin%>%
+    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
+ggplot(aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .05 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp)+#,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+
+tikz('figure/appendixLin.tex',width=6.4,height=4,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
+print(pLin1)
+dev.off()
+
+### compare Lin to Reloop
+
+pLin2 <- comparisonsReloopLin%>%
+    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
+ggplot(aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .02 )  +
+    labs( x = "Relative Ratio of Sample Variances (Log 10 Scaled)", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))+
+  scale_x_continuous(trans="log10")
+
+tikz('figure/appendixLinReloop.tex',width=4,height=2,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
+print(pLin2)
+dev.off()
+
+
+
+@
+
+<<olsFigs>>=
+pOls1 <- comparisonsPoor%>%
+    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
+ggplot(aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .05 )  +
+    labs( x = "Relative Ratio of Sample Variances (Log 10 Scaled)", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp)+#,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+
+tikz('figure/appendixPoor.tex',width=6.4,height=4,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
+print(pOls1)
+dev.off()
+
+pOls2 <- comparisonsReloopPoor%>%
+    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
+ggplot(aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .02 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+
+tikz('figure/appendixOlsReloop.tex',width=4,height=2,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
+print(pOls2)
+dev.off()
+
+
+#### this one actually made it into the manuscript:
+
+pOls3 <- ggplot(newcomp,aes(ssMult))+#,fill=exGroup))+
+    geom_dotplot( method="histodot", binwidth = .01 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=3)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))+
+  scale_x_continuous(trans="log10",breaks=c(0.85,1,1.2,1.4,1.7,2,2.5))
+
+
+tikz('figure/OlsReloop.tex',width=5,height=6,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
+print(pOls3)
+dev.off()
+
+@
 
 <<sessionInfo>>=
 sessionInfo()
 @
 
-\end{document}
-
+\\end{document}
