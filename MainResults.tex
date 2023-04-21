@@ -171,9 +171,7 @@ the main manuscript.
 \begin{alltt}
 \hlstd{opts_chunk}\hlopt{$}\hlkwd{set}\hlstd{(}\hlkwc{message}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{warning}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{error}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{echo}\hlstd{=}\hlnum{TRUE}\hlstd{,}\hlkwc{cache}\hlstd{=}\hlnum{TRUE}\hlstd{,}\hlkwc{dev}\hlstd{=}\hlstr{'tikz'}\hlstd{)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'opts\_chunk' not found}}\end{kframe}
+\end{kframe}
 \end{knitrout}
 
 \begin{knitrout}
@@ -190,37 +188,17 @@ the main manuscript.
 \hlkwd{library}\hlstd{(scales)}
 \hlcom{#library(tidyverse)}
 \hlkwd{library}\hlstd{(dplyr)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'dplyr'}}
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following objects are masked from 'package:stats':\\\#\# \\\#\# \ \ \ \ filter, lag}}
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following objects are masked from 'package:base':\\\#\# \\\#\# \ \ \ \ intersect, setdiff, setequal, union}}\begin{alltt}
 \hlkwd{library}\hlstd{(ggplot2)}
 \hlkwd{library}\hlstd{(tibble)}
 \hlkwd{library}\hlstd{(purrr)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'purrr'}}
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:scales':\\\#\# \\\#\# \ \ \ \ discard}}\begin{alltt}
 \hlkwd{library}\hlstd{(tidyr)}
 \hlkwd{library}\hlstd{(loop.estimator)}
 \hlkwd{library}\hlstd{(kableExtra)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'kableExtra'}}
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:dplyr':\\\#\# \\\#\# \ \ \ \ group\_rows}}\begin{alltt}
 \hlkwd{library}\hlstd{(xtable)}
 \hlkwd{library}\hlstd{(knitr)}
 \hlkwd{library}\hlstd{(tikzDevice)}
 \hlkwd{library}\hlstd{(estimatr)}
-
+\hlkwd{library}\hlstd{(forcats)}
 
 
 \hlcom{## specialized versions of the LOOP estimator}
@@ -277,7 +255,7 @@ Replicating Table \ref{tab:covariates} from the manuscript:
 \hlkwd{print}\hlstd{(covTable,} \hlkwc{add.to.row}\hlstd{=ATR)}
 \end{alltt}
 \end{kframe}% latex table generated in R 4.2.2 by xtable 1.8-4 package
-% Thu Apr 20 20:27:25 2023
+% Thu Apr 20 20:38:55 2023
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -348,552 +326,7 @@ treatment effects discussed in the paper.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{fullres} \hlkwb{<-} \hlkwd{sapply}\hlstd{(}\hlkwd{levels}\hlstd{(dat}\hlopt{$}\hlstd{problem_set),full,}\hlkwc{dat}\hlstd{=dat,}\hlkwc{covNames}\hlstd{=covNames,}\hlkwc{simplify}\hlstd{=}\hlnum{FALSE}\hlstd{)}
-\end{alltt}
 
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 1, , drop = FALSE], Y[Tr == 1, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in randomForest.default(Z[Tr == 0, , drop = FALSE], Y[Tr == 0, , : The response has five or fewer unique values. \ Are you sure you want to do regression?}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in rfout\$mse/(var(y) * (n - 1)/n): Recycling array of length 1 in vector-array arithmetic is deprecated.\\\#\# \ \ Use c() or as.vector() instead.}}\begin{alltt}
 \hlcom{### name the problem sets based on the SE from the simple difference estimator}
 \hlstd{rnk} \hlkwb{<-} \hlkwd{rank}\hlstd{(}\hlkwd{sapply}\hlstd{(fullres,}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[}\hlstr{'simpDiff'}\hlstd{,}\hlstr{'se'}\hlstd{]))}
 \hlkwd{names}\hlstd{(fullres)} \hlkwb{<-} \hlkwd{as.character}\hlstd{(rnk)}
@@ -914,10 +347,7 @@ errors, so this comes after effect estimation.
 \begin{kframe}
 \begin{alltt}
 \hlkwd{source}\hlstd{(}\hlstr{'code/psTable.r'}\hlstd{)}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# `summarise()` has grouped output by 'ps'. You can override using the `.groups`\\\#\# argument.}}\begin{alltt}
  \hlkwd{kbl}\hlstd{(tab,}
 
            \hlkwc{booktabs}\hlstd{=}\hlnum{FALSE}\hlstd{,}
@@ -1073,8 +503,8 @@ experiment & $\trcpen$ & $\trc$ & $\tss[\bx,\mathrm{RF}]$ & $\trebar$ & $\tsd$\\
 
 
 Figure \ref{fig:ses1}, comparing
-$\tsd$,
-$\trebar$, and $\trc$:
+$\hat{\tau}^{\mathrm{DM}}$,
+$\trebar$, and $\hat{\tau}^{\mathrm{SS}}[x^r,\mathrm{LS}]$:
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1099,8 +529,8 @@ $\trebar$, and $\trc$:
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1115,8 +545,8 @@ dotplot showing sample size multipliers (i.e.\ sampling
 \end{figure}
 
 
-Figure \ref{fig:ses2}, comparing $\tsd$,
-$\trc$, $\tss[\bx,\mathrm{RF}]$, and $\trcpen$:
+Figure \ref{fig:ses2}, comparing $\hat{\tau}^{\mathrm{DM}}$,
+$\hat{\tau}^{\mathrm{SS}}[x^r,\mathrm{LS}]$, $\hat{\tau}^{\mathrm{SS}}[\mathbf{x},\mathrm{RF}]$, and $\hat{\tau}^{\mathrm{SS}}[\tilde{\mathbf{x}},\mathrm{EN}]$:
 
 
 \begin{knitrout}
@@ -1145,8 +575,8 @@ $\trc$, $\tss[\bx,\mathrm{RF}]$, and $\trcpen$:
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1179,10 +609,7 @@ text describing the results:
             \hlkwc{worstPS}\hlstd{=experiment[}\hlkwd{which.min}\hlstd{(ssMult)]}
             \hlstd{)}\hlopt{%>%}\hlkwd{ungroup}\hlstd{()}\hlopt{%>%}
     \hlkwd{mutate}\hlstd{(}\hlkwd{across}\hlstd{(}\hlkwd{starts_with}\hlstd{(}\hlstr{'method'}\hlstd{),}\hlopt{~}\hlkwd{paste0}\hlstd{(}\hlstr{'$'}\hlstd{,methodName[}\hlkwd{as.character}\hlstd{(.)],}\hlstr{'$'}\hlstd{)))}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# `summarise()` has grouped output by 'method1'. You can override using the\\\#\# `.groups` argument.}}\begin{alltt}
 \hlstd{compTab}\hlopt{%>%}\hlkwd{select}\hlstd{(method1}\hlopt{:}\hlstd{bestPS)}\hlopt{%>%}\hlkwd{kable}\hlstd{(}\hlkwc{escape} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -1265,11 +692,7 @@ This estimates the effects and their SEs:
 \begin{alltt}
 \hlkwd{source}\hlstd{(}\hlstr{'code/olsFigurePrep.r'}\hlstd{)}
 \end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in file(filename, "{}r"{}, encoding = encoding): cannot open file 'code/olsFigurePrep.r': No such file or directory}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(filename, "{}r"{}, encoding = encoding): cannot open the connection}}\end{kframe}
+\end{kframe}
 \end{knitrout}
 
 \begin{knitrout}
@@ -1289,21 +712,14 @@ This estimates the effects and their SEs:
         \hlkwc{axis.ticks.y} \hlstd{=} \hlkwd{element_blank}\hlstd{(),}
         \hlkwc{text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{),}
         \hlkwc{strip.text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{,}\hlkwc{lineheight}\hlstd{=}\hlnum{0.5}\hlstd{))}
-\end{alltt}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in mutate(., comp = factor(comp, levels = unique(as.character(comp)))): object 'comparisonsLin' not found}}\begin{alltt}
 \hlkwd{tikz}\hlstd{(}\hlstr{'figure/appendixLin.tex'}\hlstd{,}\hlkwc{width}\hlstd{=}\hlnum{6.4}\hlstd{,}\hlkwc{height}\hlstd{=}\hlnum{4}\hlstd{,}\hlkwc{standAlone}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{packages}\hlstd{=} \hlkwd{c}\hlstd{(}\hlkwd{getOption}\hlstd{(}\hlstr{'tikzLatexPackages'}\hlstd{),}\hlstr{'\textbackslash{}\textbackslash{}usepackage\{amsmath,amsfonts,amsthm,amssymb,thmtools\}'}\hlstd{))}
 \hlkwd{print}\hlstd{(pLin1)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(pLin1): object 'pLin1' not found}}\begin{alltt}
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \begin{alltt}
 \hlcom{### compare Lin to Reloop}
@@ -1323,21 +739,14 @@ This estimates the effects and their SEs:
         \hlkwc{text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{),}
         \hlkwc{strip.text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{,}\hlkwc{lineheight}\hlstd{=}\hlnum{0.5}\hlstd{))}\hlopt{+}
   \hlkwd{scale_x_continuous}\hlstd{(}\hlkwc{trans}\hlstd{=}\hlstr{"log10"}\hlstd{)}
-\end{alltt}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in mutate(., comp = factor(comp, levels = unique(as.character(comp)))): object 'comparisonsReloopLin' not found}}\begin{alltt}
 \hlkwd{tikz}\hlstd{(}\hlstr{'figure/appendixLinReloop.tex'}\hlstd{,}\hlkwc{width}\hlstd{=}\hlnum{4}\hlstd{,}\hlkwc{height}\hlstd{=}\hlnum{2}\hlstd{,}\hlkwc{standAlone}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{packages}\hlstd{=} \hlkwd{c}\hlstd{(}\hlkwd{getOption}\hlstd{(}\hlstr{'tikzLatexPackages'}\hlstd{),}\hlstr{'\textbackslash{}\textbackslash{}usepackage\{amsmath,amsfonts,amsthm,amssymb,thmtools\}'}\hlstd{))}
 \hlkwd{print}\hlstd{(pLin2)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(pLin2): object 'pLin2' not found}}\begin{alltt}
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1359,21 +768,14 @@ This estimates the effects and their SEs:
         \hlkwc{axis.ticks.y} \hlstd{=} \hlkwd{element_blank}\hlstd{(),}
         \hlkwc{text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{),}
         \hlkwc{strip.text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{,}\hlkwc{lineheight}\hlstd{=}\hlnum{0.5}\hlstd{))}
-\end{alltt}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in mutate(., comp = factor(comp, levels = unique(as.character(comp)))): object 'comparisonsPoor' not found}}\begin{alltt}
 \hlkwd{tikz}\hlstd{(}\hlstr{'figure/appendixPoor.tex'}\hlstd{,}\hlkwc{width}\hlstd{=}\hlnum{6.4}\hlstd{,}\hlkwc{height}\hlstd{=}\hlnum{4}\hlstd{,}\hlkwc{standAlone}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{packages}\hlstd{=} \hlkwd{c}\hlstd{(}\hlkwd{getOption}\hlstd{(}\hlstr{'tikzLatexPackages'}\hlstd{),}\hlstr{'\textbackslash{}\textbackslash{}usepackage\{amsmath,amsfonts,amsthm,amssymb,thmtools\}'}\hlstd{))}
 \hlkwd{print}\hlstd{(pOls1)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(pOls1): object 'pOls1' not found}}\begin{alltt}
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \begin{alltt}
 \hlstd{pOls2} \hlkwb{<-} \hlstd{comparisonsReloopPoor}\hlopt{%>%}
@@ -1390,21 +792,14 @@ This estimates the effects and their SEs:
         \hlkwc{axis.ticks.y} \hlstd{=} \hlkwd{element_blank}\hlstd{(),}
         \hlkwc{text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{),}
         \hlkwc{strip.text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{,}\hlkwc{lineheight}\hlstd{=}\hlnum{0.5}\hlstd{))}
-\end{alltt}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in mutate(., comp = factor(comp, levels = unique(as.character(comp)))): object 'comparisonsReloopPoor' not found}}\begin{alltt}
 \hlkwd{tikz}\hlstd{(}\hlstr{'figure/appendixOlsReloop.tex'}\hlstd{,}\hlkwc{width}\hlstd{=}\hlnum{4}\hlstd{,}\hlkwc{height}\hlstd{=}\hlnum{2}\hlstd{,}\hlkwc{standAlone}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{packages}\hlstd{=} \hlkwd{c}\hlstd{(}\hlkwd{getOption}\hlstd{(}\hlstr{'tikzLatexPackages'}\hlstd{),}\hlstr{'\textbackslash{}\textbackslash{}usepackage\{amsmath,amsfonts,amsthm,amssymb,thmtools\}'}\hlstd{))}
 \hlkwd{print}\hlstd{(pOls2)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(pOls2): object 'pOls2' not found}}\begin{alltt}
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \begin{alltt}
 \hlcom{#### this one actually made it into the manuscript:}
@@ -1422,21 +817,15 @@ This estimates the effects and their SEs:
         \hlkwc{text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{),}
         \hlkwc{strip.text}\hlstd{=}\hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{,}\hlkwc{lineheight}\hlstd{=}\hlnum{0.5}\hlstd{))}\hlopt{+}
   \hlkwd{scale_x_continuous}\hlstd{(}\hlkwc{trans}\hlstd{=}\hlstr{"log10"}\hlstd{,}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0.85}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1.2}\hlstd{,}\hlnum{1.4}\hlstd{,}\hlnum{1.7}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{2.5}\hlstd{))}
-\end{alltt}
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ggplot(newcomp, aes(ssMult)): object 'newcomp' not found}}\begin{alltt}
 \hlkwd{tikz}\hlstd{(}\hlstr{'figure/OlsReloop.tex'}\hlstd{,}\hlkwc{width}\hlstd{=}\hlnum{5}\hlstd{,}\hlkwc{height}\hlstd{=}\hlnum{6}\hlstd{,}\hlkwc{standAlone}\hlstd{=}\hlnum{FALSE}\hlstd{,}\hlkwc{packages}\hlstd{=} \hlkwd{c}\hlstd{(}\hlkwd{getOption}\hlstd{(}\hlstr{'tikzLatexPackages'}\hlstd{),}\hlstr{'\textbackslash{}\textbackslash{}usepackage\{amsmath,amsfonts,amsthm,amssymb,thmtools\}'}\hlstd{))}
 \hlkwd{print}\hlstd{(pOls3)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(pOls3): object 'pOls3' not found}}\begin{alltt}
 \hlkwd{dev.off}\hlstd{()}
 \end{alltt}
 \begin{verbatim}
-## pdf 
-##   2
+## tikz output 
+##           2
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1467,33 +856,33 @@ This estimates the effects and their SEs:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] forcats_0.5.2         estimatr_1.0.0        tikzDevice_0.12.3.1  
-##  [4] knitr_1.40            xtable_1.8-4          kableExtra_1.3.4     
-##  [7] loop.estimator_1.0.0  tidyr_1.2.0           purrr_0.3.4          
-## [10] tibble_3.1.8          ggplot2_3.4.1         dplyr_1.0.10         
+##  [1] forcats_0.5.2         tidyr_1.2.0           purrr_0.3.4          
+##  [4] tibble_3.1.8          kableExtra_1.3.4      ggplot2_3.4.1        
+##  [7] dplyr_1.0.10          estimatr_1.0.0        tikzDevice_0.12.3.1  
+## [10] knitr_1.40            xtable_1.8-4          loop.estimator_1.0.0 
 ## [13] scales_1.2.1          languageserver_0.3.15 httpgd_1.3.1         
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyselect_1.1.2     xfun_0.32            colorspace_2.0-3    
-##  [4] vctrs_0.5.2          generics_0.1.3       htmltools_0.5.3     
-##  [7] viridisLite_0.4.1    utf8_1.2.2           rlang_1.0.6         
-## [10] later_1.3.0          pillar_1.8.1         glue_1.6.2          
-## [13] withr_2.5.0          DBI_1.1.3            lifecycle_1.0.3     
-## [16] stringr_1.4.1        munsell_0.5.0        gtable_0.3.0        
-## [19] rvest_1.0.3          codetools_0.2-18     evaluate_0.16       
-## [22] labeling_0.4.2       callr_3.7.3          fastmap_1.1.0       
-## [25] ps_1.7.1             parallel_4.2.2       fansi_1.0.3         
-## [28] highr_0.9            Rcpp_1.0.10          webshot_0.5.4       
-## [31] filehash_2.4-3       farver_2.1.1         systemfonts_1.0.4   
-## [34] digest_0.6.29        stringi_1.7.12       processx_3.7.0      
-## [37] grid_4.2.2           cli_3.6.0            tools_4.2.2         
-## [40] magrittr_2.0.3       randomForest_4.7-1.1 Formula_1.2-4       
-## [43] pkgconfig_2.0.3      ellipsis_0.3.2       xml2_1.3.3          
-## [46] assertthat_0.2.1     rmarkdown_2.16       svglite_2.1.0       
-## [49] httr_1.4.5           rstudioapi_0.14      R6_2.5.1            
-## [52] compiler_4.2.2
+##  [1] Rcpp_1.0.10          svglite_2.1.0        ps_1.7.1            
+##  [4] assertthat_0.2.1     digest_0.6.29        utf8_1.2.2          
+##  [7] R6_2.5.1             evaluate_0.16        httr_1.4.5          
+## [10] highr_0.9            pillar_1.8.1         rlang_1.0.6         
+## [13] rstudioapi_0.14      callr_3.7.3          rmarkdown_2.16      
+## [16] labeling_0.4.2       webshot_0.5.4        stringr_1.4.1       
+## [19] munsell_0.5.0        compiler_4.2.2       xfun_0.32           
+## [22] pkgconfig_2.0.3      systemfonts_1.0.4    htmltools_0.5.3     
+## [25] tidyselect_1.1.2     codetools_0.2-18     randomForest_4.7-1.1
+## [28] fansi_1.0.3          viridisLite_0.4.1    withr_2.5.0         
+## [31] later_1.3.0          grid_4.2.2           jsonlite_1.8.0      
+## [34] gtable_0.3.0         lifecycle_1.0.3      DBI_1.1.3           
+## [37] magrittr_2.0.3       cli_3.6.0            stringi_1.7.12      
+## [40] farver_2.1.1         xml2_1.3.3           ellipsis_0.3.2      
+## [43] generics_0.1.3       vctrs_0.5.2          Formula_1.2-4       
+## [46] tools_4.2.2          glue_1.6.2           processx_3.7.0      
+## [49] parallel_4.2.2       fastmap_1.1.0        colorspace_2.0-3    
+## [52] filehash_2.4-3       rvest_1.0.3
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
 
-\\end{document}
+\end{document}

@@ -505,4 +505,4 @@ dev.off()
 sessionInfo()
 @
 
-\\end{document}
+\end{document}
