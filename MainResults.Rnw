@@ -120,22 +120,25 @@ the main manuscript.
 opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=TRUE,dev='tikz')
 @
 
-<<seed,echo=TRUE,cache=FALSE>>=
+<<seed,echo=TRUE,cache=TRUE>>=
 set.seed(613)
 @
 
-<<librarysEtc,echo=TRUE,results='hide',cache=FALSE>>=
+<<librarysEtc,echo=TRUE,results='hide',cache=TRUE>>=
 library(scales)
 #library(tidyverse)
 library(dplyr)
 library(ggplot2)
+library(tibble)
+library(purrr)
+library(tidyr)
 library(loop.estimator)
 library(kableExtra)
 library(xtable)
 library(knitr)
 library(tikzDevice)
 library(estimatr)
-
+library(forcats)
 
 
 ## specialized versions of the LOOP estimator
@@ -147,7 +150,7 @@ source('code/analysisFunctions.r')
 @
 
 Names of covariates for within-sample covariate adjustment:
-<<covNames,echo=TRUE,cache=FALSE>>=
+<<covNames,echo=TRUE,cache=TRUE>>=
 covNames <- c(
     "Prior.Problem.Count",
     "Prior.Percent.Correct",
@@ -171,13 +174,13 @@ repository) under the column name \texttt{p\_complete}.
 
 Load in and clean the data:\\
 
-<<loadData,echo=TRUE,results='hide',cache=FALSE>>=
+<<loadData,echo=TRUE,results='hide',cache=TRUE>>=
 source('code/dataPrep.r')
 @
 
 Replicating Table \ref{tab:covariates} from the manuscript:
 
-<<table1,echo=TRUE,cache=FALSE,results='asis'>>=
+<<table1,echo=TRUE,cache=TRUE,results='asis'>>=
 source('code/covTable.r')
 print(covTable, add.to.row=ATR)
 @
@@ -196,7 +199,7 @@ covariates, measured for all subjects.
 Therefore, we need not correct for the imputation scheme in our
 treatment effect estimation.
 
-<<imputation,results='hide',cache=FALSE>>=
+<<imputation,results='hide',cache=TRUE>>=
 ### first fill in with class/problem_set mean
 ### if that doesn't work, fill in with problem_set mean
 dat <- dat%>%
@@ -265,7 +268,7 @@ includes the sampling variance ratios comparing each method to the
 others, for each problem set.
 It also produces a table (which is not in the manuscript) giving the estimated standard error for each method and each
 experiment.
-<<figPrep,results='asis',cache=FALSE>>=
+<<figPrep,results='asis',cache=TRUE>>=
 source('code/figurePrep.r')
 
 pwidePrint <- pwide
