@@ -27,7 +27,7 @@ Python Code/Study_1/resources/remnant.csv
 Python Code/Study_1/temp/
 Python Code/Study_2/.ipynb_checkpoints/
 Python Code/Study_2/lib/__pycache__/
-Python Code/Study_2/model_predictions.csv
+#Python Code/Study_2/model_predictions.csv
 Python Code/Study_2/resources/experimental.csv
 Python Code/Study_2/resources/remnant.csv
 Python Code/Study_2/temp/
