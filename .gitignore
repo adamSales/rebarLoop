@@ -21,7 +21,7 @@ Python Code/.idea/
 "Python Code/Icon\357\200\215"
 Python Code/Study_1/.ipynb_checkpoints/
 Python Code/Study_1/lib/__pycache__/
-Python Code/Study_1/model_predictions.csv
+#Python Code/Study_1/model_predictions.csv
 Python Code/Study_1/resources/experimental.csv
 Python Code/Study_1/resources/remnant.csv
 Python Code/Study_1/temp/
