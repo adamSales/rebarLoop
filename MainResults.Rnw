@@ -117,14 +117,14 @@ of this PDF, as well as in stand-alone files to be incorporated into
 the main manuscript.
 
 <<options>>=
-opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=TRUE,dev='tikz')
+opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=FALSE,dev='tikz')
 @
 
-<<seed,echo=TRUE,cache=TRUE>>=
+<<seed,echo=TRUE,cache=FALSE>>=
 set.seed(613)
 @
 
-<<librarysEtc,echo=TRUE,results='hide',cache=TRUE>>=
+<<librarysEtc,echo=TRUE,results='hide',cache=FALSE>>=
 library(scales)
 #library(tidyverse)
 library(dplyr)
@@ -150,7 +150,7 @@ source('code/analysisFunctions.r')
 @
 
 Names of covariates for within-sample covariate adjustment:
-<<covNames,echo=TRUE,cache=TRUE>>=
+<<covNames,echo=TRUE,cache=FALSE>>=
 covNames <- c(
     "Prior.Problem.Count",
     "Prior.Percent.Correct",
@@ -174,13 +174,13 @@ repository) under the column name \texttt{p\_complete}.
 
 Load in and clean the data:\\
 
-<<loadData,echo=TRUE,results='hide',cache=TRUE>>=
+<<loadData,echo=TRUE,results='hide',cache=FALSE>>=
 source('code/dataPrep.r')
 @
 
 Replicating Table \ref{tab:covariates} from the manuscript:
 
-<<table1,echo=TRUE,cache=TRUE,results='asis'>>=
+<<table1,echo=TRUE,cache=FALSE,results='asis'>>=
 source('code/covTable.r')
 print(covTable, add.to.row=ATR)
 @
@@ -199,7 +199,7 @@ covariates, measured for all subjects.
 Therefore, we need not correct for the imputation scheme in our
 treatment effect estimation.
 
-<<imputation,results='hide',cache=TRUE>>=
+<<imputation,results='hide',cache=FALSE>>=
 ### first fill in with class/problem_set mean
 ### if that doesn't work, fill in with problem_set mean
 dat <- dat%>%
@@ -226,7 +226,7 @@ The functions for estimating effects are all found in the file
 This includes the function \texttt{full()} which estimates all five
 treatment effects discussed in the paper.
 
-<<estimateEffects,results='hide',cache=TRUE>>=
+<<estimateEffects,results='hide',cache=FALSE>>=
 fullres <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE)
 
 ### name the problem sets based on the SE from the simple difference estimator
@@ -245,7 +245,7 @@ dat$ps <- rnk[as.character(dat$problem_set)]
 Replicate Table \ref{tab:info} (Now in an appendix, I think).
 The numbering of the experiments derives from the estimated standard
 errors, so this comes after effect estimation.
-<<Table2,results='asis',cache=TRUE>>=
+<<Table2,results='asis',cache=FALSE>>=
 source('code/psTable.r')
 
  kbl(tab,
@@ -268,7 +268,7 @@ includes the sampling variance ratios comparing each method to the
 others, for each problem set.
 It also produces a table (which is not in the manuscript) giving the estimated standard error for each method and each
 experiment.
-<<figPrep,results='asis',cache=TRUE>>=
+<<figPrep,results='asis',cache=FALSE>>=
 source('code/figurePrep.r')
 
 pwidePrint <- pwide
@@ -280,7 +280,7 @@ Figure \ref{fig:ses1}, comparing
 $\Sexpr{methodName['SimpleDifference']}$,
 $\Sexpr{methodName['Rebar']}$, and $\Sexpr{methodName['ReLOOP']}$:
 
-<<fig1,cache=TRUE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
+<<fig1,cache=FALSE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
 p <- comparisons%>%
     filter(method1%in%c('ReLOOP','Rebar'),method2%in%c('ReLOOPEN','Rebar','SimpleDifference'))%>%
     ggplot(aes(ssMult))+#,fill=exGroup))+
@@ -316,7 +316,7 @@ Figure \ref{fig:ses2}, comparing $\Sexpr{methodName['SimpleDifference']}$,
 $\Sexpr{methodName['ReLOOP']}$, $\Sexpr{methodName['Loop']}$, and $\Sexpr{methodName['ReLOOPEN']}$:
 
 
-<<fig2,cache=TRUE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
+<<fig2,cache=FALSE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
 
 
 p <- comparisons%>%
@@ -380,7 +380,7 @@ compTab%>%select(method1,method2,best2:worstPS)%>%kable(escape=FALSE)
 The following creates the figures in 4.3 (plus some others)
 
 This estimates the effects and their SEs:
-<<appendix,cache=TRUE>>=
+<<appendix,cache=FALSE>>=
 ols <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE,
                   methods=c('reloopLin','reloopPoor','reloopPlusLin','reloopPlusPoor','lin','ancova'))
 
