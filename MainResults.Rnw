@@ -120,9 +120,15 @@ the main manuscript.
 opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=TRUE,dev='tikz')
 @
 
+<<seed,echo=TRUE,cache=FALSE>>=
+set.seed(613)
+@
+
 <<librarysEtc,echo=TRUE,results='hide',cache=FALSE>>=
 library(scales)
-library(tidyverse)
+#library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(loop.estimator)
 library(kableExtra)
 library(xtable)
