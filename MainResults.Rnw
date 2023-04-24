@@ -1,21 +1,14 @@
 \documentclass[12pt]{article}
 
 \usepackage{xr}
+\externaldocument{output}
+
+
 
 \makeatletter
-\newcommand*{\addFileDependency}[1]{% argument=file name and extension
-  \typeout{(#1)}
-  \@addtofilelist{#1}
-  \IfFileExists{#1}{}{\typeout{No file #1.}}
-}
+
 \makeatother
 
-\newcommand*{\myexternaldocument}[1]{%
-    \externaldocument{#1}%
-    \addFileDependency{#1.tex}%
-    \addFileDependency{#1.aux}%
-}
-\myexternaldocument{MainResults}
 
 \usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}
 \usepackage{bm}
@@ -29,6 +22,7 @@
 \usepackage{tikz}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{url}
 
 \usetikzlibrary{calc}
 
@@ -36,7 +30,7 @@
 % NOTE: To produce blinded version, replace "0" with "1" below.
 \newcommand{\blind}{0}
 
-\input{notation.tex}
+%\input{notation.tex}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -50,8 +44,127 @@
 \addtolength{\textheight}{.8in}%
 \addtolength{\topmargin}{-.8in}%
 
+%%%%%%%%%%%%%%%%%%%%%%% notation
+%% Keep (as of 1-26-20)
+%
+\newcommand{\yt}{{y^t}}
+\newcommand{\yc}{{y^c}}
+\newcommand{\yT}[1]{{y^t_{#1}}}
+\newcommand{\yC}[1]{{y^c_{#1}}}
+\newcommand{\yti}{\yT{i}}
+\newcommand{\yci}{\yC{i}}
+\newcommand{\ytj}{\yT{j}}
+\newcommand{\ycj}{\yC{j}}
+\newcommand{\tg}{\mathcal{T}}
+\newcommand{\cg}{\mathcal{C}}
+\newcommand{\nt}{{n_{t}}}
+\newcommand{\nc}{{n_{c}}}
+\newcommand{\tbar}{\bar{\tau}}
+\newcommand{\ytbar}{{\bar{y}^t}}
+\newcommand{\ycbar}{{\bar{y}^c}}
+\renewcommand{\Pr}{\mathbb{P}}
+\newcommand{\var}{\mathbb{V}}
+\newcommand{\varhat}{\hat{\var}}
+\newcommand{\syc}{S^2(Y_{\cg})}
+\newcommand{\syt}{S^2(Y_{\tg})}
+\newcommand{\src}{S^2(R_{\cg})}
+\newcommand{\srt}{S^2(R_{\tg})}
+
+\newcommand{\bx}{{\bm{x}}}
+\newcommand{\xt}{{\tilde{\bm{x}}}}
+\newcommand{\bxi}{{\bm{x}_i}}
+\newcommand{\xti}{{\tilde{\bm{x}}_i}}
+\newcommand{\xtj}{{\tilde{\bm{x}}_j}}
+
+
+\newcommand{\predc}{\hat{y}^c(\cdot)}
+\newcommand{\predt}{\hat{y}^t(\cdot)}
+\newcommand{\predcx}{\hat{y}^c(\bm{x}_i)}
+\newcommand{\predtx}{\hat{y}^t(\bm{x}_i)}
+\newcommand{\predci}{\hat{y}^c_{-i}(\cdot)}
+\newcommand{\predti}{\hat{y}^t_{-i}(\cdot)}
+\newcommand{\predcxi}{\hat{y}^c_{-i}(\bm{x}_i)}
+\newcommand{\predtxi}{\hat{y}^t_{-i}(\bm{x}_i)}
+\newcommand{\predcxri}{\hat{y}^c_{-i}(x^r_i)}
+\newcommand{\predtxri}{\hat{y}^t_{-i}(x^r_i)}
+\newcommand{\predcxriLS}{\hat{y}^{c,\mathrm{LS}}_{-i}(\xti)}
+\newcommand{\predcxriRF}{\hat{y}^{c,\mathrm{RF}}_{-i}(\xti)}
+\newcommand{\predcxriEN}{\hat{y}^{c,\mathrm{EN}}_{-i}(\xti)}
+\newcommand{\predcxrijLS}{\hat{y}^{c,\mathrm{LS}}_{-i,j}(\xtj)}
+\newcommand{\predcxrijRF}{\hat{y}^{c,\mathrm{RF}}_{-i,j}(\xtj)}
+
+
+
+
+
+
+\newcommand{\predr}{x^r}
+\newcommand{\predri}{\predr_i}
+\newcommand{\predrj}{\predr_j}
+\newcommand{\predrx}{\hat{y}^r(\bm{x})}
+\newcommand{\predrxi}{\hat{y}^r(\bm{x}_i)}
+\newcommand{\predrfun}{\hat{y}^r(\cdot)}
+\newcommand{\predrfuntilde}{\tilde{y}^r(\cdot)}
+
+
+\newcommand{\rt}{{r^t}}
+\newcommand{\rc}{{r^c}}
+\newcommand{\rti}{{r^t_i}}
+\newcommand{\rci}{{r^c_i}}
+
+\newcommand{\thim}{\hat{\tau}_i}
+\newcommand{\thm}{\hat{\tau}}
+
+\newcommand{\tsd}{\hat{\tau}^{\mathrm{DM}}}
+\newcommand{\thipw}{\hat{\tau}^{\mathrm{IPW}}}
+\newcommand{\tss}{\hat{\tau}^{\mathrm{SS}}}
+\newcommand{\trc}{\tss[\predr, \mathrm{LS}]}
+\newcommand{\trcprf}{\tss[\xt, \mathrm{RF}]}
+\newcommand{\trcpen}{\tss[\xt, \mathrm{EN}]}
+\newcommand{\trebar}{\hat{\tau}^{\mathrm{RE}}}
+\newcommand{\hmi}{\hat{m}_i}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\s}[2]{s^2_{#1}(#2)}
+
+\newcommand{\Eth}{\hat{E}_{t}^2}
+\newcommand{\Ech}{\hat{E}_{c}^2}
+
+\newcommand{\R}{R}
+
+\newcommand{\tgr}{\hat{\tau}^{\mathrm{GR}}(b)}
+
+\newcommand{\aci}{a_{-i}^{c}}
+\newcommand{\ati}{a_{-i}^{t}}
+\newcommand{\bci}{b_{-i}^{c}}
+\newcommand{\bti}{b_{-i}^{t}}
+
+\newcommand{\gci}{\gamma_{i}^{c}}
+
+
+\newcommand{\pto}{\overset{p}{\to}}
+\newcommand{\rgr}{R^{\mathrm{GR}}}
+\newcommand{\srgrc}{S^2(\rgr_{\cg})}
+\newcommand{\srgrt}{S^2(\rgr_{\tg})}
+\newcommand{\Ect}{\tilde{E}_{c}^2}
+\newcommand{\predcxrit}{\tilde{y}^c(x^r_i)}
+
+\newcommand{\LOOP}{$\tss[\bx; \mathrm{RF}]$}
+\newcommand{\ReLOOP}{$\trc$}
+\newcommand{\ReLOOPRF}{$\trcprf$}
+\newcommand{\ReLOOPEN}{$\trcpen$}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 \begin{document}
+
+<<options,include=FALSE>>=
+knitr::opts_chunk$set(message=FALSE,warning=FALSE,echo=TRUE,
+                        error=FALSE,cache=TRUE,dev='tikz')
+@
+
 
 %\bibliographystyle{natbib}
 
@@ -116,15 +229,27 @@ manuscript. The tables and figures will appear in the compiled version
 of this PDF, as well as in stand-alone files to be incorporated into
 the main manuscript.
 
-<<options>>=
-opts_chunk$set(message=FALSE,warning=FALSE,error=FALSE,echo=TRUE,cache=FALSE,dev='tikz')
+
+This analysis in this document starts \emph{after} the deep learning prediction model has already been fit to the remnant data and predicted outcomes for RCT subjects have already been generated. For code to replicate that part of the process, see \url{https://github.com/adamSales/rebarLoop}. 
+The deep learning models involve a random component, so each time they are fit they return slightly different results; unfortunately, when we performed the analysis that gave rise to the results in the paper, we did not set a random seed, so the model predictions for the results in the paper are not exactly replicable. 
+However, the subsequent analysis is exaclty replicable---starting the same set of model predictions that we had, the following document will generate the precise results reported in the paper. 
+To do so, specify the following variable:
+
+<<exactReplication,echo=TRUE,cache=FALSE>>=
+exactReplication <- TRUE
+@ 
+
+If you wish to re-run the deep learning models using the posted replication code---and generate slightly different results from what's in the paper (they shouldn't differ \emph{too} much)---then change the above code to:
+
+<<exactReplicationFalse,echo=TRUE,eval=FALSE>>=
+exactReplication <- TRUE
+@ 
+
+<<seed,cache=FALSE>>=
+set.seed(365)
 @
 
-<<seed,echo=TRUE,cache=FALSE>>=
-set.seed(613)
-@
-
-<<librarysEtc,echo=TRUE,results='hide',cache=FALSE>>=
+<<librarysEtc,results='hide',cache=FALSE>>=
 library(scales)
 #library(tidyverse)
 library(dplyr)
@@ -150,7 +275,7 @@ source('code/analysisFunctions.r')
 @
 
 Names of covariates for within-sample covariate adjustment:
-<<covNames,echo=TRUE,cache=FALSE>>=
+<<covNames>>=
 covNames <- c(
     "Prior.Problem.Count",
     "Prior.Percent.Correct",
@@ -174,13 +299,13 @@ repository) under the column name \texttt{p\_complete}.
 
 Load in and clean the data:\\
 
-<<loadData,echo=TRUE,results='hide',cache=FALSE>>=
+<<loadData,results='hide'>>=
 source('code/dataPrep.r')
 @
 
 Replicating Table \ref{tab:covariates} from the manuscript:
 
-<<table1,echo=TRUE,cache=FALSE,results='asis'>>=
+<<table1,results='asis'>>=
 source('code/covTable.r')
 print(covTable, add.to.row=ATR)
 @
@@ -199,15 +324,19 @@ covariates, measured for all subjects.
 Therefore, we need not correct for the imputation scheme in our
 treatment effect estimation.
 
-<<imputation,results='hide',cache=FALSE>>=
+<<imputation,results='hide'>>=
 ### first fill in with class/problem_set mean
 ### if that doesn't work, fill in with problem_set mean
 dat <- dat%>%
-    group_by(Class.ID,problem_set)%>%
-    mutate(across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE))))%>%
-    group_by(problem_set)%>%
-    mutate(across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE))))%>%
-    ungroup()
+  group_by(Class.ID,problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  group_by(problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  ungroup()
 
 stopifnot(all(sapply(covNames,function(x) mean(is.finite(dat[[x]])))==1))
 
@@ -226,10 +355,12 @@ The functions for estimating effects are all found in the file
 This includes the function \texttt{full()} which estimates all five
 treatment effects discussed in the paper.
 
-<<estimateEffects,results='hide',cache=FALSE>>=
-fullres <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE)
+<<estimateEffects,results='hide'>>=
+fullres <- sapply(levels(dat$problem_set),full,dat=dat,
+                  covNames=covNames,simplify=FALSE)
 
-### name the problem sets based on the SE from the simple difference estimator
+### name the problem sets based on the 
+### SE from the simple difference estimator
 rnk <- rank(sapply(fullres,function(x) x['simpDiff','se']))
 names(fullres) <- as.character(rnk)
 
@@ -242,17 +373,18 @@ dat$ps <- rnk[as.character(dat$problem_set)]
 
 @
 
-Replicate Table \ref{tab:info} (Now in an appendix, I think).
+Replicate Table \ref{tab:info}.
 The numbering of the experiments derives from the estimated standard
 errors, so this comes after effect estimation.
-<<Table2,results='asis',cache=FALSE>>=
+<<Table2,results='asis'>>=
 source('code/psTable.r')
 
  kbl(tab,
 
            booktabs=FALSE,
            col.names=rep(c("",rep(c("Trt","Ctl"),2)),2),
-           caption="Sample sizes and \\% homework completion by treatment group in each of the 33 A/B tests.",
+           caption="Sample sizes and \\% homework completion by treatment 
+           group in each of the 33 A/B tests.",
            label="info")%>%
     kable_styling()%>%
     column_spec(5,border_right=TRUE)%>%
@@ -268,21 +400,26 @@ includes the sampling variance ratios comparing each method to the
 others, for each problem set.
 It also produces a table (which is not in the manuscript) giving the estimated standard error for each method and each
 experiment.
-<<figPrep,results='asis',cache=FALSE>>=
+<<figPrep,results='asis'>>=
 source('code/figurePrep.r')
 
 pwidePrint <- pwide
 names(pwidePrint)[-1] <- paste0('$',methodName[names(pwidePrint)[-1]],'$')
-kable(pwidePrint,row.names=FALSE,caption="Estimated standard error for the ATE in each skill builder, using each method discussed in the manuscript",label="tab:SEs",digits=3,escape=FALSE)
+kable(pwidePrint,row.names=FALSE,
+    caption="Estimated standard error for the ATE
+     in each skill builder, using each method 
+     discussed in the manuscript",
+     label="tab:SEs",digits=3,escape=FALSE)
 @
 
 Figure \ref{fig:ses1}, comparing
 $\Sexpr{methodName['SimpleDifference']}$,
 $\Sexpr{methodName['Rebar']}$, and $\Sexpr{methodName['ReLOOP']}$:
 
-<<fig1,cache=FALSE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
+<<fig1,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
 p <- comparisons%>%
-    filter(method1%in%c('ReLOOP','Rebar'),method2%in%c('ReLOOPEN','Rebar','SimpleDifference'))%>%
+    filter(method1%in%c('ReLOOP','Rebar'),
+    method2%in%c('ReLOOPEN','Rebar','SimpleDifference'))%>%
     ggplot(aes(ssMult))+#,fill=exGroup))+
     geom_dotplot( method="histodot", binwidth = .05 )  +
     labs( x = "Relative Ratio of Sample Variances", y="" ) +
@@ -316,11 +453,12 @@ Figure \ref{fig:ses2}, comparing $\Sexpr{methodName['SimpleDifference']}$,
 $\Sexpr{methodName['ReLOOP']}$, $\Sexpr{methodName['Loop']}$, and $\Sexpr{methodName['ReLOOPEN']}$:
 
 
-<<fig2,cache=FALSE,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
+<<fig2,fig.width=6.4,fig.height=2,R.options=list(tikzLatexPackages =c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}','\\usepackage{bm}', readLines('notation.tex')))>>=
 
 
 p <- comparisons%>%
-    filter((method1%in%c('ReLOOPEN')&method2%in%c('Loop','ReLOOP','SimpleDifference')))%>%
+    filter(method1%in%c('ReLOOPEN'),
+    method2%in%c('Loop','ReLOOP','SimpleDifference'))%>%
     mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
 ggplot(aes(ssMult))+#,fill=exGroup))+
     geom_dotplot( method="histodot", binwidth = .05 )  +
@@ -369,7 +507,8 @@ compTab <- comparisons%>%group_by(method1,method2)%>%
             worst=min(ssMult),
             worstPS=experiment[which.min(ssMult)]
             )%>%ungroup()%>%
-    mutate(across(starts_with('method'),~paste0('$',methodName[as.character(.)],'$')))
+    mutate(across(starts_with('method'),
+        ~paste0('$',methodName[as.character(.)],'$')))
 
 compTab%>%select(method1:bestPS)%>%kable(escape = FALSE)
 compTab%>%select(method1,method2,best2:worstPS)%>%kable(escape=FALSE)
@@ -379,10 +518,30 @@ compTab%>%select(method1,method2,best2:worstPS)%>%kable(escape=FALSE)
 \subsection{Comparing Sample Splitting to ANCOVA Estimators}
 The following creates the figures in 4.3 (plus some others)
 
+This analysis used results from an updated, fully-replicable run of the deep learning model in the remnant. 
+
 This estimates the effects and their SEs:
-<<appendix,cache=FALSE>>=
-ols <- sapply(levels(dat$problem_set),full,dat=dat,covNames=covNames,simplify=FALSE,
-                  methods=c('reloopLin','reloopPoor','reloopPlusLin','reloopPlusPoor','lin','ancova'))
+<<appendix>>=
+
+exactReplication <- FALSE
+source('code/dataPrep.r')
+dat <- dat%>%
+  group_by(Class.ID,problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  group_by(problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  ungroup()
+
+
+
+ols <- sapply(levels(dat$problem_set),full,dat=dat,
+covNames=covNames,simplify=FALSE,
+                  methods=c('reloopLin','reloopPoor','reloopPlusLin',
+                  'reloopPlusPoor','lin','ancova'))
 
 save(ols,file='results/ols.RData')
 @
@@ -392,93 +551,8 @@ save(ols,file='results/ols.RData')
 source('code/olsFigurePrep.r')
 @
 
-<<linFigs>>=
-pLin1 <- comparisonsLin%>%
-    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
-ggplot(aes(ssMult))+#,fill=exGroup))+
-    geom_dotplot( method="histodot", binwidth = .05 )  +
-    labs( x = "Relative Ratio of Sample Variances", y="" ) +
-    geom_vline( xintercept = 1, col="red" ) +
-    facet_wrap(~comp)+#,nrow=1)+
-    theme(legend.position = "none",
-        panel.grid = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.y= element_blank(),
-        axis.ticks.y = element_blank(),
-        text=element_text(size=12),
-        strip.text=element_text(size=12,lineheight=0.5))
-
-tikz('figure/appendixLin.tex',width=6.4,height=4,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
-print(pLin1)
-dev.off()
-
-### compare Lin to Reloop
-
-pLin2 <- comparisonsReloopLin%>%
-    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
-ggplot(aes(ssMult))+#,fill=exGroup))+
-    geom_dotplot( method="histodot", binwidth = .02 )  +
-    labs( x = "Relative Ratio of Sample Variances (Log 10 Scaled)", y="" ) +
-    geom_vline( xintercept = 1, col="red" ) +
-    facet_wrap(~comp,nrow=1)+
-    theme(legend.position = "none",
-        panel.grid = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.y= element_blank(),
-        axis.ticks.y = element_blank(),
-        text=element_text(size=12),
-        strip.text=element_text(size=12,lineheight=0.5))+
-  scale_x_continuous(trans="log10")
-
-tikz('figure/appendixLinReloop.tex',width=4,height=2,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
-print(pLin2)
-dev.off()
-
-
-
-@
 
 <<olsFigs>>=
-pOls1 <- comparisonsPoor%>%
-    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
-ggplot(aes(ssMult))+#,fill=exGroup))+
-    geom_dotplot( method="histodot", binwidth = .05 )  +
-    labs( x = "Relative Ratio of Sample Variances (Log 10 Scaled)", y="" ) +
-    geom_vline( xintercept = 1, col="red" ) +
-    facet_wrap(~comp)+#,nrow=1)+
-    theme(legend.position = "none",
-        panel.grid = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.y= element_blank(),
-        axis.ticks.y = element_blank(),
-        text=element_text(size=12),
-        strip.text=element_text(size=12,lineheight=0.5))
-
-tikz('figure/appendixPoor.tex',width=6.4,height=4,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
-print(pOls1)
-dev.off()
-
-pOls2 <- comparisonsReloopPoor%>%
-    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
-ggplot(aes(ssMult))+#,fill=exGroup))+
-    geom_dotplot( method="histodot", binwidth = .02 )  +
-    labs( x = "Relative Ratio of Sample Variances", y="" ) +
-    geom_vline( xintercept = 1, col="red" ) +
-    facet_wrap(~comp,nrow=1)+
-    theme(legend.position = "none",
-        panel.grid = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.y= element_blank(),
-        axis.ticks.y = element_blank(),
-        text=element_text(size=12),
-        strip.text=element_text(size=12,lineheight=0.5))
-
-tikz('figure/appendixOlsReloop.tex',width=4,height=2,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
-print(pOls2)
-dev.off()
-
-
-#### this one actually made it into the manuscript:
 
 pOls3 <- ggplot(newcomp,aes(ssMult))+#,fill=exGroup))+
     geom_dotplot( method="histodot", binwidth = .01 )  +
@@ -495,9 +569,13 @@ pOls3 <- ggplot(newcomp,aes(ssMult))+#,fill=exGroup))+
   scale_x_continuous(trans="log10",breaks=c(0.85,1,1.2,1.4,1.7,2,2.5))
 
 
-tikz('figure/OlsReloop.tex',width=5,height=6,standAlone=FALSE,packages= c(getOption('tikzLatexPackages'),'\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
+tikz('figure/OlsReloop.tex',width=5,height=6,standAlone=FALSE,
+  packages= c(getOption('tikzLatexPackages'),
+  '\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}'))
 print(pOls3)
 dev.off()
+
+print(pOls3)
 
 @
 

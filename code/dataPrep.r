@@ -1,9 +1,15 @@
-## combine remnant predictions w rest of data for first 22 experiments
-source('code/merge_predictions.R')
 
-## combine remnant predictions w rest of data for remaining 11 experiments
-source('code/merge2.r')
+if(exactReplication){
+  dat <- read.csv('data/updated_exp_predictions.csv')
+  dat2 <- read.csv('data/newExperiments.csv')
+  dat2$p_complete <- dat2$pcomplete1
+} else{
+  ## combine remnant predictions w rest of data for first 22 experiments
+  source('code/merge_predictions.R')
 
+  ## combine remnant predictions w rest of data for remaining 11 experiments
+  source('code/merge2.r')
+}
 
 dat2$problem_set <- dat2$target_sequence_id
 
