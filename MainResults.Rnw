@@ -162,7 +162,7 @@
 
 <<options,include=FALSE>>=
 knitr::opts_chunk$set(message=FALSE,warning=FALSE,echo=TRUE,
-                        error=FALSE,cache=TRUE,dev='tikz')
+                        error=FALSE,cache=FALSE,dev='tikz')
 @
 
 
@@ -236,14 +236,11 @@ However, the subsequent analysis is exaclty replicable---starting the same set o
 To do so, specify the following variable:
 
 <<exactReplication,echo=TRUE,cache=FALSE>>=
-exactReplication <- TRUE
+exactReplication <- FALSE
 @ 
 
-If you wish to re-run the deep learning models using the posted replication code---and generate slightly different results from what's in the paper (they shouldn't differ \emph{too} much)---then change the above code to:
+If you wish to re-run the deep learning models using the posted replication code---and generate slightly different results from what's in the paper (they shouldn't differ \emph{too} much)---then change the above code to `exactReplication <- FALSE`.
 
-<<exactReplicationFalse,echo=TRUE,eval=FALSE>>=
-exactReplication <- TRUE
-@ 
 
 <<seed,cache=FALSE>>=
 set.seed(365)
