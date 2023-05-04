@@ -1,5 +1,6 @@
 ### put predictions into main dataset
-df <- read.csv('data/updated_exp_predictions.csv')
+df <- read.csv('data/ThisOne.csv')
+
 pred <- read.csv('Python Code/Study_1/model_predictions.csv')
 
 pred <- subset(pred,pred$next_is_experiment == 1)
