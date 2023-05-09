@@ -104,6 +104,21 @@ plots <- function(ggDat){
 list(logPlot=logPlot,sqrtPlot=sqrtPlot,violin=violin,box=box)
 }
 
+plotAllDat <- function(study1,study2=NULL,Max1=NULL,Max2=NULL,crosswalk=NULL){
+    ggDat <- with(study1,makePlotDat(remDists,exDists,Max=Max1,crosswalk=crosswalk))
+
+    if(!is.null(study2)){
+        ggDat2 <- with(study2,makePlotDat(remDists,exDists,Max=Max2,crosswalk=crosswalk))
+        if(length(intersect(ggDat2$ex,ggDat$ex))){
+            if(is.numeric(ggDat2$ex)) ggDat2$ex <- ggDat2$ex+max(ggDat$ex) else warning('overlapping exp names')
+        }
+        ggDat <- rbind(ggDat,ggDat2)
+    }
+
+    ggDat
+}
+
+
 plotAll <- function(study1,study2,Max1=NULL,Max2=NULL,crosswalk=NULL){
     ggDat <- with(study1,makePlotDat(remDists,exDists,Max=Max1,crosswalk=crosswalk))
 
@@ -130,8 +145,8 @@ crosswalk <- sapply(fullres,function(x) attributes(x)$psid)
 
 
 ############ study 1
-load('remStudAvgStudy1.RData')
-load('exStudAvgStudy1.RData')
+load('../results/remStudAvgStudy1.RData')
+load('../results/exStudAvgStudy1.RData')
 
 study1 <- mahalDists(remStud,exStud,cols=2:18)#,samp=2000)
 
@@ -150,15 +165,15 @@ sum(study1$remDists>max(unlist(study1$exDists))) ### 4
 
 MM <- max(unlist(study1$exDists))
 
-study1plots <- plotAll(study1,Max1=MM,crosswalk=crosswalk)
+#study1plots <- plotAll(study1,Max1=MM,crosswalk=crosswalk)
 
-ggsave('logDistStudy1.jpg',plot=study1plots$logPlot,width=6.5,height=9,units='in')
-ggsave('sqrtDistStudy1.jpg',plot=study1plots$sqrtPlot,width=6.5,height=9,units='in')
+#ggsave('logDistStudy1.jpg',plot=study1plots$logPlot,width=6.5,height=9,units='in')
+#ggsave('sqrtDistStudy1.jpg',plot=study1plots$sqrtPlot,width=6.5,height=9,units='in')
 
 
 ############ study 2
-load('remStudAvgStudy2.RData')
-load('exStudAvgStudy2.RData')
+load('../results/remStudAvgStudy2.RData')
+load('../results/exStudAvgStudy2.RData')
 
 exStud$experiment <- exStud$sequence_id_target
 
@@ -175,38 +190,50 @@ MM2 <- max(unlist(study2$exDists))
 sum(study2$remDists>MM2)
 mean(study2$remDists>MM2)
 
-study2plots <- plotAll(study2,crosswalk=crosswalk,Max1=MM2)
+#study2plots <- plotAll(study2,crosswalk=crosswalk,Max1=MM2)
 
-ggsave('logDistStudy2.jpg',plot=study2plots$logPlot,width=6.5,height=9,units='in')
-ggsave('sqrtDistStudy2.jpg',plot=study2plots$sqrtPlot,width=6.5,height=9,units='in')
+#ggsave('logDistStudy2.jpg',plot=study2plots$logPlot,width=6.5,height=9,units='in')
+#ggsave('sqrtDistStudy2.jpg',plot=study2plots$sqrtPlot,width=6.5,height=9,units='in')
 
-plotTogether <- plotAll(study1,study2,Max1=MM,Max2=MM2,crosswalk=crosswalk)
-ggsave('violinPlots.jpg',plot=plotTogether$violin,width=6.5,height=9,units='in')
+#plotTogether <- plotAll(study1,study2,Max1=MM,Max2=MM2,crosswalk=crosswalk)
+#ggsave('violinPlots.jpg',plot=plotTogether$violin,width=6.5,height=9,units='in')
 
 rebarImp <- crosswalk
 names(rebarImp) <- vapply(names(rebarImp),function(nn) round(100*fullres[[nn]]['rebar','improvement'],2),1.1)
 
-plotsByRebarImp <- plotAll(study1,study2,Max1=MM,crosswalk=rebarImp)
-ggsave('violinPlotsByRebarImp.jpg',plot=plotsByRebarImp$violin,width=6.5,height=9,units='in')
-ggsave('boxPlotsByRebarImp.jpg',plot=plotsByRebarImp$box,width=6.5,height=9,units='in')
+#plotsByRebarImp <- plotAll(study1,study2,Max1=MM,crosswalk=rebarImp)
+#ggsave('violinPlotsByRebarImp.jpg',plot=plotsByRebarImp$violin,width=6.5,height=9,units='in')
+#ggsave('boxPlotsByRebarImp.jpg',plot=plotsByRebarImp$box,width=6.5,height=9,units='in')
+
+#### boxplots orderd by Rebar, with experiment numbersgg
+ggDat <- plotAllDat(study1,study2,Max1=MM,crosswalk=crosswalk)
+
+#### take out RCT with no covariates
+ggDat <- subset(ggDat,as.numeric(ex)<100)
+ggDat$ex <- factor(ggDat$ex,levels=names(crosswalk)[order(as.numeric(names(rebarImp)))])
+ggDat$exRemAbv <- ifelse(ggDat$exRem=='RCT','RCT','Rem.')
+box <- ggplot(ggDat,aes(x=exRemAbv,y=logDist,fill=exRem))+
+        geom_boxplot()+facet_wrap(~ex)+labs(x=NULL,y='Log Distance',fill=NULL)+theme(legend.pos='bottom')
+ggsave('boxPlotsOrdNamed.pdf',plot=box,width=6,height=7.5,units='in')
+
 
 
 ### means?
-means1 <- data.frame(ps=names(study1$exDists),meanDist=vapply(study1$exDists,mean,1.1),
-                     rebarImp=vapply(names(study1$exDists), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['rebar','improvement'],1.1),
-                     reloopImp=vapply(names(study1$exDists), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['strat1','improvement'],1.1))
+#means1 <- data.frame(ps=names(study1$exDists),meanDist=vapply(study1$exDists,mean,1.1),
+#                     rebarImp=vapply(names(study1$exDists), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['rebar','improvement'],1.1),
+#                     reloopImp=vapply(names(study1$exDists), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['strat1','improvement'],1.1))
 
-with(means1,plot(meanDist,rebarImp))
-with(means1,abline(lm(rebarImp~meanDist)))
-with(means1,plot(meanDist,reloopImp))
-with(means1,abline(lm(reloopImp~meanDist)))
+#with(means1,plot(meanDist,rebarImp))
+#with(means1,abline(lm(rebarImp~meanDist)))
+#with(means1,plot(meanDist,reloopImp))
+#with(means1,abline(lm(reloopImp~meanDist)))
 
 
-means2 <- data.frame(ps=names(study2$exDists[-7]),meanDist=vapply(study2$exDists[-7],mean,1.1),
-                     rebarImp=vapply(names(study2$exDists[-7]), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['rebar','improvement'],1.1),
-                     reloopImp=vapply(names(study2$exDists[-7]), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['strat1','improvement'],1.1))
+#means2 <- data.frame(ps=names(study2$exDists[-7]),meanDist=vapply(study2$exDists[-7],mean,1.1),
+#                     rebarImp=vapply(names(study2$exDists[-7]), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['rebar','improvement'],1.1),
+ #                    reloopImp=vapply(names(study2$exDists[-7]), function(nn) fullres[[names(crosswalk)[crosswalk==nn]]]['strat1','improvement'],1.1))
 
-with(means2,plot(meanDist,rebarImp))
-with(means2,abline(lm(rebarImp~meanDist)))
-with(means2,plot(meanDist,reloopImp))
-with(means2,abline(lm(reloopImp~meanDist)))
+#with(means2,plot(meanDist,rebarImp))
+#with(means2,abline(lm(rebarImp~meanDist)))
+#with(means2,plot(meanDist,reloopImp))
+#with(means2,abline(lm(reloopImp~meanDist)))

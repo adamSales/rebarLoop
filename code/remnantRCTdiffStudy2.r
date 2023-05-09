@@ -1,4 +1,6 @@
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(readr)
 
 rem <- read_csv('Python Code/Study_2/resources/remnant.csv')
 

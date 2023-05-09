@@ -236,7 +236,7 @@ However, the subsequent analysis is exaclty replicable---starting the same set o
 To do so, specify the following variable:
 
 <<exactReplication,echo=TRUE,cache=FALSE>>=
-exactReplication <- FALSE
+exactReplication <- TRUE
 @ 
 
 If you wish to re-run the deep learning models using the posted replication code---and generate slightly different results from what's in the paper (they shouldn't differ \emph{too} much)---then change the above code to `exactReplication <- FALSE`.

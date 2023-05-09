@@ -1,4 +1,6 @@
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(readr)
 library(randomForest)
 
 rem <- read_csv('Python Code/Study_1/resources/remnant.csv')
