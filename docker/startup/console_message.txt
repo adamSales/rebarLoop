@@ -1,0 +1,13 @@
+
+\033[1;36mTo browse the contents of the docker image, please enter the following URL into your web browswer:
+
+\033[1;33m          http://localhost/
+
+\033[1;36mNote: You may wish to run all of the analyses first.  To do so, type 
+
+\033[1;94m          make
+
+\033[1;36min this terminal, and press enter.  This will download the required data, run the analyses and generate outputs.
+
+\033[1;36mTo quit, type\033[0;33m exit\033[1;36m and press enter.
+\e[0m   

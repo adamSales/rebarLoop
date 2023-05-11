@@ -1,0 +1,166 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,md:myst,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.10.1
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+# Setup
+
+
+## Files
+
+Project base directory:
+
+```{r}
+projectdir = '/home/rep/'
+```
+
+**Input files:**
+
+```{r}
+TACO1              = paste0(projectdir, 'data/original/Study1 Original 22 Experiments/TreatmentAssignment_Covariate_Outcome_Study1.csv')
+TACO2              = paste0(projectdir, 'data/original/Study2 11 New Experiments/TreatmentAssignment_Covariate_Outcome_Study2.csv')
+model1_predictions = paste0(projectdir, 'data/processed/model_predictions1.csv')
+model2_predictions = paste0(projectdir, 'data/processed/model_predictions2.csv')
+```
+
+**Output files:**
+
+```{r}
+cleaned_data       = paste0(projectdir, 'data/processed/cleaned_data.rda')
+```
+
+## Packages
+
+```{r}
+library(dplyr)
+```
+
+# Merge Data
+
+
+Here we merge the data from the 22 experiments in Study 1 and the 11 experiments from Study 1, and also add in the predictions obtained from the remnant models.
+
+```{r}
+## combine remnant predictions w rest of data for first 22 experiments
+
+### put predictions into main dataset
+df <- read.csv(TACO1)
+pred <- read.csv(model1_predictions)
+
+pred <- subset(pred,pred$next_is_experiment == 1)
+pred$link <- as.character(pred$link)
+df$id <- as.character(paste(df$User.ID,df$problem_set,sep='_'))
+
+dat <- df
+dat$p_complete <- rep(NA,nrow(dat))
+
+for (i in 1:nrow(df)) {
+  p = subset(pred,as.character(pred$link) == df$id[i])
+  if (nrow(p) > 1) {
+   print(paste('problem with',df$id,sep=' '))
+  }
+  else if (nrow(p) == 1) {
+    dat$p_complete[i] <- p$p_complete[1]
+    dat$p_inverted_mastery[i] <- p$p_inv_mastery[1]
+  }
+  else {
+    sub_p <- subset(pred,pred$experiment==df$problem_set[i])
+    dat$p_complete[i] <- mean(na.omit(sub_p$complete))
+    dat$p_inverted_mastery[i] <- mean(na.omit(sub_p$p_inv_mastery))
+  }
+}
+
+dat$p_complete <- ifelse(dat$p_complete > 1, 1,dat$p_complete)
+dat$p_complete <- ifelse(dat$p_complete < 0, 0,dat$p_complete)
+```
+
+```{r}
+## combine remnant predictions w rest of data for remaining 11 experiments
+
+pred2 <- read.csv(model2_predictions)
+dat2 <- read.csv(TACO2)
+
+dat2 <- merge(pred2,dat2,all.y=TRUE,all.x=FALSE)
+
+dat2$p_complete <- dat2$pcomplete
+```
+
+```{r}
+dat2$problem_set <- dat2$target_sequence_id
+
+dat$condition <- ifelse(dat$InferredCondition=='E',1,0)
+
+dat <- rbind(dat[,intersect(names(dat),names(dat2))],dat2[,intersect(names(dat),names(dat2))])
+
+## this is the list of experiments
+dat$problem_set <- as.factor(dat$problem_set)
+
+### analysis for "complete"; drop subjects for whom "predicted" complete is NA
+dat <- droplevels(dat[!is.na(dat$p_complete),])
+
+dat$male <- dat$Guessed.Gender=='\"Male\"'
+dat$unknownGender <- dat$Guessed.Gender=='\"Uknown\"'
+
+dat$treatment <- dat$condition
+
+dat$residual <- dat$complete-dat$p_complete
+```
+
+# Imputing Missing Covariates
+
+
+To impute missing covariate values, when possible we imputed the classroom mean covariate value for students working on that skill builder.  When there were no other available values for a covariate for students in the same classroom working on the same skill builder, we imputed with the global mean of students working on that skill builder.  Since covariates are all pre-treatment and the imputation did not depend on treatment status, the imputed covariates are themselves covariates, measured for all subjects.  Therefore, we need not correct for the imputation scheme in our treatment effect estimation.
+
+
+Names of covariates for within-sample covariate adjustment:
+
+```{r}
+covNames <- c(
+    "Prior.Problem.Count",
+    "Prior.Percent.Correct",
+    "Prior.Assignments.Assigned",
+    "Prior.Percent.Completion",
+    "Prior.Class.Percent.Completion",
+    "Prior.Homework.Assigned",
+    "Prior.Homework.Percent.Completion",
+    "Prior.Class.Homework.Percent.Completion",
+    "male",
+    "unknownGender")
+```
+
+Imputation:
+
+```{r}
+dat_preimpute <- dat     # Save original version, too.
+
+### first fill in with class/problem_set mean
+### if that doesn't work, fill in with problem_set mean
+dat <- dat%>%
+  group_by(Class.ID,problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  group_by(problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  ungroup()
+
+stopifnot(all(sapply(covNames,function(x) mean(is.finite(dat[[x]])))==1))
+
+dat_postimpute <- dat
+```
+
+```{r}
+save(dat_preimpute, dat_postimpute, covNames, file=cleaned_data)
+```

@@ -1,0 +1,534 @@
+---
+output: 
+  pdf_document:
+    extra_dependencies:
+      tikz: null
+      bm: null
+title: Tables, Figures, and Numerical results
+jupyter:
+  jupytext:
+    formats: ipynb,md:myst,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.10.1
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+# Setup
+
+## Files
+
+Project base directory:
+
+```{r}
+projectdir = '/home/rep/'
+```
+
+**Input files:**
+
+```{r}
+cleaned_data    = paste0(projectdir, 'data/processed/cleaned_data.rda')
+fullresfilename = paste0(projectdir, 'output/results/fullres.RData')
+olsfilename     = paste0(projectdir, 'output/results/ols.RData')
+```
+
+**Output directories:**
+
+```{r}
+resultsdir = paste0(projectdir, 'output/results/')
+tabledir   = paste0(projectdir, 'output/tables/')
+figuredir  = paste0(projectdir, 'output/figures/')
+```
+
+Latex notation file.  Used when producing tables and `tikz` figures.
+
+```{r}
+latexnotation = paste0(projectdir, 'misc/notation.tex')
+```
+
+\input{../misc/notation.tex}
+
+## Packages
+
+```{r}
+library(scales)
+library(dplyr)
+library(ggplot2)
+library(tibble)
+library(purrr)
+library(tidyr)
+library(kableExtra)
+library(xtable)
+library(IRdisplay)
+library(tikzDevice)
+library(forcats)
+```
+
+## Load data
+
+Load data from R data files:
+
+```{r}
+load(cleaned_data)
+load(fullresfilename)
+load(olsfilename)
+ls()
+```
+
+# Numerical Results
+
+The following code creates a dataset called `comparisons` that includes the sampling variance ratios comparing each method to the others, for each problem set.  It also produces a table (which is not in the manuscript) giving the estimated standard error for each method and each experiment.
+
+```{r}
+methodName=c(
+               ReLOOPEN='\\trcpen',
+               ReLOOP='\\trc',
+               Rebar='\\trebar',
+               Loop='\\tss[\\bx,\\mathrm{RF}]',
+               SimpleDifference='\\tsd'
+           )
+           
+pd <- map_dfr(
+    names(fullres),
+    function(x) cbind(as.data.frame(fullres[[x]]),
+      method=factor(rownames(fullres[[x]]),
+        levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
+      rnk=x))%>%
+    select(-improvement)%>%
+    rename(experiment=rnk)%>%
+    filter(method!='strat2')%>%
+    mutate(method=fct_recode(.$method,`ReLOOP`='strat1',`ReLOOPEN`='strat3',Loop='justCovs',Rebar='rebar',`SimpleDifference`='simpDiff'))%>%
+    mutate(method=factor(method,c( "ReLOOPEN", "ReLOOP", "Loop", "Rebar", "SimpleDifference" ), ordered = TRUE )
+           )
+
+pd3 <- pd %>% 
+  group_by(experiment)%>%
+  mutate(ssMult=se[method=='SimpleDifference']^2/se^2,
+         percent = se / se[method=='SimpleDifference'] ) %>%
+  ungroup() %>%
+  group_by(method) %>%
+  mutate(lab=as.character(experiment)) %>%
+  ungroup()
+
+pwide = pd3 %>% dplyr::select(method, experiment, se ) %>% spread( method, se )
+
+save(pwide,file=paste0(resultsdir, 'SEs.RData'))
+
+make_comp = function( A, B ,pwide) {
+    data.frame(comp = paste0('\n$\\frac{\\varhat(',methodName[as.character(B)],')}{\\varhat(',methodName[as.character(A)],')}$\n'),
+               experiment=pwide$experiment,
+               ssMult = pwide[[B]]^2 / pwide[[A]]^2,
+               method1=as.character(A),
+               method2=as.character(B),
+               stringsAsFactors = FALSE )
+}
+
+combos = expand.grid( A = levels( pd3$method ),
+                      B = levels( pd3$method ) )
+combos = filter( combos, as.numeric(A) < as.numeric(B) )
+combos = mutate( combos,
+                 A = as.character(A),
+                 B = as.character(B) )
+
+comparisons = pmap_df( combos, make_comp ,pwide=pwide)
+
+## get the right order
+methodOrd=rev(c('SimpleDifference','Rebar','Loop','ReLOOP','ReLOOPEN'))
+comparisons$method1 <- factor(comparisons$method1,levels=methodOrd)
+comparisons$method2 <- factor(comparisons$method2,levels=methodOrd)
+
+compLevs=rev(unique(comparisons$comp[order(as.numeric(comparisons$method2),as.numeric(comparisons$method1))]))
+
+comparisons$comp <- factor(comparisons$comp,levels=compLevs)
+
+save(comparisons,file=paste0(resultsdir, 'reloopComparisons.RData'))
+```
+
+The following code reproduces some of the numbers in the manuscript text describing the results:
+
+```{r}
+compTab <- comparisons %>% 
+  group_by(method1,method2) %>%
+  summarize(
+            worse=sum(ssMult<0.975),
+            equal=sum(abs(ssMult-1)<0.025),
+            better=sum(ssMult>1.025),
+            best=max(ssMult),
+            bestPS=experiment[which.max(ssMult)],
+            best2=sort(ssMult,decreasing=TRUE)[2],
+            best2ps=experiment[rank(ssMult)==32],
+            worst=min(ssMult),
+            worstPS=experiment[which.min(ssMult)]
+            ) %>%
+    ungroup() %>%
+    mutate(across(starts_with('method'),
+        ~paste0('$',methodName[as.character(.)],'$')))
+
+compTab %>% 
+    select(method1:bestPS) %>% 
+    kable(escape = FALSE, format="latex") %>% 
+    as.character %>% 
+    cat(file=paste0(tabledir, 'compTab1.tex'))
+    
+compTab %>% 
+    select(method1,method2,best2:worstPS) %>% 
+    kable(escape=FALSE, format="latex") %>% 
+    as.character %>% 
+    cat(file=paste0(tabledir, 'compTab2.tex'))
+```
+
+
+```{r}
+pwidePrint <- pwide
+names(pwidePrint)[-1] <- paste0('$',methodName[names(pwidePrint)[-1]],'$')
+SEtab = kable(pwidePrint,row.names=FALSE,
+     caption="Estimated standard error for the ATE
+     in each skill builder, using each method 
+     discussed in the manuscript",
+     label="tab:SEs",digits=3,escape=FALSE,format="latex")
+cat(SEtab, file=paste0(tabledir, 'SETab.tex'))
+```
+
+Display the results here (if compiling to latex):
+
+\input{../output/tables/compTab1.tex}
+
+\input{../output/tables/compTab2.tex}
+
+\input{../output/tables/SETab.tex}
+
+
+# Tables
+
+
+### Table 1
+
+```{r}
+dat = dat_preimpute
+
+covTable <-
+    covNames%>%
+    setdiff(c('male','unknownGender'))%>%
+    map_dfr(
+        .,
+        function(x){
+            tibble(
+                Covariate=gsub('Prior.','',x,fixed=TRUE)%>%gsub('.',' ',.,fixed=TRUE),
+                Mean=mean(dat[[x]],na.rm=TRUE),
+                SD=sd(dat[[x]],na.rm=TRUE),
+                `% Missing`=round(mean(is.na(dat[[x]]))*100)
+                )
+        }
+    )%>%
+    column_to_rownames("Covariate")%>%
+    xtable(
+        digits=c(0,2,2,0),
+        caption="Summary statistics for aggregate prior ASSISTments performance used as within-sample covariates: number of problems worked, and assignments and homework assigned, percent of problems correct on first try, assignments completed, and homework completed at the student and class level, and students' genders, as guessed by ASSISTments based on first names.",
+        label='tab:covariates'
+    )
+
+ATR <- list(
+              pos=list(8),
+              command=paste0(
+                  'Guessed Gender',
+                  '&Male: ', round(mean(dat$Guessed.Gender=='\"Male\"')*100),'\\%',
+                  '&Female: ',round(mean(dat$Guessed.Gender=='\"Female\"')*100),'\\%',
+                  '&Unknown: ',round(mean(dat$Guessed.Gender=='\"Uknown\"')*100),'\\%',
+                  '\\\\\n'
+              )
+    )
+
+print(covTable, add.to.row=ATR, file=paste0(tabledir, 'covtab.tex'))
+```
+
+\input{../output/tables/covtab.tex}
+
+### Table 2
+
+```{r}
+dat = dat_withps #The numbering of the experiments derives from the estimated standard errors, so use dat_withps, which comes after effect estimation.
+
+tab <- dat%>%
+    group_by(ps,treatment)%>%
+    summarize(n=n(),percomplete=round(mean(complete)*100))%>%
+    ungroup()%>%
+    pivot_wider(names_from=treatment,values_from=c(n,percomplete))
+
+tab <- cbind(tab[1:17,],rbind(tab[18:33,],rep(NA,5)))
+
+ttt <- kbl(tab,
+           format='latex',
+           booktabs=TRUE,
+           col.names=rep(c("Experiment",rep(c("Trt","Ctl"),2)),2),
+           caption="Sample sizes and \\% homework completion---the outcome of interest---by treatment group in each of the 33 A/B tests.",          
+           label="info")%>%
+    kable_styling()%>%
+    column_spec(5,border_right=TRUE)%>%
+    add_header_above(rep(c(" "=1,"n"=2,"% Complete"=2),2))
+
+cat(ttt, file=paste0(tabledir, 'infoTab.tex'))
+```
+
+\input{../output/tables/infoTab.tex}
+
+# Figures
+
+```{r}
+options(list(tikzLatexPackages=c(
+  getOption('tikzLatexPackages'),
+  '\\usepackage{amsmath,amsfonts,amsthm,amssymb,thmtools}',
+  '\\usepackage{bm}', 
+  readLines(latexnotation))))
+```
+
+### Figure 1
+
+```{r}
+p <- comparisons%>%
+    filter(method1%in%c('ReLOOP','Rebar'),
+    method2%in%c('ReLOOPEN','Rebar','SimpleDifference'))%>%
+    ggplot(aes(ssMult))+
+    geom_dotplot( method="histodot", binwidth = .05 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+
+tikz(paste0(figuredir, 'fig4.tex'),width=6.4,height=2,standAlone=FALSE)
+print(p)
+dev.off()
+```
+
+\input{../output/figures/fig4.tex}
+
+### Figure 2
+
+```{r}
+p <- comparisons%>%
+    filter(method1%in%c('ReLOOPEN'),
+    method2%in%c('Loop','ReLOOP','SimpleDifference'))%>%
+    mutate(comp=factor(comp,levels=unique(as.character(comp))))%>%
+ggplot(aes(ssMult))+
+    geom_dotplot( method="histodot", binwidth = .05 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=1)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))
+
+tikz(paste0(figuredir, 'fig5alt.tex'),width=6.4,height=2,standAlone=FALSE)
+print(p)
+dev.off()
+```
+
+\input{../output/figures/fig5alt.tex}
+
+### Figure 3
+
+
+The following creates Figure 3 (plus some other plots)
+
+This estimates the effects and their SEs:
+
+```{r}
+methodName=c(
+               ReLOOPEN='\\hat{\\tau}^{\\mathrm{SS}}[\\tilde{\\bm{x}},\\mathrm{EN}]',
+               ReLOOP='\\hat{\\tau}^{\\mathrm{SS}}[x^r,\\mathrm{LS}]',
+               Rebar='\\trebar',
+               Loop='\\hat{\\tau}^{\\mathrm{SS}}[\\bm{x},\\mathrm{RF}]',
+               SimpleDifference='\\hat{\\tau}^{\\mathrm{DM}}'
+           )
+
+methodNameLin=c(
+               ReLOOPEN='\\tau^{Lin}[\\tilde{\\bm{x}}]',
+               ReLOOP='\\tau^{Lin}[x^r]',
+               Loop='\\tau^{Lin}[\\bm{x}]',
+               SimpleDifference='\\hat{\\tau}^{\\mathrm{DM}}'
+           )
+
+methodNameAlt=c(
+               ReLOOPEN='\\hat{\\beta}[\\tilde{\\bm{x}}]',
+               ReLOOP='\\hat{\\beta}[x^r]',
+               Loop='\\hat{\\beta}[\\bm{x}]',
+               SimpleDifference='\\hat{\\tau}^{\\mathrm{DM}}'
+           )
+
+lin <- sapply(ols,
+              function(x){
+                x <- x[c('simpDiff','reloopLin','reloopPlusLin','lin'),]
+                rownames(x) <- c('simpDiff','strat1','strat3','justCovs')
+                x},
+              simplify=FALSE)
+
+alt <- sapply(ols,
+              function(x){
+                x <- x[c('simpDiff','reloopAlt','reloopPlusAlt','ancova'),]
+                rownames(x) <- c('simpDiff','strat1','strat3','justCovs')
+                x},
+              simplify=FALSE)
+
+
+pdLin <- map_dfr(names(lin),
+    function(x) cbind(as.data.frame(lin[[x]]),
+                      method=factor(rownames(lin[[x]]),
+        levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
+      rnk=x))%>%
+    select(-improvement)%>%
+    rename(experiment=rnk)%>%
+    filter(method!='strat2')%>%
+    mutate(method=fct_recode(.$method,`ReLOOP`='strat1',`ReLOOPEN`='strat3',Loop='justCovs',Rebar='rebar',`SimpleDifference`='simpDiff'))%>%
+    mutate(method=factor(method,c( "ReLOOPEN", "ReLOOP", "Loop", "Rebar", "SimpleDifference" ), ordered = TRUE )
+           )
+
+pdAlt <- map_dfr(names(alt),
+    function(x) cbind(as.data.frame(alt[[x]]),
+                      method=factor(rownames(alt[[x]]),
+        levels=c('simpDiff','justCovs','rebar','strat1','strat2','strat3')),
+      rnk=x))%>%
+    select(-improvement)%>%
+    rename(experiment=rnk)%>%
+    filter(method!='strat2')%>%
+    mutate(method=fct_recode(.$method,`ReLOOP`='strat1',`ReLOOPEN`='strat3',Loop='justCovs',Rebar='rebar',`SimpleDifference`='simpDiff'))%>%
+    mutate(method=factor(method,c( "ReLOOPEN", "ReLOOP", "Loop", "Rebar", "SimpleDifference" ), ordered = TRUE )
+           )
+
+
+pd3Lin <- pdLin%>%group_by(experiment)%>%
+  mutate(ssMult=se[method=='SimpleDifference']^2/se^2,
+         percent = se / se[method=='SimpleDifference'] ) %>%
+  ungroup() %>%
+  group_by(method) %>%
+  mutate(lab=as.character(experiment)) %>%
+  ungroup()
+
+pd3Alt <- pdAlt%>%group_by(experiment)%>%
+  mutate(ssMult=se[method=='SimpleDifference']^2/se^2,
+         percent = se / se[method=='SimpleDifference'] ) %>%
+  ungroup() %>%
+  group_by(method) %>%
+  mutate(lab=as.character(experiment)) %>%
+  ungroup()
+
+pwideLin = pd3Lin %>% dplyr::select(method, experiment, se ) %>%
+  pivot_wider('experiment',names_from='method',values_from='se')
+
+pwideAlt = pd3Alt %>% dplyr::select(method, experiment, se ) %>%
+  pivot_wider('experiment',names_from='method',values_from='se')
+
+
+make_comp = function( A, B ,pwide,methodName) {
+    data.frame( comp = paste0('\n$\\frac{\\hat{\\mathbb{V}}(',methodName[as.character(B)],')}{\\hat{\\mathbb{V}}(',methodName[as.character(A)],')}$\n'),
+             experiment=pwide$experiment,
+             ssMult = pwide[[B]]^2 / pwide[[A]]^2,
+             method1=as.character(A),
+             method2=as.character(B),
+             stringsAsFactors = FALSE )
+}
+
+combos = expand.grid( A = levels( droplevels(pd3Lin$method )),
+                      B = levels( droplevels(pd3Lin$method ) ))
+combos = filter( combos, as.numeric(A) < as.numeric(B) )
+combos = mutate( combos,
+                 A = as.character(A),
+                 B = as.character(B) )
+
+comparisonsLin = pmap_dfr( combos, make_comp ,pwide=pwideLin,methodName=methodNameLin)
+comparisonsAlt = pmap_dfr( combos, make_comp ,pwide=pwideAlt,methodName=methodNameAlt)
+
+### get the right order
+methodOrd=rev(c('SimpleDifference','Rebar','Loop','ReLOOP','ReLOOPEN'))
+comparisonsLin$method1 <- factor(comparisonsLin$method1,levels=methodOrd)
+comparisonsLin$method2 <- factor(comparisonsLin$method2,levels=methodOrd)
+
+compLevs=rev(unique(comparisonsLin$comp[order(as.numeric(comparisonsLin$method2),as.numeric(comparisonsLin$method1))]))
+
+comparisonsLin$comp <- factor(comparisonsLin$comp,levels=compLevs)
+
+
+comparisonsAlt$method1 <- factor(comparisonsAlt$method1,levels=methodOrd)
+comparisonsAlt$method2 <- factor(comparisonsAlt$method2,levels=methodOrd)
+
+compLevs=rev(unique(comparisonsAlt$comp[order(as.numeric(comparisonsAlt$method2),as.numeric(comparisonsAlt$method1))]))
+
+comparisonsAlt$comp <- factor(comparisonsAlt$comp,levels=compLevs)
+
+### compare to reloop
+
+crosswalk <- sapply(fullres,function(x) attributes(x)$psid)
+pwideLin$experiment=vapply(pwideLin$experiment,function(ee) names(crosswalk)[crosswalk==ee],'a')
+
+pwideCompLin <- merge(pwide,pwideLin,by='experiment',suffixes=c('','Lin'))
+comps <- data.frame(A=names(pwideLin)[-c(1,2)],B=paste0(names(pwideLin)[-c(1,2)],'Lin'))
+
+namesReloopLin <- c(methodName,setNames(methodNameLin,paste0(names(methodNameLin),'Lin')))
+
+comparisonsReloopLin <- pmap_dfr(comps,make_comp,pwide=pwideCompLin,methodName=namesReloopLin)
+
+pwideAlt$experiment=vapply(pwideAlt$experiment,function(ee) names(crosswalk)[crosswalk==ee],'a')
+
+pwideCompAlt <- merge(pwide,pwideAlt,by='experiment',suffixes=c('','Alt'))
+comps <- data.frame(A=names(pwideLin)[-c(1,2)],B=paste0(names(pwideLin)[-c(1,2)],'Alt'))
+
+namesReloopAlt <- c(methodName,setNames(methodNameAlt,paste0(names(methodNameLin),'Alt')))
+
+comparisonsReloopAlt <- pmap_dfr(comps,make_comp,pwide=pwideCompAlt,methodName=namesReloopAlt)
+
+
+newcomp <- bind_rows(
+  filter(comparisons,method2=='SimpleDifference',startsWith(as.character(method1),'ReLOOP')),
+  filter(comparisonsAlt,method2=='SimpleDifference',startsWith(as.character(method1),'ReLOOP')),
+  filter(comparisonsReloopAlt,startsWith(as.character(method1),'ReLOOP')))
+
+
+newcomp$comp <- gsub('\\\\varhat','\\\\hat{\\\\mathbb{V}}',newcomp$comp)
+newcomp$comp <- gsub('\\\\trcpen','\\\\hat{\\\\tau}^{\\\\mathrm{SS}}[\\\\tilde{\\\\bm{x}},\\\\mathrm{EN}]',newcomp$comp)
+newcomp$comp <- gsub('\\\\trc','\\\\hat{\\\\tau}^{\\\\mathrm{SS}}[x^r,\\\\mathrm{LS}]',newcomp$comp)
+newcomp$comp <- gsub('\\\\tsd','\\\\hat{\\\\tau}^{\\\\mathrm{DM}}',newcomp$comp)
+
+newcomp$comp <- factor(newcomp$comp,
+                       levels=c(
+                         '\n$\\frac{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{DM}})}{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{SS}}[x^r,\\mathrm{LS}])}$\n',
+                         '\n$\\frac{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{DM}})}{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{SS}}[\\tilde{\\bm{x}},\\mathrm{EN}])}$\n',
+                         '\n$\\frac{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{DM}})}{\\hat{\\mathbb{V}}(\\hat{\\beta}[x^r])}$\n',
+                         '\n$\\frac{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{DM}})}{\\hat{\\mathbb{V}}(\\hat{\\beta}[\\tilde{\\bm{x}}])}$\n',
+                         '\n$\\frac{\\hat{\\mathbb{V}}(\\hat{\\beta}[x^r])}{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{SS}}[x^r,\\mathrm{LS}])}$\n',
+                         '\n$\\frac{\\hat{\\mathbb{V}}(\\hat{\\beta}[\\tilde{\\bm{x}}])}{\\hat{\\mathbb{V}}(\\hat{\\tau}^{\\mathrm{SS}}[\\tilde{\\bm{x}},\\mathrm{EN}])}$\n'))
+```
+
+```{r}
+pOls3 <- ggplot(newcomp,aes(ssMult))+
+    geom_dotplot( method="histodot", binwidth = .01 )  +
+    labs( x = "Relative Ratio of Sample Variances", y="" ) +
+    geom_vline( xintercept = 1, col="red" ) +
+    facet_wrap(~comp,nrow=3)+
+    theme(legend.position = "none",
+        panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y= element_blank(),
+        axis.ticks.y = element_blank(),
+        text=element_text(size=12),
+        strip.text=element_text(size=12,lineheight=0.5))+
+  scale_x_continuous(trans="log10",breaks=c(0.85,1,1.2,1.4,1.7,2,2.5))
+
+tikz(paste0(figuredir, 'OlsReloop.tex'),width=5,height=6,standAlone=FALSE)
+print(pOls3)
+dev.off()
+```
+
+\input{../output/figures/OlsReloop.tex}

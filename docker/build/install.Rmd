@@ -1,0 +1,82 @@
+---
+title: Configure docker
+---
+
+# Install ubuntu packages
+
+```{bash}
+apt update
+apt install -y python3-venv         # for virtual environment
+apt install -y libpq-dev            # for psycopg2
+apt install -y libfontconfig1-dev   # for systemfonts
+apt install -y texlive-latex-extra  # for tikzDevice
+apt clean
+```
+
+# Install R packages
+
+Install `tikzDevice` for outputing latex figures.  Install `estimatr` for design-based regression estimators.
+
+```{r}
+install.packages(c("tikzDevice", "estimatr"))
+```
+
+Finally, we want to install `kableExtra`.  This requires `svglite`, but the most recent version of `svglite` throws an error when installing.  Thus, we use a previous version which must be installed manually.  A dependency of `svglite` is `systemfonts`, hence the following:
+
+First install `systemfonts`:
+
+```{r}
+install.packages(c("systemfonts"))
+```
+
+Then `svglite`:
+
+```{bash}
+curl -o /tmp/svglite https://cran.r-project.org/src/contrib/Archive/svglite/svglite_2.1.0.tar.gz
+R CMD INSTALL /tmp/svglite
+rm -rf /tmp/svglite*
+```
+
+Then `kableExtra`:
+
+```{r}
+install.packages(c("kableExtra"))
+```
+
+Finally, we want to install the `loop.estimator` package.  This requires `randomForest`, which must be installed manually, since the latest version on CRAN requires a newer version of R than is in the docker base image.
+
+```{bash}
+curl -o /tmp/randomForest https://cran.r-project.org/src/contrib/Archive/randomForest/randomForest_4.6-14.tar.gz
+R CMD INSTALL /tmp/randomForest
+rm -rf /tmp/randomForest*
+```
+
+And now install `loop.estimator`:
+
+```{bash}
+R CMD INSTALL /home/rep/package/loop.estimator
+```
+
+R CMD INSTALL /home/rep/package/loop.estimator
+
+# Install python packages
+
+We will install the python packages in their own virtual environment.  The directory will be `/pyvenv` but will be owned by the `rep` user.  We will add a kernel for this virtual environment to jupyter, and name it `virtenv`.
+
+```{bash}
+mkdir /pyvenv && chown rep:rep /pyvenv
+su - rep -c 'python -m venv /pyvenv'
+su - rep -c '/pyvenv/bin/pip install ipykernel'
+su - rep -c '/pyvenv/bin/python -m ipykernel install --user --name=virtenv'
+su - rep -c 'mkdir -p /tmp/rep/local/share/jupyter'
+su - rep -c 'cp -a /home/rep/.local/share/jupyter/kernels /tmp/rep/local/share/jupyter'
+```
+
+Now we install the desired packages:
+
+```{bash}
+su - rep -c '/pyvenv/bin/pip install tensorflow psycopg2 levenshtein nltk pandas session_info scikit-learn skll'
+su - rep -c 'cd /pyvenv && git clone https://github.com/CODAIT/graph_def_editor.git'
+su - rep -c '/pyvenv/bin/pip install /pyvenv/graph_def_editor'
+su - rep -c 'rm -rf /pyvenv/graph_def_editor'
+```

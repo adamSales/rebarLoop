@@ -1,0 +1,254 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,md:myst,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.10.1
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+# Setup
+
+
+## Files
+
+Project base directory:
+
+```{r}
+projectdir = '/home/rep/'
+```
+
+**Input files:**
+
+```{r}
+cleaned_data = paste0(projectdir, 'data/processed/cleaned_data.rda')
+```
+
+**Output files:**
+
+```{r}
+fullresfilename = paste0(projectdir, 'output/results/fullres.RData')
+olsfilename     = paste0(projectdir, 'output/results/ols.RData')
+```
+
+## Packages
+
+```{r}
+library(dplyr)
+library(loop.estimator)
+library(estimatr)
+```
+
+## Load data
+
+Load data from R data file:
+
+```{r}
+load(cleaned_data)
+ls()
+```
+
+Use data with imputed missing covariates
+
+```{r}
+dat = dat_postimpute
+dim(dat)
+head(dat,10)
+```
+
+# Main Analysis
+
+This is the main analysis, which ultimately is used to produce Figures 1 and 2 in the paper.
+
+## Define Estimators
+
+Here we define the estimators, using a standard format.  Most of these are wrapper functions to functions in the `loop.estimator` package.
+
+
+$\hat{\tau}^{\textrm{DM}}$ (difference-in-means)
+
+```{r}
+simpDiff <- function(datPS,covsPS,outcome='complete'){
+  Y <- datPS[[outcome]]
+  Z <- datPS$treatment
+  est <- mean(Y[Z==1])- mean(Y[Z==0])
+  Vhat <- var(Y[Z==1])/sum(Z==1)+var(Y[Z==0])/sum(Z==0)
+  return(c(tauhat=est,varhat=Vhat))
+}
+```
+
+$\hat{\tau}^{\textrm{RE}}$ (difference-in-means on residuals)
+
+```{r}
+rebar <- function(datPS,covsPS)
+  simpDiff(datPS,covsPS,outcome='residual')
+```
+
+$\hat{\tau}^{\textrm{SS}}[x^r, \textrm{LS}]$
+
+```{r}
+strat1 <- function(datPS,covsPS)
+    with(datPS,
+         loop(complete,treatment,as.matrix(p_complete),pred=loop_ols))
+```
+
+$\hat{\tau}^{\textrm{SS}}[\tilde{\bf{x}}, \textrm{RF}]$
+
+```{r}
+strat2 <- function(datPS,covsPS)
+    with(datPS,
+         loop(complete,treatment,cbind(p_complete,covsPS)))
+```
+
+$\hat{\tau}^{\textrm{SS}}[\tilde{\bf{x}}, \textrm{EN}]$
+
+```{r}
+strat3 <- function(datPS,covsPS)
+    with(datPS,
+         loop(complete,treatment,covsPS,pred=reloop,yhat=p_complete))
+```
+
+$\hat{\tau}^{\textrm{SS}}[\mathbf{x}, \textrm{RF}]$
+
+```{r}
+justCovs <- function(datPS,covsPS)
+    with(datPS,
+         loop(complete,treatment,covsPS))
+```
+
+## Estimate Effects
+
+
+Here we estimate effects of treatment for each of the 33 skill builders in the dataset.
+
+First create a function `full()` which computes all five treatment effect estimates discussed in the paper:
+
+```{r}
+## all the estimators, for a particular problem set
+full <- function(ps,dat,covNames,methods=c('simpDiff','rebar','strat1','strat3','justCovs')){
+    if(!'simpDiff'%in%methods) methods=c('simpDiff',methods)
+
+    datPS <- dat[dat$problem_set==ps,]
+    covsPS <- dat[dat$problem_set==ps,covNames]
+
+    res <- sapply(methods,
+                  function(FUN){
+                      set.seed(613)
+                      fun <- get(FUN)
+                      out <- try(fun(datPS,covsPS))
+                      if(inherits(out,'try-error')) return(rep(NA,2))
+                      out
+                  },simplify=FALSE)
+    res <- do.call('rbind',res)
+    res[,2] <- sqrt(res[,2])  ## standard error, not variance
+    colnames(res) <- c('est','se')
+    res <- cbind(res,improvement=1-res[,'se']/res['simpDiff','se'])
+    attr(res,'psid') <- ps
+    attr(res,'n') <- nrow(datPS)
+    res
+}
+```
+
+Now compute the estimates:
+
+```{r}
+fullres <- sapply(levels(dat$problem_set),full,dat=dat,
+                  covNames=covNames,simplify=FALSE)
+
+### name the problem sets based on the 
+### SE from the simple difference estimator
+rnk <- rank(sapply(fullres,function(x) x['simpDiff','se']))
+names(fullres) <- as.character(rnk)
+
+for(i in 1:length(fullres))
+    attr(fullres[[i]],'psid') <- levels(dat$problem_set)[i]
+
+dat$ps <- rnk[as.character(dat$problem_set)]
+    
+dat_withps <- dat
+```
+
+Save results
+
+```{r}
+save(fullres, dat_withps, file=fullresfilename)
+```
+
+# Comparing Sample Splitting to ANCOVA Estimators
+
+
+The following is to create Figure 3 in Section 4.3.
+
+## Define Estimators
+
+First we need to define some additional estimators.  These are wrappers to the functions in the `estimatr` package.
+
+```{r}
+reloopLin <- function(datPS,covsPS){
+    est <- lm_lin(complete~treatment,covariates=~p_complete,data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+reloopAlt <- function(datPS,covsPS){
+    est <- lm_robust(complete~treatment+p_complete,data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+reloopPlusLin <- function(datPS,covsPS){
+    est <- lm_lin(complete~treatment,covariates=~p_complete+as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+reloopPlusAlt <- function(datPS,covsPS){
+    est <- lm_robust(complete~treatment+p_complete+as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+lin <- function(datPS,covsPS){
+    est <- lm_lin(complete~treatment,covariates=~as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+
+ancova <- function(datPS,covsPS){
+    est <- lm_robust(complete~treatment+as.matrix(covsPS),data=datPS)
+    c(est=est$coefficients['treatment'],var=est$std.error['treatment']^2)
+}
+```
+
+## Estimate Effects
+
+This estimates the effects and their SEs:
+
+```{r}
+dat = dat_postimpute
+
+dat <- dat%>%
+  group_by(Class.ID,problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  group_by(problem_set)%>%
+  mutate(
+    across(all_of(covNames),~ifelse(is.finite(.),.,mean(.,na.rm=TRUE)))
+  )%>%
+  ungroup()
+
+
+
+ols <- sapply(levels(dat$problem_set),full,dat=dat,
+covNames=covNames,simplify=FALSE,
+                  methods=c('reloopLin','reloopAlt','reloopPlusLin',
+                  'reloopPlusAlt','lin','ancova'))
+```
+
+Save results
+
+```{r}
+save(ols,file=olsfilename)
+```

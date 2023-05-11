@@ -1,0 +1,270 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,md:myst,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.10.1
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+# Setup
+
+
+## Files
+
+Project base directory:
+
+```{r}
+projectdir = '/home/rep/'
+```
+
+**Input files:**
+
+```{r}
+remnantdatafilename1 = paste0(projectdir, 'data/original/Study1 Original 22 Experiments/LogData_Remnant_Study1.csv')
+rctdatafilename1     = paste0(projectdir, 'data/original/Study1 Original 22 Experiments/LogData_Experimental_Study1.csv')
+remnantdatafilename2 = paste0(projectdir, 'data/original/Study2 11 New Experiments/LogData_Remnant_Study2.csv')
+rctdatafilename2     = paste0(projectdir, 'data/original/Study2 11 New Experiments/LogData_Experimental_Study2.csv')
+fullresfilename      = paste0(projectdir, 'output/results/fullres.RData')
+```
+
+**Output directory:**
+
+```{r}
+figuredir  = paste0(projectdir, 'output/figures/')
+```
+
+## Packages
+
+```{r}
+library(parallel)
+library(ggplot2)
+library(tidyverse)
+```
+
+## Load data
+
+Load data:
+
+```{r}
+load(fullresfilename)
+crosswalk <- sapply(fullres,function(x) attributes(x)$psid)
+rem1 <- read_csv(remnantdatafilename1)
+ex1  <- read_csv(rctdatafilename1)
+rem2 <- read_csv(remnantdatafilename2)
+ex2  <- read_csv(rctdatafilename2)
+```
+
+# Mahalanobis distance functions
+
+```{r}
+K <- 5
+
+dist <- function(x1,remX,sigNegSqrt){
+    diff <- sweep(remX,2,x1)
+    part2 <- sigNegSqrt%*%t(diff)
+    colSums(part2^2)
+}
+
+distK <- function(x,k,remX,sigNegSqrt){
+    ddd <- dist(x,remX,sigNegSqrt)
+    cat('.')
+    sort(ddd)[1:k]
+}
+
+
+mahalDists <- function(remStud,exStud,K=5,cols){
+    remX <- as.matrix(remStud[,cols])
+
+    remMeans <- colMeans(remX)
+    remX <- scale(remX, center=remMeans,scale=FALSE)
+
+    exX <- as.matrix(exStud[,colnames(remX)])
+    exX <- scale(exX,center=remMeans,scale=FALSE)
+
+    SVD <- svd(remX)
+
+    sigNegSqrt <- SVD$v%*%diag(SVD$d^(-1))%*%t(SVD$v)*sqrt(nrow(remX)-1)
+
+    print('remnant distances')
+    print(Sys.time())
+    kDistsRem <- mclapply(as.data.frame(t(remX)),distK,k=K+1,remX=remX,sigNegSqrt=sigNegSqrt,mc.cores=detectCores()-2)
+    print('remnant distances finished')
+
+    kDistsMeanRem <- vapply(kDistsRem,function(x) mean(x[-1]),1.1)
+
+    print('rct distances')
+    print(Sys.time())
+    kdistsEx <-
+        mclapply(
+            as.data.frame(t(exX)),
+            distK,k=K,remX=remX,sigNegSqrt=sigNegSqrt,mc.cores=detectCores()-2)
+
+    kDistsMeanEx <- lapply(unique(exStud$experiment),
+                           function(ex)
+                               vapply(kdistsEx[which(exStud$experiment==ex)],mean,1.1)
+                           )
+
+    names(kDistsMeanEx) <- as.character(unique(exStud$experiment))
+    
+    list(remDists=kDistsMeanRem,exDists=kDistsMeanEx)
+}
+```
+
+# Plot functions
+
+```{r}
+makePlotDat <- function(remDists,exDists,Max=NULL,crosswalk=NULL){
+
+    nExp <- length(exDists)
+    if(is.null(crosswalk)){
+        exps <-  1:nExp    
+        expNum <- lapply(exps,function(i) rep(i,length(exDists[[i]])))
+    } else {
+        expNum <- lapply(names(exDists),
+                         function(x) if(x%in%crosswalk){
+                                         rep(names(crosswalk)[crosswalk==x],length(exDists[[x]]))
+                         } else rep(x,length(exDists[[x]])))
+        
+        exps <- sapply(expNum,function(x) x[1])
+    }
+    
+    ggDat <- data.frame(dist=c(unlist(exDists),rep(remDists,nExp)),
+                        ex=c(unlist(expNum),rep(exps,each=length(remDists))),
+                        exRem=c(rep('RCT',length(unlist(exDists))),rep('Remnant',length(remDists)*nExp))
+                        )
+    ggDat <- within(ggDat,logDist <- log(ifelse(dist<exp(-10),exp(-10),dist)))
+    
+    if(!is.null(Max)) ggDat <- ggDat[ggDat$dist<=Max,]
+
+    ggDat
+}
+
+plotAllDat <- function(study1,study2=NULL,Max1=NULL,Max2=NULL,crosswalk=NULL){
+    ggDat <- with(study1,makePlotDat(remDists,exDists,Max=Max1,crosswalk=crosswalk))
+
+    if(!is.null(study2)){
+        ggDat2 <- with(study2,makePlotDat(remDists,exDists,Max=Max2,crosswalk=crosswalk))
+        if(length(intersect(ggDat2$ex,ggDat$ex))){
+            if(is.numeric(ggDat2$ex)) ggDat2$ex <- ggDat2$ex+max(ggDat$ex) else warning('overlapping exp names')
+        }
+        ggDat <- rbind(ggDat,ggDat2)
+    }
+
+    ggDat
+}
+```
+
+# Study 1
+
+```{r}
+n_distinct(rem1$user_id)
+
+## from Study_1/Study1_Model.ipynb
+## key = [1]
+names(rem1)[2] ## python starts counting at 0
+## label = [[13], [15], [12]]
+names(rem1)[c(14,16,13)]
+## cov = [7, 8, 11, 12, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+names(rem1)[c(7, 8, 11, 12, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)+1]
+## iden = [0, 2, 3, 6]
+## sortby = [4]
+
+remStud <- rem1[,c(1,7, 8, 11, 12, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)+1]%>%
+  group_by(user_id)%>%
+  summarize(across(everything(),mean,na.rm=TRUE),nRec=n())
+
+remStud <- mutate(remStud,across(everything(),~ifelse(is.na(.),mean(.,na.rm=TRUE),.)))
+
+dim(ex1)
+
+all(names(rem1)%in%names(ex1))
+
+exStud <- ex1[,c('experiment',names(rem1)[c(1,7, 8, 11, 12, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)+1])]%>%
+  group_by(user_id,experiment)%>%
+  summarize(across(everything(),mean,na.rm=TRUE),nRec=n())
+
+### mean imputation
+exStud <- exStud%>%
+  group_by(experiment)%>%
+  mutate(across(everything(),~ifelse(is.na(.),mean(.,na.rm=TRUE),.)))%>%
+  ungroup()
+```
+
+```{r}
+study1 <- mahalDists(remStud,exStud,cols=2:18)
+
+if(is.null(names(study1$exDists))) names(study1$exDists) <- unique(exStud$experiment)
+
+###
+range(unlist(study1$exDists))
+range(study1$remDists) 
+quantile(study1$remDists)
+mean(study1$remDists<max(unlist(study1$exDists))) 
+sum(study1$remDists>max(unlist(study1$exDists))) 
+
+MM <- max(unlist(study1$exDists))
+```
+
+# Study 2
+
+```{r}
+#### from python code
+## key = [1,2,0]
+## iden = [4]
+## cov = [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
+## lab = [[3]]
+## order = 7
+
+remStud <- rem2[,c(0,1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26)+1]%>%
+  group_by(sequence_id_target,student_user_id)%>%
+  summarize(across(everything(),mean,na.rm=TRUE),nRec=n())%>%
+  group_by(sequence_id_target)%>%
+  mutate(across(everything(),~ifelse(is.na(.),mean(.,na.rm=TRUE),.)))
+
+all(names(rem2)%in%names(ex2))
+
+exStud <-
+  ex2[,c(0,1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26)+1]%>%
+  group_by(sequence_id_target,student_user_id)%>%
+  summarize(across(everything(),mean,na.rm=TRUE),nRec=n())%>%
+  group_by(sequence_id_target)%>%
+  mutate(across(everything(),~ifelse(is.na(.),mean(.,na.rm=TRUE),.)))
+
+```
+
+```{r}
+exStud$experiment <- exStud$sequence_id_target
+
+study2 <- mahalDists(remStud,exStud,cols=3:20)
+
+if(is.null(names(study2$exDists))) names(study2$exDists) <- unique(exStud$experiment)
+
+###
+range(unlist(study2$exDists))
+range(study2$remDists) 
+MM2 <- max(unlist(study2$exDists))
+sum(study2$remDists>MM2)
+mean(study2$remDists>MM2)
+
+rebarImp <- crosswalk
+names(rebarImp) <- vapply(names(rebarImp),function(nn) round(100*fullres[[nn]]['rebar','improvement'],2),1.1)
+
+
+#### boxplots orderd by Rebar, with experiment numbersgg
+ggDat <- plotAllDat(study1,study2,Max1=MM,crosswalk=crosswalk)
+
+#### take out RCT with no covariates
+ggDat <- subset(ggDat,as.numeric(ex)<100)
+ggDat$ex <- factor(ggDat$ex,levels=names(crosswalk)[order(as.numeric(names(rebarImp)))])
+ggDat$exRemAbv <- ifelse(ggDat$exRem=='RCT','RCT','Rem.')
+box <- ggplot(ggDat,aes(x=exRemAbv,y=logDist,fill=exRem))+
+        geom_boxplot()+facet_wrap(~ex)+labs(x=NULL,y='Log Distance',fill=NULL)+theme(legend.pos='bottom')
+ggsave(paste0(figuredir,'boxPlotsOrdNamed.pdf'),plot=box,width=6,height=7.5,units='in')
+```
