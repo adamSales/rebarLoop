@@ -284,7 +284,7 @@ To do so, specify the following variable:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{exactReplication} \hlkwb{<-} \hlnum{FALSE}
+\hlstd{exactReplication} \hlkwb{<-} \hlnum{TRUE}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -373,7 +373,7 @@ Replicating Table \ref{tab:covariates} from the manuscript:
 \hlkwd{print}\hlstd{(covTable,} \hlkwc{add.to.row}\hlstd{=ATR)}
 \end{alltt}
 \end{kframe}% latex table generated in R 4.2.2 by xtable 1.8-4 package
-% Fri Apr 28 13:45:21 2023
+% Fri May 19 13:07:07 2023
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -573,7 +573,7 @@ experiment & $\trcpen$ & $\trc$ & $\tss[\bx,\mathrm{RF}]$ & $\trebar$ & $\tsd$\\
 \hline
 13 & 0.029 & 0.029 & 0.030 & 0.032 & 0.029\\
 \hline
-14 & 0.028 & 0.029 & 0.030 & 0.029 & 0.031\\
+14 & 0.029 & 0.029 & 0.030 & 0.029 & 0.031\\
 \hline
 15 & 0.028 & 0.029 & 0.029 & 0.029 & 0.031\\
 \hline
@@ -593,13 +593,13 @@ experiment & $\trcpen$ & $\trc$ & $\tss[\bx,\mathrm{RF}]$ & $\trebar$ & $\tsd$\\
 \hline
 22 & 0.035 & 0.036 & 0.034 & 0.036 & 0.037\\
 \hline
-23 & 0.033 & 0.038 & 0.035 & 0.038 & 0.040\\
+23 & 0.034 & 0.037 & 0.035 & 0.038 & 0.040\\
 \hline
 24 & 0.030 & 0.040 & 0.029 & 0.041 & 0.041\\
 \hline
 25 & 0.038 & 0.040 & 0.038 & 0.040 & 0.041\\
 \hline
-26 & 0.031 & 0.034 & 0.030 & 0.035 & 0.042\\
+26 & 0.030 & 0.034 & 0.030 & 0.035 & 0.042\\
 \hline
 27 & 0.038 & 0.040 & 0.038 & 0.040 & 0.044\\
 \hline
@@ -611,17 +611,17 @@ experiment & $\trcpen$ & $\trc$ & $\tss[\bx,\mathrm{RF}]$ & $\trebar$ & $\tsd$\\
 \hline
 30 & 0.050 & 0.050 & 0.054 & 0.050 & 0.052\\
 \hline
-31 & 0.049 & 0.049 & 0.050 & 0.051 & 0.054\\
+31 & 0.050 & 0.049 & 0.050 & 0.051 & 0.054\\
 \hline
-32 & 0.063 & 0.068 & 0.060 & 0.067 & 0.076\\
+32 & 0.063 & 0.067 & 0.060 & 0.066 & 0.076\\
 \hline
-33 & 0.129 & 0.136 & 0.153 & 0.145 & 0.197\\
+33 & 0.122 & 0.131 & 0.153 & 0.142 & 0.197\\
 \hline
-4 & 0.017 & 0.019 & 0.017 & 0.020 & 0.021\\
+4 & 0.018 & 0.019 & 0.017 & 0.020 & 0.021\\
 \hline
 5 & 0.019 & 0.019 & 0.019 & 0.019 & 0.023\\
 \hline
-6 & 0.019 & 0.022 & 0.019 & 0.021 & 0.025\\
+6 & 0.020 & 0.022 & 0.019 & 0.021 & 0.025\\
 \hline
 7 & 0.019 & 0.022 & 0.019 & 0.022 & 0.026\\
 \hline
@@ -752,25 +752,25 @@ text describing the results:
 \hline
 method1 & method2 & worse & equal & better & best & bestPS\\
 \hline
-$\trcpen$ & $\trc$ & 1 & 10 & 22 & 1.844856 & 24\\
+$\trcpen$ & $\trc$ & 2 & 9 & 22 & 1.807347 & 24\\
 \hline
-$\trcpen$ & $\tss[\bx,\mathrm{RF}]$ & 2 & 14 & 17 & 1.400882 & 33\\
+$\trcpen$ & $\tss[\bx,\mathrm{RF}]$ & 3 & 14 & 16 & 1.576585 & 33\\
 \hline
-$\trcpen$ & $\trebar$ & 1 & 2 & 30 & 1.905476 & 24\\
+$\trcpen$ & $\trebar$ & 0 & 3 & 30 & 1.850987 & 24\\
 \hline
-$\trcpen$ & $\tsd$ & 0 & 3 & 30 & 2.314750 & 33\\
+$\trcpen$ & $\tsd$ & 0 & 4 & 29 & 2.605072 & 33\\
 \hline
-$\trc$ & $\tss[\bx,\mathrm{RF}]$ & 18 & 3 & 12 & 1.266307 & 33\\
+$\trc$ & $\tss[\bx,\mathrm{RF}]$ & 18 & 3 & 12 & 1.376708 & 33\\
 \hline
-$\trc$ & $\trebar$ & 0 & 18 & 15 & 1.898485 & 2\\
+$\trc$ & $\trebar$ & 0 & 19 & 14 & 1.913567 & 2\\
 \hline
-$\trc$ & $\tsd$ & 0 & 4 & 29 & 2.092385 & 33\\
+$\trc$ & $\tsd$ & 0 & 4 & 29 & 2.274805 & 33\\
 \hline
-$\tss[\bx,\mathrm{RF}]$ & $\trebar$ & 5 & 4 & 24 & 1.926845 & 24\\
+$\tss[\bx,\mathrm{RF}]$ & $\trebar$ & 5 & 4 & 24 & 1.910798 & 24\\
 \hline
 $\tss[\bx,\mathrm{RF}]$ & $\tsd$ & 5 & 1 & 27 & 1.957049 & 26\\
 \hline
-$\trebar$ & $\tsd$ & 5 & 3 & 25 & 1.848485 & 33\\
+$\trebar$ & $\tsd$ & 5 & 3 & 25 & 1.920072 & 33\\
 \hline
 \end{tabular}
 
@@ -782,25 +782,25 @@ $\trebar$ & $\tsd$ & 5 & 3 & 25 & 1.848485 & 33\\
 \hline
 method1 & method2 & best2 & best2ps & worst & worstPS\\
 \hline
-$\trcpen$ & $\trc$ & 1.417204 & 12 & 0.9680705 & 2\\
+$\trcpen$ & $\trc$ & 1.453162 & 12 & 0.9522202 & 2\\
 \hline
-$\trcpen$ & $\tss[\bx,\mathrm{RF}]$ & 1.142609 & 30 & 0.9088411 & 32\\
+$\trcpen$ & $\tss[\bx,\mathrm{RF}]$ & 1.149393 & 30 & 0.9067253 & 32\\
 \hline
-$\trcpen$ & $\trebar$ & 1.837867 & 2 & 0.9692726 & 30\\
+$\trcpen$ & $\trebar$ & 1.822137 & 2 & 0.9806374 & 30\\
 \hline
-$\trcpen$ & $\tsd$ & 1.933998 & 26 & 0.9893321 & 13\\
+$\trcpen$ & $\tsd$ & 1.962152 & 26 & 0.9876484 & 19\\
 \hline
-$\trc$ & $\tss[\bx,\mathrm{RF}]$ & 1.150106 & 30 & 0.5360364 & 24\\
+$\trc$ & $\tss[\bx,\mathrm{RF}]$ & 1.144194 & 30 & 0.5359780 & 24\\
 \hline
-$\trc$ & $\trebar$ & 1.277514 & 13 & 0.9756321 & 30\\
+$\trc$ & $\trebar$ & 1.274292 & 13 & 0.9762012 & 30\\
 \hline
-$\trc$ & $\tsd$ & 1.563645 & 26 & 0.9931606 & 28\\
+$\trc$ & $\tsd$ & 1.559899 & 26 & 0.9929337 & 28\\
 \hline
-$\tss[\bx,\mathrm{RF}]$ & $\trebar$ & 1.832200 & 2 & 0.8482977 & 30\\
+$\tss[\bx,\mathrm{RF}]$ & $\trebar$ & 1.846263 & 2 & 0.8531782 & 30\\
 \hline
 $\tss[\bx,\mathrm{RF}]$ & $\tsd$ & 1.949483 & 24 & 0.8744120 & 19\\
 \hline
-$\trebar$ & $\tsd$ & 1.515003 & 26 & 0.5588199 & 2\\
+$\trebar$ & $\tsd$ & 1.508295 & 26 & 0.5545632 & 2\\
 \hline
 \end{tabular}
 
@@ -928,14 +928,14 @@ This estimates the effects and their SEs:
 ## [22] labeling_0.4.2       callr_3.7.3          fastmap_1.1.0       
 ## [25] ps_1.7.1             parallel_4.2.2       fansi_1.0.3         
 ## [28] highr_0.9            Rcpp_1.0.10          webshot_0.5.4       
-## [31] filehash_2.4-3       jsonlite_1.8.0       farver_2.1.1        
-## [34] systemfonts_1.0.4    digest_0.6.29        stringi_1.7.12      
-## [37] processx_3.7.0       grid_4.2.2           cli_3.6.0           
-## [40] tools_4.2.2          magrittr_2.0.3       randomForest_4.7-1.1
-## [43] Formula_1.2-4        pkgconfig_2.0.3      ellipsis_0.3.2      
-## [46] xml2_1.3.3           svglite_2.1.0        assertthat_0.2.1    
-## [49] rmarkdown_2.16       httr_1.4.5           rstudioapi_0.14     
-## [52] R6_2.5.1             compiler_4.2.2
+## [31] filehash_2.4-3       farver_2.1.1         systemfonts_1.0.4   
+## [34] digest_0.6.29        stringi_1.7.12       processx_3.7.0      
+## [37] grid_4.2.2           cli_3.6.0            tools_4.2.2         
+## [40] magrittr_2.0.3       randomForest_4.7-1.1 Formula_1.2-4       
+## [43] pkgconfig_2.0.3      ellipsis_0.3.2       xml2_1.3.3          
+## [46] assertthat_0.2.1     rmarkdown_2.16       svglite_2.1.0       
+## [49] httr_1.4.5           rstudioapi_0.14      R6_2.5.1            
+## [52] compiler_4.2.2
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
